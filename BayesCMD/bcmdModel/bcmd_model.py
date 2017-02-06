@@ -19,7 +19,7 @@ TIMEOUT = 30
 # default base directory - this should be a relative directory path
 # leading to bcmd/
 BASEDIR = '..'
-
+print(BASEDIR)
 
 class ModelBCMD:
     """
@@ -28,9 +28,9 @@ class ModelBCMD:
 
     def __init__(self,
                  model_name,
-                 inputs,  # Output variables
-                 params,  # Parameters
-                 times,  # Times to run simulation at
+                 inputs=None,  # Output variables
+                 params=None,  # Parameters
+                 times=None,  # Times to run simulation at
                  input_file=None,
                  suppress=False,
                  workdir=None,  # default is to create a temp directory
@@ -90,6 +90,11 @@ class ModelBCMD:
         self.output_detail = os.path.join(
             self.workdir, self.model_name + TEST_PRE + '.detail')
         self.output_dict = collections.defaultdict(list)
+
+    def get_defaults(self):
+        print('GETTING MODEL DEFAULTS.\n')
+        return subprocess.run([self.program, '-s'], stdout=subprocess.PIPE)
+
 
     def run(self):
 
