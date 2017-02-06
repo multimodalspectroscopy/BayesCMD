@@ -87,6 +87,7 @@ def test_output_dict():
     os.remove(default_model.output_coarse)
     os.remove(default_model.output_detail)
 
+
 def test_output_dict_2():
     """
     Check that an output file will be read and processed correctly.
@@ -171,7 +172,7 @@ def test_default_output_2():
     Check that a full model run will create the correct input file and output
     data. Uses StringIO as model input and output.
     """
-    #input_file = os.path.join('.', 'test_files', 'test.input')
+
     actual = os.path.join('.', 'test_files', 'rc_actual.out')
     times = list(range(0, 30, 5))
     inputs = {"names": ['V'],
