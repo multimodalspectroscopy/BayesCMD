@@ -43,7 +43,7 @@ def modeldefParse(fpath):
     model_data['params'].update({line.strip('\n').split('\t')[0]:
                                  line.strip('\n').split('\t')[1]
                                  for line in result})
-    json_writer(model_data['model_name'],model_data)
+    json_writer(model_data['model_name'], model_data)
 
     return model_data
 
