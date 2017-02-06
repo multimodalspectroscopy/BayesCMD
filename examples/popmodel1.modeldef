@@ -1,0 +1,43 @@
+# proto translation of module "popmodel1.dt"
+
+# expressions may be continued over multiple lines by indenting (any indent will do)
+
+# algebraic relations state a key variable up front, followed by a colon
+E : E = fmax(S_c * sqrt(K_c / ( Q_2/(K_Q2+Q_2) )
+	 	              *
+                              Q_2 / (K_SQ + Q_2))
+                 - K_c / (Q_2 / (K_Q2 + Q_2)),
+	     0.0)
+
+# differential equations use a prime
+Q_1' = k_rep * Q_2 - k_d1 * Q_1 * Q_1 - k_grow * Q_1
+Q_2' = k_grow * Q_1 - k_d2 * Q_2 * Q_2 - E * Q_2 / (K_Q2 + Q_2)
+E' = -k_resp * (E - fmax(S_c*sqrt(K_c/(Q_2/(K_Q2+Q_2))*Q_2/(K_SQ + Q_2)) - K_c/(Q_2/(K_Q2+Q_2)), 0.0))
+
+# constraints are defined by an inequality
+Q_1 >= 0
+Q_2 >= 0
+E >= 0
+
+# default parameter initialisers
+# (need not be present, and can be overridden at runtime)
+Q_10_frac := 5
+Q_20 := 1
+k_grow := 0.2
+k_rep := 10000
+K_c_frac := 0.1
+k_Q2_frac := 0.1
+K_SQ_frac := 0.02
+S_c := 0.5
+Q_1_sv := 0.2
+Q_2_sv := 0.2
+k_resp := 1
+
+# indirect (function) initialisers are similarly optional
+Q_10 := Q_10_frac * Q20
+k_d1 := fmin(0, (k_rep * Q_20 - k_grow * Q_10)/Q_10/Q_10)
+k_d2 := k_grow * Q_10/Q_20/Q_20
+K_c := K_c_frac * Q_20
+K_Q2 := K_Q2_frac * Q_20
+K_SQ := K_SQ_frac * Q_20
+

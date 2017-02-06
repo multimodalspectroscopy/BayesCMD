@@ -1,0 +1,8 @@
+AC_INIT([bcmd],[0.1a],[m.caldwell@ucl.ac.uk])
+AC_PROG_CC
+AC_PROG_FC
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+AC_PROG_INSTALL
+AC_FC_LIBRARY_LDFLAGS
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

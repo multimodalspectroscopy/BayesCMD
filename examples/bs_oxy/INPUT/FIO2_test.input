@@ -1,0 +1,20 @@
+# BCMD input file
+@ 10
+# disable output for equilibration
+!0
+>>> 0
+# equilibrate to initial parameter values
+: 2 FIO2_new FIO2
+= -1000 0 0.21 0.21 
+# restore output
+!!!
+>>> *
+= 0 1 0.42 0.21
+= 1 100 0.42 0.42 
+= 100 101 0.63 0.42
+= 101 200 0.63 0.63
+= 201 300 0.63 0.63
+= 300 301 0.42 0.63
+= 301 400 0.42 0.42
+= 400 401 0.21 0.42 
+= 401 500 0.21 0.21

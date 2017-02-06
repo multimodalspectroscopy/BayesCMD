@@ -1,0 +1,34 @@
+/* Handwritten GraphViz for the BSRF family tree */
+
+digraph bsrf_family_tree {
+node [shape=box];
+Ursino_Lodi;
+Korzeniowski;
+Beard;
+Wu;
+node [shape=circle];
+BrainCirc;
+BrainSignals;
+BS_enlarge [shape=box];
+BSRF [shape=doublecircle];
+BSRF_enlarge [shape=box];
+BrainPiglet;
+BabyBrain;
+Ursino_Lodi -> BrainCirc;
+Korzeniowski -> BrainCirc;
+Beard -> BrainSignals;
+Wu -> BrainSignals;
+BrainCirc -> BrainSignals;
+BrainSignals -> BrainPiglet;
+BrainPiglet -> BabyBrain;
+BrainSignals -> BSRF;
+BrainSignals -> BS_enlarge;
+BSRF->BrainPiglet [style=dashed;constraint=false];
+BSRF->BabyBrain [style=dashed];
+BSRF->BSRF_enlarge [constraint=false];
+{rank=same; BS_enlarge BrainCirc}
+{rank=same; BSRF BrainSignals}
+{rank=same; BrainPiglet BabyBrain BSRF_enlarge}
+overlap=false;
+label="The BrainSignals Family Tree";
+}

@@ -1,0 +1,10 @@
+## Extended model based on the simplified variant B1M2, modified to improve
+## modelling of functional activation and to add an extracerebral blood flow compartment..
+## @
+
+# the scalp compartment does not change existing behaviour, just generates extra outputs
+@import scalp
+
+# bring in the cerebral model as is
+@import bsx_oxy_brain
+

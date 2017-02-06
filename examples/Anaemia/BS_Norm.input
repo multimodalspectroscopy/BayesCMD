@@ -1,0 +1,14 @@
+# BCMD input file generated from R by write.selected
+@ 4 
+# disable output for equilibration
+!0
+>>> 0
+# equilibrate to initial parameter values
+: 3 u Xtot Xtot_n 
+= -1000 0 1 7.8 7.8 
+# restore output
+!!!
+>>> *
+= 0 100 1 7.8 7.8 
+= 100 200 10 7.8 7.8 
+= 200 300 1 7.8 7.8 

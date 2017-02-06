@@ -1,0 +1,28 @@
+# optimisation job for BrainPiglet 2.0, as per Tracy's paper
+model: bp20
+
+input: SaO2sup, constant, 0.98
+input: P_a, constant, 50
+
+var: DHbO2, constant, 0
+var: DHHb, constant, 0
+
+alias: DHbO2, HbO2_d
+alias: DHHb, HHb_d
+
+# parameter ranges are taken from Tracy
+param: Xtot_n, uniform, 3.5, 8.0, 5.4
+param: blood_frac, uniform, 0.026, 0.039, 0.0325
+param: r_0, uniform, 0.01008, 0.01512, 0.0126
+
+# job details
+job_mode: GLP
+solver: pswarm
+#distance: loglik
+#sigma: 20
+
+max_iter: 100
+timestep: 6
+alias: t, t
+
+init: scratch/lwp/lwp188_init.input

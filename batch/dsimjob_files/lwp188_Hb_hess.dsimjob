@@ -1,0 +1,48 @@
+# estimate the Hessian for the parameters optimised for piglet LWP188
+
+model: bp20
+
+# we estimate for a whole bunch o' outputs
+var: DHbO2, constant, 0
+var: DHHb, constant, 0
+#var: CCO, constant, 0
+#var: NTP_EPP, constant, 0
+#var: PCr_EPP, constant, 0
+#var: Pi_EPP, constant, 0
+
+alias: DHbO2, HbO2_d
+alias: DHHb, HHb_d
+#alias: CCO, CCO_d
+#alias: NTP_EPP, NTPEPP_d
+#alias: PCr_EPP, PCrEPP_d
+#alias: Pi_EPP, PiEPP_d
+
+
+# the optimised parameters
+# ranges are those used for SA, defaults are optimised values
+param: Xtot_n, uniform, 3.5, 8, 5.93
+param: r_0, uniform, 0.01008, 0.01512, 0.0118
+param: blood_frac, uniform, 0.026, 0.039, 0.039
+# NB: upper bound changed so value isn't at edge (this optimiser result is clearly bollocks)
+#param: cytox_tot_tis, uniform, 0.001, 0.008, 0.0067
+#param: a_frac_n, uniform, 0, 1, 0.46
+#param: _ATPn, uniform, 0.1, 10, 1.62
+#param: _PCrn, uniform, 0.1, 10, 3
+#param: PCrPn, uniform, 0.1, 10, 1.79
+#param: pH_on, uniform, 6.8, 7.2, 7.05
+
+job_mode: hessian
+delta: 5e-6, relative
+distance: loglik
+sigma: 20
+
+# inputs -- Pa_CO2 not present for these records
+input: SaO2sup
+input: P_a
+input: rocc
+
+# use times from source file
+alias: t, t
+
+# number of sims to run in parallel
+nbatch: 8

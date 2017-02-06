@@ -1,0 +1,41 @@
+# sensitivity analysis for LWP180
+model: bp20
+
+input: SaO2sup, uniform, 0.97, 0.99, 0.98
+input: P_a, uniform, 49, 51, 50
+
+var: DHHb, uniform, 0, 1
+var: DHbO2, uniform, 0, 1
+var: CCO, uniform, 0, 1
+var: pH_o, uniform, 0, 1
+var: NTP_EPP, uniform, 0, 1
+var: PCr_EPP, uniform, 0, 1
+var: Pi_EPP, uniform, 0, 1
+
+alias: DHbO2, HbO2_d
+alias: DHHb, HHb_d
+alias: CCO, CCO_d
+alias: pH_o, pH_f
+alias: NTP_EPP, NTPEPP_d
+alias: PCr_EPP, PCrEPP_d
+alias: Pi_EPP, PiEPP_d
+
+param_file: scratch/bp20_pvals_jit.csv
+
+job_mode: morris
+
+alias: t, t
+
+# the number of distinct levels (potentially) tested per parameter
+divisions: 10
+
+# the number of paths to run (only relevant for Morris sampling)
+npath: 200
+
+# number of sims to run in parallel
+nbatch: 8
+
+substitute: 0
+jump: 2
+
+init: scratch/lwp/lwp180_init.input

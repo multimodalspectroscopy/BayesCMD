@@ -1,0 +1,47 @@
+model: BS_Sev
+
+# vars to be simulated, with distrib of initial conditions
+var: Vmca, uniform, 0.010, 0.011
+var: CCO, uniform, 0, 0.00001
+
+# optional external file specifying param distributions
+param_file: ../examples/bsrf/pdists_Anaemia.csv
+
+# Morris or FAST?
+job_mode: fast
+
+# param: Xtot, uniform, 8.0, 10.2
+# param: Xtot_n, uniform, 8.0, 10.2
+
+# param_select specifies which params to vary
+# may specify an explicit (comma-separated) list
+# or * to mean all params for which a distrib has been provided (the default)
+param_select: p_tot,NADHn,NADNADHratn,r_t,E_N0,a_n,E_2,v_cn,L_CVn,Vol_mit,E_c0,r_0,cytox_tot_tis,R_autp,v_on,pH_o,T_max0,k_lk2,v_pn,NADpool,r_m,Dp_n,P_icn,t_u,E_a30,t_p,u_n,D_O2,u,sigma_coll,K_G,k30,c3,E1NADH,C_buffi,p_C1,XOa_n,L_CVmax,L_lkfrac,K_sigma,E_1n,T_maxn,CVinh,L_lkn,P_vn,C_NADH_n,O2_n,E_1,DpH_n,L_CVfrac,R_autc,ScO2_n,h_0,L_CV0,Dp_CV0,f_n,ared_n,J_O2n,Gn,Keq2_n,P_ic,p_totNADH,Dpsi_n,P_1n,CBFn,XOa,L_n,kCV,t_o,sigma_e0,k1_n,mu_max,n_h,SvO2_n,ck2,T_mn,C_im,k3,L_lk0,t_c,n_m,T_en,k10,NADH,SaO2_n,Dp_30,r_CV,E1NADH_n,cytox_tot,O2c_n,h_n,k2_n,R_auto,phi,k_aut,b_n,p_C3,k_unc,r_n,Dp3_corr,v_un,NADNADHrat,P_v,CMRO2_n,Pa_CO2n,XOv_n,Vmca,C_NADH,sigma_en,a_frac_n
+
+# inputs, with perturbation distribs
+# (latter ignored unless the --perturb command-line switch is given)
+input: u, constant, 1
+input: Xtot, constant, 3.5
+input: Xtot_n, constant, 3.5
+
+
+# use an alias for t to specify the t variable, if not using the default ' t'
+# in particular, you might need to alias t to itself
+# if explicitly including it by that name in a CSV
+alias: t, t
+
+# the number of distinct levels (potentially) tested per parameter
+divisions: 10
+
+# Morris paths or FAST samples
+npath: 1000
+
+# number of sims to run in parallel
+nbatch: 4
+
+# in order to ensure that results are comparable, we can substitute
+# infinite & NaN values with a real number
+# we can choose to impose a high distance penalty, or disregard
+# (either way is frankly dubious, but...)
+substitute: 0
+

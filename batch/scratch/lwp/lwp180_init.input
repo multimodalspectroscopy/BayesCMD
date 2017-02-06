@@ -1,0 +1,7 @@
+# initial parameter setting for LWP180
+@ 1
+>>> 0
+!0
+: 9 insult_start insult_end insult_nadir insult_transition final_occ cell_death death_transition final_unc uncoupling_transition
+= -1000 0 552 2166 1500 60 0 0 666 1 666
+

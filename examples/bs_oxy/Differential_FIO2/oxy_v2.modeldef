@@ -1,0 +1,74 @@
+# oxygen transport submodel for BSRF
+
+@input SaO2sup FIO2
+@output SaO2sup XOv O2c O2c_test CBF 
+#Include following outputs for null_test purposes
+@output O2_d FIO2 FIO2_new delta_FIO2 fracPO2a PO2a PO2c XOa ScO2
+@extern J_O2 G delta_FIO2
+
+# algebraic relations
+XOv : 0 = CBF*(XOa-XOv)-J_O2
+O2c : 0 = (Xtot*ScO2)+O2d-O2c
+
+
+# differential relations
+PO2a' = ((1/t_P)*PO2a*fracPO2a)
+v_f' = 1/t_f * (FIO2 - v_f)
+
+# intermediates
+CBF = G*(P_a-P_v)
+ScO2 = (SaO2sup + SvO2)/2
+SvO2 = XOv/Xtot
+XOa = Xtot*SaO2sup
+O2d = a_O2*PO2c
+PO2c = eta_p*PO2a
+fracPO2a = delta_FIO2*(0.5+(1/v_f)+(delta_FIO2/(2*v_f)))
+delta_FIO2 = FIO2-v_f
+
+
+# initial/default values
+XOv := XOv_n
+XOa := XOa_n
+O2c := O2c_n
+CBF := CBFn
+SaO2sup := SaO2_n
+ScO2 := ScO2_n
+SvO2 := SvO2_n
+PO2a := PO2a_n
+O2d := O2d_n
+
+# constraints
+XOv >= 0
+O2c >= 0
+
+# parameters
+CBFn := 0.0125
+n_h := 2.5
+O2c_n := (Xtot*ScO2_n) + O2_dn
+phi := 0.036
+SaO2_n := 0.96
+ScO2_n := (SaO2_n + SvO2_n)/2
+SvO2_n := XOv_n/Xtot_n
+XOa_n := Xtot_n*SaO2_n
+XOv_n := (CBFn*XOa_n-J_O2n)/CBFn
+Xtot := 9.1
+Xtot_n := 9.1
+O2_dn := a_O2*eta_p*PO2a_n 
+a_O2 := 1.4E-3
+PO2a_n := 88
+t_P := 2
+eta_p := 0.4
+t_f := 0.1
+v_f := FIO2_n
+
+
+## + Oxygen
+## @ XOv O2c XOa CBF phi ScO2 n_h SvO2 Xtot SaO2sup P_v XOa_n XOv_n SvO2_n ScO2_n O2c_n SaO2_n Xtot_n CBFn
+
+# externals:
+# bsrf_link: P_a P_v CBFn J_O2 J_O2n FIO2 delta_FIO2
+# bsrf_blood: G r r_n
+# bsrf_met: O2 O2_n
+
+@import doc_oxy
+

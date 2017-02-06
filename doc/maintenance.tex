@@ -1,0 +1,238 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[left=2cm, top=2.5cm, bottom=2.5cm, right=2cm]{geometry}
+\usepackage{mathpazo}
+\usepackage[parfill]{parskip}
+\usepackage[intlimits]{amsmath}
+\usepackage{graphicx}
+\usepackage{bm}
+
+% colour text for comments etc
+\usepackage{color}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+% micron units with \textmu
+\usepackage{textcomp}
+
+% uncurly quotes in verbatim environments (ie, for code)
+\usepackage{upquote}
+
+% adjustwidth
+\usepackage{changepage}
+
+% chemical formulae using \ce{}
+\usepackage[version=3]{mhchem}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,citecolor=black,filecolor=black,linkcolor=black,urlcolor=blue}
+
+\usepackage{natbib}
+\bibpunct{(}{)}{;}{a}{}{,~}
+\renewcommand\bibname{References}
+
+% some maths macros - vector, derivative, partial derivative
+\newcommand{\vv}[1]{\mathbf{#1}}
+\newcommand{\dd}[2]{\frac{d #1}{d #2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+
+\def\slantyfrac#1#2{
+\hspace{3pt}\!^{#1}\!\!\hspace{1pt}/\hspace{2pt}\!\!_{#2}\!\hspace{3pt}
+}
+
+% fourier transforms
+\newcommand{\ft}[1]{\mathcal{F}\!\left\{#1\right\}}
+\newcommand{\ift}[1]{\mathcal{F}^{-1}\left\{#1\right\}}
+\newcommand{\iftb}[1]{\mathcal{F}^{-1}\Big\{#1\Big\}}
+
+% argmax, argmin...
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+% table of contents control
+\usepackage[nottoc]{tocbibind}
+\setcounter{tocdepth}{2}
+
+\title{Maintaining \& Developing BCMD}
+\author{Matthew Caldwell (\href{mailto:m.caldwell@ucl.ac.uk}{m.caldwell@ucl.ac.uk})}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}\label{intro}
+
+BCMD is a system for implementing differential-algebraic equation models in the form of executable software. While the models themselves are mathematical abstractions, their BCMD implementations allow for the simulation of model state over time given particular parameter values and boundary conditions. The system was written as a more flexible replacement for an earlier and even uglier system known as the BRAINCIRC interface.
+
+Until now, the software has been developed almost exclusively by a single author---me. This is expected to change significantly in the coming months, as I am leaving the department and new PhD student Josh (\href{mailto:joshua.russell-buckland.15@ucl.ac.uk}{joshua.russell-buckland.15@ucl.ac.uk}) is taking over modelling duties for the group. We don't have a definite schedule for the handover of responsibility, but we can assume my involvement will gradually diminish as Josh's increases.
+
+This document is intended to help smooth the transition by recording various not-necessarily-obvious details of how BCMD works and is maintained. It is unlikely to be complete: for the time being I will remain contactable at \href{mailto:m.caldwell@ucl.ac.uk}{m.caldwell@ucl.ac.uk} to answer any other questions you may have.
+
+
+\section{Source Control}\label{git}
+
+We currently maintain two distinct Git repositories for BCMD:
+\begin{itemize}
+\item \href{https://bitbucket.org/walkytalky/bcmd}{BitBucket} is a private repository used for ongoing development. It may contain sketches, dead ends, sensitive data, libel, invective, swearing and confessions of wrongdoing. Only Matthew and Josh currently have access of any kind to this repo, both with admin rights.
+\item \href{https://github.com/bcmd}{GitHub} is a public repository with finished or quasi-finished content for all the world to see. Matthew and Josh have admin access to this repo too, whereas everyone else has read access.
+\end{itemize}
+
+At present we do not pay for either service and the division of labour is largely down to what each host provides for free users. GitHub promotes Open Source and charges for privacy. BitBucket targets business and charges for collaboration. At some point it might be worth reassessing our usage: while privacy has its attractions, it would be more efficient to consolidate everything in the public codebase. Whether that could be squared with issues of confidentiality etc is a policy discussion for elsewhere. In the meantime, we must assume that content will periodically migrate from BitBucket to GitHub as and when it is considered ready for public consumption.
+
+\section{Distribution}\label{dist}
+
+BCMD is distributed via GitHub. At the moment we also have ZIP file releases on the UCL Medical Physics website, but keeping these up to date is tedious and it would probably be a good idea to phase them out in future, or at least have them delegate to GitHub.
+
+A release is created from the BitBucket repo by copying the changes we actually want to release into the GitHub repo, committing, tagging and pushing them. There is no definite policy on what gets included and what gets excluded, but there are some general principles:
+
+\begin{itemize}
+\item Try to keep the distribution \textit{relatively} streamlined and self-contained. Obviously there are limits to this---there are unavoidable external dependencies and things we can't do without---but if something \textit{can} be omitted then do so.
+\item Don't include files that are used for internal processing and distribution. That includes things like \texttt{autogen.sh} (\S\ref{autogen}, below), the \LaTeX{} versions of manuals, and \textit{this} document.
+\item Don't include anything in the \texttt{build} directory.
+\item Try not to include stuff that isn't finished or doesn't work. Obviously `finished' is a relative term for BCMD, but if you're in the middle of some major change that breaks things all over the shop, don't release that until it stops breaking them. And yes, I know, pots and kettles...
+\item Don't include models or data that are awaiting publication. Models from published papers that have their own repository (BSRV, BSX, BPHI) can probably be excluded too, though you may want to add something into the core distribution if it's going to be relied upon heavily in future. In general I'd suggest trying to keep the `examples` directory flat (no subdirectories) and as far as possible keep the models in it self-contained (no \texttt{@import/\texttt{@extern}}). It's supposed to provide instructive examples, not all the models ever. Whenever you add anything to it, remember to update the READ ME.
+\item Don't include data that doesn't belong to the lab, or isn't anonymised, or that might be subject to data protection. Clinical and baby data are especially sensitive and must be painstakingly shorn of anything that might identify dates, locations or individuals. I would steer clear of such data altogether in the BCMD distribution. Published data should generally have its own public repository, whether on our GitHub or on some other service like \href{https://figshare.com}{figshare}.
+\end{itemize} 
+
+\subsection{Autotools and Configure}\label{autogen}
+
+Building models requires compilers and linkers and potentially other tools that may vary from machine to machine. Command-line usage and BGUI both depend on the \texttt{Makefile} to manage this, and that in turn depends on the \texttt{configure} script to tailor it to the system. Generally speaking, \texttt{configure} scripts are a seething Lovecraftian nightmare of hackery and forbidden lore that Man Was Not Meant To Understand. Fortunately, we can rely on \href{http://www.freesoftwaremagazine.com/articles/brief_introduction_to_gnu_autotools}{GNU Autotools} to perform most of the requisite voodoo. Moreover, our requirements are pretty mainstream and \textit{probably} won't  change much in the foreseeable future. With luck you won't need to delve into this at all, but you need to be aware of it just in case.
+
+(Note that the BitBucket repo does not contain either a \texttt{configure} script or a \texttt{Makefile}, because they are intended to be recreated. The GitHub repo does contain \texttt{configure}, which should be updated with a regenerated version if you make changes.)
+
+\subsubsection{\texttt{configure}}\label{autoconf}
+
+The \texttt{configure} script is built by \texttt{autoconf}, based on requirements specified in the \texttt{configure.ac} file. In the extremely unlikely event that you need to add new dependencies on languages or libraries or whatever, that's where to put them. It may also be worth rebuilding the script to incorporate any improved knowledge or features that may get added to the \texttt{autoconf} system itself.
+
+Building requires (IIRC) that you have the following tools installed:
+\begin{itemize}
+\item \href{http://www.gnu.org/software/autoconf/}{autoconf}
+\item \href{https://www.gnu.org/software/automake/}{automake}
+\item \href{https://www.gnu.org/software/libtool/}{libtool}
+\item \href{http://www.gnu.org/software/m4/}{m4}
+\item \href{https://www.perl.org}{perl}
+\end{itemize}
+If you are building on Linux, these may well be present already. Otherwise, your system's package manager should have an installer for them. If you are building on Mac OS X, you should certainly have \texttt{perl}, but might need to install the other tools manually from the above links. Building on Windows may or may not be viable---I haven't tried so can't comment. It's probably simplest to avoid that if you can.
+
+Once installed, you can recreate \texttt{configure} with the command
+\begin{verbatim}
+      ./autogen.sh
+\end{verbatim}
+In addition to \texttt{configure} itself, this will create several other files. Some of these can be deleted (\texttt{aclocal.m4} and the directory \texttt{autom4te.cache}), but others (currently \texttt{config.guess}, \texttt{config.sub} and \texttt{install-sh}) are needed to run \texttt{configure}. Make sure you also include these in any new GitHub release, and test that the \texttt{configure} script does actually run correctly before pushing the release.
+
+\subsubsection{\texttt{Makefile}}\label{make}
+
+The \texttt{Makefile} is built by \texttt{configure} based on the template \texttt{Makefile.in}. It is a little bit more likely that you'll want to make changes here than in \texttt{configure.ac}---you may want to add new outputs or change the compiler arguments, for example. You can pretty much do anything here that you would in any Makefile. The (fairly obvious) things to note are:
+\begin{itemize}
+\item Changes must be made in \texttt{Makefile.in} if you want them to persist---any changes you make directly in the \texttt{Makefile} will be lost next time you run \texttt{configure}. (This is why \texttt{Makefile} isn't in Git.)
+\item Changes in \texttt{Makefile.in} do not take effect immediately---you must rerun \texttt{configure} before they will be used by \texttt{make}.
+\item When specifying commands in \texttt{Makefile.in} that refer to tools identified by \texttt{configure}---e.g., a C compiler---make sure to use the variable name---e.g. \texttt{\$(CC)}---rather than hard-coding the name (\texttt{gcc} or whatever).
+\end{itemize}
+Be sure to copy a changed \texttt{Makefile.in} to the GitHub repo when releasing.
+
+\section{Coding}\label{code}
+
+For the most part, you probably won't need to modify most of the BCMD codebase---the core compiler functionality seems to be adequate for general modelling purposes. There are certainly many improvements one could make, but there's unlikely to be time and motivation to do so. Adding features to the client code---notably the GUI and batch scripts---is somewhat more likely, so I'll go into a bit more detail there. But I'll at least try to give an outline of the structure here and also point out some of the danger points.
+
+\subsection{BCMD compiler}
+
+The Python code for the BCMD compiler is contained within the \texttt{bparser} directory. The main interface to it is \texttt{bcmd.py}, which invokes the parser and code generation  components according to the arguments passed it on the command line. Unlike the BGUI application, the command line interface does not itself compile the generated C code---the assumption is that if you're working via the command line you'll use \texttt{make} directly. BGUI invokes \texttt{make} behind the scenes, so both interfaces depend on having run \texttt{configure}.
+
+%\texttt{logger.py} provides utility functions for writing log messages with different levels of urgency.
+
+
+\subsubsection{Parsing}
+
+The underlying LALR parsing is performed by the \href{http://www.dabeaz.com/ply/}{PLY} package, the source for which is in the \texttt{ply} subdirectory.
+
+\texttt{bcmd\_lex.py} defines the patterns used for lexical analysis. This is mostly quite conventional, except for a little bit of regex abuse to do things that might arguably be in the jurisdiction of parsing rather than lexing:
+\begin{itemize}
+\item Indents are stripped and line continuations are concatenated.
+\item Normal (non-doc) comments are discarded.
+\item Embedded C code is consumed as a single token.
+\end{itemize}
+As a consequence of the first two, warnings will be emitted about unused tokens \texttt{COMMENT} and \texttt{INDENT} when the parse tables are built (typically when you first run \texttt{make}). You can safely ignore these warnings.
+
+\texttt{bcmd\_yacc.py} defines the language grammar and provides functions to convert the parser productions into a very basic \textit{abstract syntax tree} (AST) made of Python tuples. In retrospect this was a bad choice---the tree would be much better off made of tailored objects with named properties rather than the ugly positional semantics used now---but at the time I thought it would make sense to keep things simple. (Moral: things are \textit{never} simple.) The AST gets written out as a \texttt{.tree} file during compilation---this can sometimes be useful when debugging the compiler and also if you want an idea what the structure looks like.
+
+An important feature of the parsing is that, syntactically, every line is considered to be independent. The ostensible AST structure is actually a \textit{list} of separate syntax trees, one per parsed line. It is only during the subsequent compilation step---we might loosely call it `semantic analysis' if we wanted to be fancy---that links between the individual declarations are identified and used, \textit{inter alia}, to build a dependency graph. This process is performed by the \texttt{ast.py} module.
+
+The main entry point to this module is the \texttt{process} function. This walks the AST list, builds a symbol table, gathers a bunch of information about the structure of the model, sorts dependencies and transforms chemical reactions into ODEs. Most of the `expert knowledge' in the system, to whatever extent there is such a thing, is contained in this module, with the result that some of it is a bit opaque, notably the parts relating to reaction rates. This is further complicated by an awkward hack in the handling of mathematical expressions. In order to deal with some contingencies during code generation, expressions are maintained in two separate parallel forms, termed \texttt{expr} and (more cryptically) \texttt{i\_expr}. (The latter was probably intended to stand for something like `interpreted expression', although my recollection of that is hazy.) The \texttt{i\_expr} is essentially a transformation of the syntax tree that maintains its nesting so that context-dependent substitutions can be made into it. This is, frankly, a sorry mess, but I'd very strongly recommend not trying to do anything about it at this stage.
+
+All the information produced by the AST analysis gets written out as a \texttt{.bcmpl} file during compilation. As well as being used for code generation, this data may subsequently be used by the info and exporter modules to do things like create documentation or draw the model structure with GraphViz.
+
+
+\subsubsection{Code Generation}
+
+\texttt{codegen.py} uses the results of the previous analysis to generate C code for the model executable. A significant amount of this is unchanging boilerplate, and most of that is piped wholesale from the template files in the \texttt{templates} subdirectory. The rest is mostly concerned with mapping model symbols to array indices. This code is clunky but reasonably straightforward, so if you absolutely need to make changes it should be possible. It also attempts to make the C file somewhat readable, adding comments to all the impenetrable array-based expressions to show what model symbols everything corresponds to.
+
+The main sequence of the generated program has a very standard form: process command line arguments, set up the model environment, run it, exit. There are two sources of complication: managing the simulation time course and communicating with the RADAU5 solver. The latter is somewhat simplified by a wrapper library (in \texttt{src/radauwrap}) that deals with the more tedious parts of setting up and calling the Fortran code. In order to conform to the restrictions of the RADAU5 interface, the code makes extensive use of global data arrays.
+
+The simulation time course is parsed from an input file by the big ugly function \texttt{load\_inputs()}, creating a data structure that defines time points, parameter changes and outputs. The parser is very simplistic, and the file format is designed for easy parsing rather than friendliness, so it is terse and rather brittle.
+
+
+\subsubsection{Solving: RADAU5}\label{radau}
+
+Like BRAINCIRC, BCMD makes use of the RADAU5 solver library \citep{Hairer:1996ub}. The library itself is written in Fortran, and that original code is included in the BCMD distribution in the \texttt{src/radau} directory. This is built and linked into a static library, \texttt{lib/libradau.a}. There are some debug options for this that produce additional logging; these are now all disabled by default in the Makefile, but they can be enabled by passing \texttt{DEBUG=TRUE} to \texttt{make} when invoking it on the command line. Since the library is statically linked to models when they are compiled, if you do build the library with debug logging enabled then all subsequent models will produce that debugging output.
+
+The RADAU5 source code includes a basic C interface to the Fortran library, \texttt{radau.h}, as well as a rudimentary C wrapper in \texttt{cradau.c}. We ignore the latter and instead define our own wrapper library in \texttt{src/radauwrap}, which hides a bit more of the interface ugliness. This is built into a second static library, \texttt{lib/libradauwrap.a}. Models are statically linked against both libraries when built. One of the main jobs of the C template code from which the models are built is to mediate between the model equations and the solver via these wrappers.
+
+The solver layer is reasonably well separated and a different engine could be substituted if necessary; however, while there are numerous other general ODE solvers available, not many support differ\-ential-algebraic systems of the kind used in our models---RADAU5 appears still to be the most common underlying implementation for such systems. Replacing RADAU5 would  likely require restricting model definitions to pure ODE form, which would be rather limiting for our purposes. But this might be added as a compiler option in future, so that models that do not need the DAE features can be built with a different back end.
+
+On balance it seems rather unlikely that you will want to mess with any of this. However, there is one potential argument for doing so: if solving could be performed entirely in Python then all the dependencies on C, Fortran, Make and Autotools would be eliminated, making the whole system more portable and easier to install. The downside would likely be a significant reduction in solving speed.
+
+\subsubsection{Exporters}
+
+\texttt{info.py} uses the results of the AST analysis to log some useful information about the model structure. There is some duplication here between the \texttt{logModelInfo} function, which writes information using the rudimentary logging functions in the \texttt{logger.py} module, and the \texttt{modelInfo} function, which returns the info as a single string. The former is used by the command line compiler, which allows different levels of logging detail to be specified, while the latter is used for the Info pane in BGUI. This distinction is probably superfluous and could be eliminated.
+
+The same module is also used to generate a GraphViz representation of the model structure. The nodes and edges in the graph are styled according to their type, and different subsets of them may be included, so the graph structure is first analysed and categorised by the \texttt{classify} function. The actual GV code is then generated by \texttt{generateGraphViz}. The graph styling is hard-coded into this function, mostly in the two dictionaries \texttt{NODE\_STYLES} and \texttt{EDGE\_STYLES}---if you want to modify the generated appearance, do so there. A few styling details are elsewhere in the code, notably for cluster subgraphs. Ideally this would all be hived off to some external style sheet, but frankly life is too short.
+
+The various \texttt{doc\_*.py} modules implement export of model information to various file formats. These are all structurally quite similar, with the differences mainly concerning the niceties of organisation and styling for each format. The HTML and text exporters are probably the most straightforward, while the \LaTeX{} one goes to the most effort to try to make things look nice and may be the best one to model new exporters on. One notable feature is its handling of mathematical expressions, which works from the parsed \texttt{mathterm} from the original AST, rather than the \texttt{i\_expr} used by the C code generator. This allows for more sophisticated restructuring of the output for appearance purposes---for example, weeding out unnecessary parentheses or converting addition of a negative into subtraction. The same approach was subsequently adapted for the modeldef and SBML exporters.\footnote{The latter, such as it is, is implemented with the aid of libSBML \citep{Bornstein:2008id} and won't work unless that library and its Python bindings are installed. As a general principle I'd recommend avoiding such dependencies if at all possible---the fact that SBML requires this infrastructure is just another among the vast number of reasons to despise it---but if necessary try guarding the import in a \texttt{try/except} clause as in this module.} The HTML and \LaTeX{} exporters both make use of template files that are stored, like those for the C code generation, in the \texttt{templates} subdirectory.
+
+\subsection{BGUI}
+
+The BCMD GUI is primarily a wrapper around the functions of the compiler tools. Although it has gradually accreted various features all of its own, the basic structure remains fairly skeletal. The GUI is built using the \href{http://www.tcl.tk}{Tcl/Tk} user interface library, an ancient and ugly beast whose main selling point is that it is widely available. Despite various attempts to promote other more sophisticated UI toolkits for Python UI development, the \href{https://wiki.python.org/moin/TkInter}{Tkinter} package remains the defacto, lowest common denominator, standard. Note, however, that while you can \textit{probably} rely on Tkinter itself to be present, there's a possibility that your Matplotlib distribution may not be equipped with the corresponding `TkAgg' backend. In that case plotting will not be available---given the extremely limited plotting facilities included anyway, this shouldn't be much of a loss, but it's something to be aware of.
+
+The entry point for the GUI is the \texttt{bgui.py} script in the root BCMD directory, which just creates the top-level objects and hands off to the run loop. All the remaining GUI-specific code lives in the \texttt{bgui} subdirectory. This contains a number of reasonably sensibly-factored utility classes plus one monstrous monolithic hub, MainWindow, that's embarrassing to behold.
+
+Most of the auxiliary classes are fairly self-explanatory and we'll gloss over them here. It's worth mentioning the Executor module, which provides functions for executing external (ish) tools like the compiler and GraphViz. And the SimplePlot class provides a simple wrapper for Matplotlib figures---if you want to add better graphing features to BGUI, you'll probably want to extend this.
+
+The two key classes are Config and MainWindow. Config maintains the configuration state of the UI---what the current model is, which checkboxes are ticked and so on---and handles saving and loading parts of that configuration to and from a preferences file.
+
+MainWindow, as the name suggests, builds and manages the window that contains pretty much the whole GUI. Since there's quite a lot of UI, there's quite a lot of code. It glaringly ought to be broken up into more wieldy chunks, but a combination of organic growth and organisational laziness means that at the moment it's all in one place and there's getting on for 1500 lines of it. The good news is that, although the process of widget creation and layout is very tedious, it is mostly rather simple and mechanical.
+
+Some general notes on the overall structure:
+
+\begin{itemize}
+\item Persistent state is kept in properties of the Config instance (\texttt{self.config}).
+\item State associated with the UI is kept in Tkinter Variable objects that are properties of the MainWindow instance (\texttt{self}).
+\item Synchronisation between config and UI is performed in \texttt{sync\_to\_config} and \texttt{sync\_from\_config}.
+\item Variables are instantiated before UI creation, in the \texttt{initialise\_variables} method.
+\item UI is then created and laid out, in \texttt{layout\_UI} and its subsidiary methods (\texttt{add\_*}).
+\item Pretty much all layout is done with the Grid geometry manager (ie, calls to \texttt{grid} on each widget).
+\item Button presses and returns in text fields are usually bound to action methods (\texttt{action\_*}).
+\item Actions are typically bracketed with UI syncing, as follows:
+\begin{itemize}
+\item UI changes are first synced \textit{to} config, ensuring that \texttt{self.config} matches what the user entered/chose/etc.
+\item The requested task is then performed, which may involve validation or standardisation of the entered data.
+\item UI state is then synced back \textit{from} config so that any changes flush through.
+\end{itemize}
+This is all a bit laborious but attempts to keep the UI reasonably in sync with the internal state.
+\end{itemize}
+
+Many of the application's functions require the existence of a built model, a parsed compilation info file and other chunks of loaded data. BGUI does not make very much effort to ensure that all these things are properly in sync with one another. For example, if the model definition file has been changed but not rebuilt then the contents of the Info panel may be wrong.
+
+\subsection{Batch tools}
+
+The batch tools are all basically hacks, built around the all-too-common process of running a model a huge number of times with varying inputs. The three main top-level scripts, \texttt{dsim.py}, \texttt{optim.py} and \texttt{abcmd.py}, have very similar structure, though each with its own quirks. All three take a specification of the model runs to perform in the form of a job file (documented fairly extensively in the BCMD manual) and then manage model execution via the model wrapper class \texttt{model\_bcmd}. The structure and conventions of this class derive from those expected by the ABC-SysBio library of \citet{Liepe:2010eg}, a cut down version of which is included in the \texttt{abcsbh} subdirectory for use by \texttt{abcmd.py}.\footnote{See \url{http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/} for more information about the full library. ABC is very computationally expensive and---in the context of our modelling---does not really provide any practical benefits. At present \texttt{abcmd.py} has been left in a quasi-undocumented limbo in the BCMD distribution, hanging around in case anyone can think of a use for it. But you might want to consider removing it entirely to avoid any maintenance hassle.}
+
+
+\subsection{Utilities}
+
+\section{Models}
+
+
+\bibliographystyle{plainnat}
+\bibliography{bib/papers}
+
+\end{document}

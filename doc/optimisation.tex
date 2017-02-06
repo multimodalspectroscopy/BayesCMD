@@ -1,0 +1,118 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[left=2cm, top=2.5cm, bottom=2.5cm, right=2cm]{geometry}
+\usepackage{mathpazo}
+\usepackage[parfill]{parskip}
+\usepackage[intlimits]{amsmath}
+\usepackage{graphicx}
+\usepackage{bm}
+
+% colour text for comments etc
+\usepackage{color}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+% micron units with \textmu
+\usepackage{textcomp}
+
+% uncurly quotes in verbatim environments (ie, for code)
+\usepackage{upquote}
+
+% adjustwidth
+\usepackage{changepage}
+
+% chemical formulae using \ce{}
+\usepackage[version=3]{mhchem}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,citecolor=black,filecolor=black,linkcolor=black,urlcolor=blue}
+
+\usepackage{natbib}
+\bibpunct{(}{)}{;}{a}{}{,~}
+\renewcommand\bibname{References}
+
+% some maths macros - vector, derivative, partial derivative
+\newcommand{\vv}[1]{\mathbf{#1}}
+\newcommand{\dd}[2]{\frac{d #1}{d #2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+
+\def\slantyfrac#1#2{
+\hspace{3pt}\!^{#1}\!\!\hspace{1pt}/\hspace{2pt}\!\!_{#2}\!\hspace{3pt}
+}
+
+% fourier transforms
+\newcommand{\ft}[1]{\mathcal{F}\!\left\{#1\right\}}
+\newcommand{\ift}[1]{\mathcal{F}^{-1}\left\{#1\right\}}
+\newcommand{\iftb}[1]{\mathcal{F}^{-1}\Big\{#1\Big\}}
+
+% argmax, argmin...
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+% table of contents control
+\usepackage[nottoc]{tocbibind}
+\setcounter{tocdepth}{2}
+
+\title{Parameter Fitting \& Optimisation}
+\author{Matthew Caldwell}
+
+\begin{document}
+
+\maketitle
+
+\textit{(At some point this will probably be integrated into the main documentation. For the moment it's just notes towards some proper optimisation \& fitting guidelines, as well as trying to work out what I need to implement in the way of tools. At least to start with there will also be some overlap with the model reduction efforts in BSRF. Hopefully it'll all shake out in some quasi-coherent way in the end...)}
+
+\section{Introduction}\label{intro}
+
+These notes concern the optimisation of models in the context of the BCMD environment for computational modelling of physiological and biological processes.
+
+\textit{Optimisation} is the business of identifying parameters that minimise or maximise the value of a function. Since maximisation of a function, $f$, is equivalent to minimising its negation, $-f$, we can confine ourselves to minimisation without loss of generality.
+
+\textit{Fitting} is identifying parameter values that make a function's output(s) most closely approximate some desired behaviour, typically corresponding to measured data. Fitting is thus a special case of optimisation, where the function to be minimised is the \textit{distance} between the underlying function's output and the target value(s). This distance is often, though not necessarily, defined as the \textit{norm} of the difference between the actual and desired values, usually the Euclidean or $L^2$ norm, also termed the \textit{root mean square error} or RMSE.
+
+Since fitting is just a kind of optimisation, issues relating to optimisation in general apply; these are discussed in \S\ref{optim}. Additional considerations that are more specific to parameter fitting are discussed in \S\ref{fitting}. Despite the issues, several different fitting and optimisation approaches may be gainfully employed, depending on the nature of the problem at hand. Only a small subset of possible techniques are described here (\S\S\ref{linear}--\ref{implicit}). We have found these useful, and believe they provide a reasonable starting toolkit for many of the problems we have faced, but do not assert that they are the only, or even the best possible, methods. Most are quite standard. We attempt to describe them in a generic, platform-agnostic fashion, but the focus remains on our modelling environment and our particular problem domain. Implementation notes are provided in each case for at least one of R, Matlab and SciPy---where practical, all three.
+
+Philosophically, we err on the side of simplicity, stability and transparency. A model is meant to be an approximation---that is a feature, not a bug---and we strive to avoid dishonest exactness. Some particular risks of careless fitting are discussed in \S\ref{caveat}, immediately below. You are free to ignore this and just apply the methods without due care and attention, but please don't.
+
+\section{Caveat Emptor}\label{caveat}
+
+Broadly speaking, the models we are concerned with fall into the domain of `Systems Biology'. They attempt to model physiological process that potentially occur via multiple concurrent interactions over very disparate scales in both space and time. The interactions are typically described by a large number of parameters, assumed constant but not known---perhaps not \textit{knowable}---in detail and potentially differing from individual to individual and according to physiological and environmental circumstances.
+
+\begin{itemize}
+\item Curse of dimensionality
+\item High cost
+\item Poor convergence
+\item Overfitting
+\item Sloppiness
+\item Hidden assumptions
+\item Misleading conclusions
+\item Uncertainty propagation
+\end{itemize}
+
+\section{Optimisation approaches}\label{optim}
+
+\begin{itemize}
+\item Convex vs non-convex
+\item Explicit vs implicit
+\item Linear vs non-linear
+\end{itemize}
+
+\section{Fitting issues}\label{fitting}
+
+\section{Fitting an explicit linear model}\label{linear}
+\subsection{General considerations}
+\subsection{Linear fitting in R}
+\subsection{Linear fitting in Matlab}
+
+\section{Fitting an explicit non-linear model}\label{nonlinear}
+\subsection{Overview}
+\subsection{R}
+\subsection{Matlab}
+
+\section{Fitting an implicit model}\label{implicit}
+\section{Sensitivity analysis}\label{sensitivity}
+\section{ABC}\label{abc}
+
+
+\bibliographystyle{plainnat}
+\bibliography{bib/papers}
+
+\end{document}

@@ -1,0 +1,30 @@
+# optimisation job for BrainPiglet 2.0, as per Tracy's paper
+model: bp20
+
+input: SaO2sup, constant, 0.98
+input: P_a, constant, 50
+
+var: NTP_EPP, constant, 0
+var: PCr_EPP, constant, 0
+var: Pi_EPP, constant, 0
+
+alias: NTP_EPP, NTPEPP_d
+alias: PCr_EPP, PCrEPP_d
+alias: Pi_EPP, PiEPP_d
+
+# parameter ranges are taken from Tracy
+param: _ATPn, uniform, 0.1, 10, 2.2
+param: _PCrn, uniform, 0.1, 10, 2.6
+param: PCrPn, uniform, 0.1, 10, 2.73
+
+# job details
+job_mode: GLP
+solver: pswarm
+#distance: loglik
+#sigma: 20
+
+max_iter: 100
+timestep: 6
+alias: t, t
+
+init: scratch/lwp/lwp188_init.input

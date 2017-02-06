@@ -1,0 +1,249 @@
+# scalp compartment add-on for BSX
+
+# simple pressure-based scalp blood flow model
+@extern P_a
+@output rx Gx xBF P_vx
+@output HbO2x HbTx HHbx TOIx
+
+# simple flux-based scalp blood flow model
+@input yFlux
+@output ry Gy yBF P_vy yFlux
+@output HbO2y HbTy HHby TOIy
+
+# --- equations for the pressure-based model
+
+## Extracerebral blood flow.
+## At present we assume that this is dependent solely on arterial pressure,
+## with a dubious linear model fitted from data in Gagnon et al (2014).
+## (Notably, although most of the data is adequately approximated by a linear
+## fit, the base normal/normal point is not.)
+## Denominator of 6000 is for unit conversion.
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ s$^{-1}$
+xBF = (P_a * 0.48 - 13.4) / 6000
+
+## Extracerebral conductance inferred from blood flow.
+## (This obviously fails as $(P_a - P_{v,x})$ approaches zero.)
+## $G_x$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+Gx = xBF / (P_a - P_vx)
+
+## Extracerebral vessel radius inferred from conductance.
+## We assume that the proportionality constant here is the same as for the cerebral
+## model. This is unjustified, but so would be any other assumption; this at least
+## has the benefit of consistency.
+# TODO: possibly fit a better value from relevant data?
+## $r_x$
+## ~ cm
+rx = (Gx/K_Gx) ^ 0.25
+
+# --- NIRS estimation for the pressure-based model
+
+## Relative extracerebral arterial volume, compared to the `normal' value.
+## As with the cerebral model, we assume only arteries vary, while the veins
+## remain constant. This is nonsense, but it's a way of conceptualising the balance.
+## $Vol_{a,x}$
+## ~ dimensionless
+Volax = (rx/rxn)^2 / (1 + VArat_x)
+
+## Relative extracerebral venous volume. Currently this remains constant.
+## $Vol_{v,x}$
+Volvx = VArat_x / (1 + VArat_x)
+
+## Extracerebral oxygenated haemoglobin.
+## $HbO_{2,x}$
+## ~ uM
+HbO2x = (Volax * XOa + Volvx * XOvx) * blood_hbx
+
+## Extracerebral total haemoglobin.
+## $HbT_x$
+## ~ uM
+HbTx = (Volax + Volvx) * Xtot * blood_hbx
+
+## Extracerebral deoxygenated haemoglobin.
+## $HHb_x$
+## ~ uM
+HHbx = HbTx - HbO2x
+
+## Extracerebral TOI.
+## $TOI_x$
+## ~ dimensionless
+TOIx = 100 * HbO2x / HbTx
+
+# --- parameters for the pressure-based model
+
+## Conductance/flow proportionality constant for extracerebral vessels.
+## Since we have no basis for setting this, for the moment we just assume
+## it matches the internal value.
+## $K_{G,x}$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$ cm$^{-4}$
+K_Gx := K_G
+
+## Extracerebral venous pressure, used to determine driving force for extracerebral flow.
+## At present we do not have any basis for setting this, so set to zero -- we can
+## probably assume that this will be mopped up in the linear fit anyway.
+## $P_{v,x}$
+## ~ mmHg
+P_vx := 0
+
+## `Normal' extracerebral blood flow, i.e. flow at normal pressure.
+## $xBF_n$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ s$^{-1}$
+xBFn := (P_an * 0.48 - 13.4) / 6000
+
+## `Normal' extracerebral conductance, i.e. conductance at normal pressure.
+## $G_{x,n}$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+Gxn := xBFn / (P_an - P_vx)
+
+## `Normal' extracerebral vessel radius is the value implied by normal conductance.
+## $r_{x,n}$
+## ~ cm
+rxn := (Gxn/K_Gx) ^ 0.25
+
+## `Normal' ratio of extracerebral veins to arteries.
+## $VA_{rat,x}$
+## ~ dimensionless
+VArat_x := 3
+
+## Venous concentration of oxygen bound to haemoglobin
+## in the extracerebral tissue. Since we do not model oxygen consumption
+## in the extracerebral model, we assume this is constant and currently just
+## import the baseline value from the cerebral model.
+## $HbO_{2,v,x}$
+## ~ mM
+XOvx := XOv_n
+
+## Haemoglobin fraction in scalp. As with the cerebral fraction,
+## this term combines scaling for units and haemoglobin binding site
+## with a blood fraction estimate.
+blood_hbx := 0.04 * 1000 / 4    # fraction of scalp volume that is blood * (mM->uM) / binding sites
+
+
+# --- equations for the flux-based model ---
+
+## Extracerebral blood flow.
+## For the moment we defer any complexity and assume it can be estimated
+## directly from the flux.
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ s$^{-1}$
+yBF = yFlux * yBFn
+
+## Extracerebral conductance inferred from blood flow.
+## (This obviously fails as $(P_a - P_{v,x})$ approaches zero.)
+## $G_y$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+Gy = yBF / (P_a - P_vy)
+
+## Extracerebral vessel radius inferred from conductance.
+## We assume that the proportionality constant here is the same as for the cerebral
+## model. This is unjustified, but so would be any other assumption; this at least
+## has the benefit of consistency.
+# TODO: possibly fit a better value from relevant data?
+## $r_y$
+## ~ cm
+ry = (Gy/K_Gy) ^ 0.25
+
+# --- NIRS estimation for the flux-based model
+
+## Relative extracerebral arterial volume, compared to the `normal' value.
+## As with the cerebral model, we assume only arteries vary, while the veins
+## remain constant. This is nonsense, but it's a way of conceptualising the balance.
+## $Vol_{a,y}$
+## ~ dimensionless
+Volay = (ry/ryn)^2 / (1 + VArat_y)
+
+## Relative extracerebral venous volume. Currently this remains constant.
+## $Vol_{v,y}$
+Volvy = VArat_y / (1 + VArat_y)
+
+## Extracerebral oxygenated haemoglobin.
+## $HbO_{2,y}$
+## ~ uM
+HbO2y = (Volay * XOa + Volvy * XOvy) * blood_hby
+
+## Extracerebral total haemoglobin.
+## $HbT_y$
+## ~ uM
+HbTy = (Volay + Volvx) * Xtot * blood_hby
+
+## Extracerebral deoxygenated haemoglobin.
+## $HHb_y$
+## ~ uM
+HHby = HbTy - HbO2y
+
+## Extracerebral TOI.
+## $TOI_y$
+## ~ dimensionless
+TOIy = 100 * HbO2y / HbTy
+
+# --- parameters for the flux-based model
+
+## Superficial blood "flux" from Laser Doppler or equivalent instrumentation.
+## This does not provide an absolute measurement, but instead is relative to
+## some baseline condition which is (of course) unknown and hence has a basically
+## arbitrary scale and offset. We assume that this has been factored out such that
+## yFlux is equal to 1 at yBFn. (This, of course, leaves open the question of yBFn,
+## which we will simply handwave at this point.)
+yFlux := 1
+
+## Conductance/flow proportionality constant for extracerebral vessels.
+## Since we have no basis for setting this, for the moment we just assume
+## it matches the internal value.
+## $K_{G,y}$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$ cm$^{-4}$
+K_Gy := K_G
+
+## Extracerebral venous pressure, used to determine driving force for extracerebral flow.
+## At present we do not have any basis for setting this, so set to zero -- we can
+## probably assume that this will be mopped up in the linear fit anyway.
+## $P_{v,y}$
+## ~ mmHg
+P_vy := 0
+
+## `Normal' extracerebral blood flow. Currently unknown, but we shall fit
+## some vaguely appropriate value from data. Probably.
+## (TODO. At the moment we just adopt the value from the pressure model, which
+## is fitted from totally other data but probably as good a starting point as any...)
+## $yBF_n$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ s$^{-1}$
+yBFn := xBFn
+
+## `Normal' extracerebral conductance, i.e. conductance for normal
+## flow at normal pressure.
+## $G_{y,n}$
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+Gyn := yBFn / (P_an - P_vy)
+
+## `Normal' extracerebral vessel radius is the value implied by normal conductance.
+## $r_{y,n}$
+## ~ cm
+ryn := (Gyn/K_Gy) ^ 0.25
+
+## `Normal' ratio of extracerebral veins to arteries.
+## $VA_{rat,y}$
+## ~ dimensionless
+VArat_y := 3
+
+## Venous concentration of oxygen bound to haemoglobin
+## in the extracerebral tissue. Since we do not model oxygen consumption
+## in the extracerebral model, we assume this is constant and currently just
+## import the baseline value from the cerebral model.
+## $HbO_{2,v,y}$
+## ~ mM
+XOvy := XOv_n
+
+## Haemoglobin fraction in scalp. As with the cerebral fraction,
+## this term combines scaling for units and haemoglobin binding site
+## with a blood fraction estimate.
+blood_hby := 0.04 * 1000 / 4    # fraction of scalp volume that is blood * (mM->uM) / binding sites
+
+
+
+## + Extracerebral_pressure
+## @ rx Gx xBF P_vx HbO2x HbTx HHbx TOIx
+## + Extracerebral_pressure
+## @ K_Gx xBFn Gxn rxn Volax Volvx VArat_x XOvx blood_hbx
+
+## + Extracerebral_flux
+## @ ry Gy yBF P_vy HbO2y HbTy HHby TOIy
+## + Extracerebral_flux
+## @ K_Gy yBFn Gyn ryn Volay yFlux Volvy VArat_y XOvy blood_hby

@@ -1,0 +1,31 @@
+# basic sensitivity job for testing and demonstration purposes
+# we use a simple RC-circuit model, and data simulated from the model itself
+# (simulation input file: examples/rc_target.input)
+model: rc
+
+# variable to simulate, with a default start value of 0
+var: Vc, constant, 0
+
+# distribution ranges for the two parameters
+# NB: Hessian is calculated at the default!
+param: C, uniform, 1e-6, 1, 0.01234
+param: R, uniform, 1, 2000, 987.65
+
+# estimate hessian by finite differencing
+job_mode: hessian
+
+# size of step
+# second term is optional, if present can be either 'relative' (default) or 'absolute'
+delta: 1e-6, relative
+
+# we only have the one input
+input: V
+
+# use an alias for t to specify the t variable, if not using the default ' t'
+# in particular, you might need to alias t to itself
+# if explicitly including it by that name in a CSV
+alias: t, t
+
+# number of parallel sims (default 1)
+nbatch: 8
+

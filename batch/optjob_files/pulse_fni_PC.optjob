@@ -1,0 +1,43 @@
+# base optimisation job to look at
+# systemic confounding of NIRS/functional activation
+# to investigate false positives & false negatives
+model: bsx_pulse
+
+# the model generates an implicit input pulse based on the
+# optimised parameters, so we don't provide any explicit inputs
+# input: SaO2sup, constant, 0.98
+
+# outputs
+var: HHb_mix_y, constant, 0
+var: HbO2_mix_y, constant, 0
+
+# targets -- vary these to test different scenarios
+# (the pulse_target CSV contains several possible versions)
+alias: HHb_mix_y, Zero
+alias: HbO2_mix_y, Ideal_DHbO2
+
+# target values have already been zeroed, so do the same to the outputs
+post: HHb_mix_y, zero
+post: HbO2_mix_y, zero
+
+# parameters controlling the output
+param: P_a_step, uniform, 75, 125, 100
+param: Pa_CO2_step, uniform, 37.5, 42.5, 40
+param: SaO2_step, uniform, 0.9, 1.0, 0.96
+param: yFlux_step, uniform, 0.75, 1.5, 1
+param: contrib_scalp, uniform, 0, 1, 0
+
+param: pulse_start, constant, 20
+param: pulse_end, constant, 120
+param: u_step, constant, 1.25
+
+# specify the factors to be optimised
+param_select: P_a_step, Pa_CO2_step
+
+# job details
+job_mode: GLP
+solver: galileo
+max_iter: 100
+
+# use times from the data file
+alias: t, t

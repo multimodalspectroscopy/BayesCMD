@@ -1,0 +1,24 @@
+# optimisation job for BrainPiglet 2.0, as per Tracy's paper
+model: bp20
+
+input: SaO2sup, constant, 0.98
+input: P_a, constant, 50
+
+var: pH_o, constant, 0
+
+alias: pH_o, pH_f
+
+# parameter ranges are taken from Tracy
+param: pH_on, uniform, 6.8, 7.2, 7
+
+# job details
+job_mode: GLP
+solver: pswarm
+#distance: loglik
+#sigma: 20
+
+max_iter: 100
+timestep: 6
+alias: t, t
+
+init: scratch/lwp/lwp188_init.input

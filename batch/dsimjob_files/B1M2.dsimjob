@@ -1,0 +1,43 @@
+model: B1M2
+
+# vars to be simulated, with distrib of initial conditions
+var: Vmca, uniform, 0.010, 0.011
+var: CCO, uniform, 0, 0.00001
+
+# optional external file specifying param distributions
+param_file: ../examples/bsrf/pdists_B1M2.csv
+
+# Morris or FAST?
+job_mode: fast
+
+# param_select specifies which params to vary
+# may specify an explicit (comma-separated) list
+# or * to mean all params for which a distrib has been provided (the default)
+param_select: *
+
+# inputs, with perturbation distribs
+# (latter ignored unless the --perturb command-line switch is given)
+input: SaO2sup, normal, 0, 0.00001
+input: P_a, normal, 0, 3
+input: Pa_CO2, normal, 0, 8
+
+# use an alias for t to specify the t variable, if not using the default ' t'
+# in particular, you might need to alias t to itself
+# if explicitly including it by that name in a CSV
+alias: t, t
+
+# the number of distinct levels (potentially) tested per parameter
+divisions: 10
+
+# Morris paths or FAST samples
+npath: 1000
+
+# number of sims to run in parallel
+nbatch: 8
+
+# in order to ensure that results are comparable, we can substitute
+# infinite & NaN values with a real number
+# we can choose to impose a high distance penalty, or disregard
+# (either way is frankly dubious, but...)
+substitute: 0
+

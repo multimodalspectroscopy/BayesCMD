@@ -1,0 +1,33 @@
+# optimisation job for BrainPiglet 2.0, as per Tracy's paper
+model: bp20
+
+input: SaO2sup, constant, 0.98
+input: P_a, constant, 50
+
+var: CCO, constant, 0
+var: NTP_EPP, constant, 0
+var: PCr_EPP, constant, 0
+var: Pi_EPP, constant, 0
+
+alias: CCO, CCO_d
+alias: NTP_EPP, NTPEPP_d
+alias: PCr_EPP, PCrEPP_d
+alias: Pi_EPP, PiEPP_d
+
+# parameter ranges are taken from Tracy
+param: cytox_tot_tis, uniform, 0.001, 0.007, 0.0022
+param: a_frac_n, uniform, 0, 1, 0.67
+param: _ATPn, uniform, 0.1, 10, 2.2
+param: _PCrn, uniform, 0.1, 10, 2.6
+param: PCrPn, uniform, 0.1, 10, 2.73
+param: cell_death, uniform, 0, 1, 0
+
+# job details
+job_mode: GLP
+solver: pswarm
+
+max_iter: 100
+timestep: 6
+alias: t, t
+
+init: scratch/lwp/lwp188_init.input

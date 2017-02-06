@@ -1,0 +1,282 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[left=2cm, top=2.5cm, bottom=2.5cm, right=2cm]{geometry}
+\usepackage{mathpazo}
+\usepackage[parfill]{parskip}
+\usepackage[intlimits]{amsmath}
+\usepackage{graphicx}
+\usepackage{bm}
+
+% colour text for comments etc
+\usepackage{color}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+% micron units with \textmu
+\usepackage{textcomp}
+
+% indent verbatim
+\usepackage{verbatim}
+\newlength\myverbindent 
+\setlength\myverbindent{0.7cm} % change this to change indentation
+\makeatletter
+\def\verbatim@processline{%
+  \hspace{\myverbindent}\the\verbatim@line\par}
+\makeatother
+
+% uncurly quotes in verbatim environments (ie, for code)
+\usepackage{upquote}
+
+% adjustwidth
+\usepackage{changepage}
+
+% chemical formulae using \ce{}
+\usepackage[version=3]{mhchem}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,citecolor=black,filecolor=black,linkcolor=black,urlcolor=blue}
+
+\usepackage{natbib}
+\bibpunct{(}{)}{;}{a}{}{,~}
+\renewcommand\bibname{References}
+
+% some maths macros - vector, derivative, partial derivative
+\newcommand{\vv}[1]{\mathbf{#1}}
+\newcommand{\dd}[2]{\frac{d #1}{d #2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+
+\def\slantyfrac#1#2{
+\hspace{3pt}\!^{#1}\!\!\hspace{1pt}/\hspace{2pt}\!\!_{#2}\!\hspace{3pt}
+}
+
+% fourier transforms
+\newcommand{\ft}[1]{\mathcal{F}\!\left\{#1\right\}}
+\newcommand{\ift}[1]{\mathcal{F}^{-1}\left\{#1\right\}}
+\newcommand{\iftb}[1]{\mathcal{F}^{-1}\Big\{#1\Big\}}
+
+% argmax, argmin...
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+% table of contents control
+\usepackage[nottoc]{tocbibind}
+\setcounter{tocdepth}{2}
+
+\title{Windows Installation Guide}
+\author{Matthew Caldwell}
+
+\begin{document}
+
+\maketitle
+
+BCMD requires a Unix-esque runtime environment including a command shell, compilers for C and Fortran, a Make system, Python interpreter and some other tools. Getting all of this up and running on Windows can be a bit fiddly and tedious. Here we describe an approach that has worked for us. However, many of the tools mentioned continue to evolve, as indeed does the Windows operating system itself, so some of this advice might be obsolete by the time you come to attempt it. If you discover any issues, or find other better ways to do things, please let us know.
+
+\section{Essentials}\label{essentials}
+
+\subsection{Text Editor}
+
+To edit configuration files, model definitions, input files, batch jobs and miscellaneous other text formats encountered along the way, you will need a decent editor. Feel free to use any particular favourite, but not the Windows default Notepad, which is definitely not up to the job. If you don't have another strong preference, Notepad++ (\url{https://notepad-plus-plus.org}) is popular and well-regarded. Notepad++ syntax highlighting definitions for BCMD's file formats can be found in the \texttt{util} directory of the BCMD distribution (in the files \texttt{modeldef.xml}, \texttt{input.xml} and \texttt{batch.xml}). For information on installing these, see the Notepad++ documentation.
+
+\subsection{Base Runtime Environment}\label{basics}
+
+To provide the basis of the environment, we use the MinGW port of the GNU compiler collection, along with the closely-related MSYS2 command shell. As of this writing, the easiest way to install these is to use the installer provided at \url{http://msys2.github.io}. Instructions are also given on that page, but in brief:
+\begin{itemize}
+\item Download and run the appropriate installer. (You probably want the 64-bit version. The instructions below assume this, but you should be able to get things working with the 32-bit version too with some minor changes.) Accept the defaults for installation options.
+\item After the installer finishes, run MSYS2 and update the system packages with the command:
+\begin{verbatim}pacman --needed -Sy bash pacman pacman-mirrors msys2-runtime\end{verbatim}
+\item Exit and reopen MSYS2 and update the rest of it:
+\begin{verbatim}pacman -Su\end{verbatim}
+\item Exit and reopen MSYS2 again, and install the required languages and build tools:
+\begin{verbatim}
+pacman -S gcc-fortran
+pacman -S make
+pacman -S git
+\end{verbatim}
+\end{itemize}
+
+At this point most of the basic requirements should be met. Try typing
+\begin{verbatim}gfortran --version\end{verbatim}
+You should get a message along the lines of
+\begin{verbatim}
+GNU Fortran (GCC) 4.9.2
+Copyright (C) 2014 Free Software Foundation, Inc.
+\end{verbatim}
+and some licensing boilerplate, in which case all is well.
+
+MSYS creates a fake Unix directory structure inside the Windows filing system, complete with standard directories like \texttt{/usr/local/bin}, plus directories corresponding to Windows drive letters such that \texttt{C:} becomes \texttt{/c} and so on. The `root' of this directory structure is the directory you installed MSYS into --- for the 64-bit version the default is \texttt{C:\symbol{92}msys64}. Within this is your user directory, which is where the MSYS shell starts up --- something like \texttt{C:\symbol{92}msys64\symbol{92}home\symbol{92}USERNAME}. Find this and make a note of its location.
+
+\subsection{Python}
+
+The next thing you need is an installation of Python with a NumPy/SciPy stack. There are several options, none of which is ideal.
+
+If you are happy to use only the command-line environment, then you can use the version of Python built for MinGW/MSYS2 itself. This is relatively simple to install, but unfortunately it is built without support for the Tkinter GUI package. Since building and running models is significantly easier using the BCMD GUI, we somewhat reluctantly recommend using the Enthought Canopy Python distribution instead. Installation for both options is described below.
+
+\subsubsection{Using the MinGW Python}
+
+Assuming you have a 64-bit installation of MinGW, install the required packages as follows:
+\begin{verbatim}
+pacman -S mingw64/mingw-w64-x86_64-python2-scipy
+pacman -S mingw64/mingw-w64-x86_64-python2-matplotlib
+\end{verbatim}
+Note that this installation is quite slow, and in particular gives the misleading impression of having stalled while setting up \texttt{fontconfig} --- just give it plenty of time.
+
+The Python executable that gets installed here is named \texttt{python2.exe}. Some of the BCMD files assume that Python will be called \texttt{python}, so create a soft link like this:
+\begin{verbatim}
+ln -s /usr/local/bin/python2.exe /usr/local/bin/python
+\end{verbatim}
+
+Now type:
+\begin{verbatim}python --version\end{verbatim}
+
+If you see something along the lines of
+\begin{verbatim}
+Python 2.7.3 --  64-bit
+\end{verbatim}
+then you're ready to \hyperref[bcmd]{install BCMD} (\S\ref{bcmd} below).
+
+\subsubsection{Using Enthought Canopy}
+
+Canopy is a pre-built Python/SciPy distribution available for various operating systems, including Windows. It comes in several versions, and there is an Academic license available, but the free Express edition is sufficient for running BCMD.
+
+Download and run the installer from \url{https://store.enthought.com/downloads/}. By default the Canopy installation will be placed in your Windows user home directory --- the installer should report the location, somewhere like \texttt{C:\symbol{92}Users\symbol{92}USERNAME\symbol{92}AppData\symbol{92}Local\symbol{92}Enthought\symbol{92}Canopy}. If you prefer to change this, ensure that you modify any corresponding paths below.
+
+You then need to ensure that the Python executable is found on the PATH in MSYS. While you're at it, it's best to also remove any paths to Windows programs that you won't need from the command line. If any paths have spaces in them (things like \texttt{Local Data} or \texttt{Program Files}), these should be escaped with a backslash (\texttt{\textbackslash{}}). Edit the file \texttt{.bash\_profile} (note the leading full stop) in your MSYS home directory to set and export the necessary paths, like this:
+\begin{verbatim}
+PATH=/c/users/USERNAME/appdata/local/enthought/canopy/user/scripts
+PATH=$PATH:/c/users/USERNAME/appdata/local/enthought/canopy/user
+PATH=$PATH:/usr/local/bin:/usr/bin:/bin:/opt/bin
+PATH=$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+PATH=$PATH:/c/windows/system32:/c/windows
+export PATH
+\end{verbatim}
+Note that the exact paths needed may vary, so check the actual locations on your system.
+
+Now open a new MSYS window and type:
+\begin{verbatim}python --version\end{verbatim}
+
+If you see something along the lines of
+\begin{verbatim}
+Python 2.7.3 --  64-bit
+\end{verbatim}
+then you're good to go.
+
+\textbf{Note:} Canopy's Python interpreter does not recognise the MSYS shell as an interactive terminal, so it will not run an interactive session by default. If you just type
+\begin{verbatim}python\end{verbatim}
+then it will look like the shell has hung up (you can break it out of this by pressing ctrl-C). Instead, you must explicitly specify the \texttt{-i} option:
+\begin{verbatim}
+python -i
+\end{verbatim}
+(This shouldn't affect the BCMD scripts, it's only important if you wish to run interactive Python sessions of your own.)
+
+\subsection{BCMD}\label{bcmd}
+
+The best way to install the BCMD system itself is from GitHub:
+\begin{verbatim}
+git clone https://github.com/bcmd/BCMD.git bcmd
+\end{verbatim}
+(This puts BCMD in a directory called \texttt{bcmd} inside your MSYS home directory. Feel free to put it somewhere else if you prefer, just remember to adjust any relevant paths used below accordingly.)
+
+Once the clone has completed, go into the \texttt{bcmd} directory and build it:
+\begin{verbatim}
+cd bcmd
+./configure
+make
+\end{verbatim}
+This should generate quite a few lines of output. The following warnings and errors should appear near the end:
+\begin{verbatim}
+rm: parsetab.*: No such file or directory
+WARNING: Token 'COMMENT' defined, but not used
+WARNING: Token 'NEWINDENT' defined, but not used
+WARNING: There are 2 unused tokens
+Generating LALR tables
+Makefile:115: recipe for target 'bparser/parsetab.py' failed
+make: [bparser/parsetab.py] Error 2 (ignored)
+\end{verbatim}
+These are expected and can be safely ignored. If there are other errors reported, check the output carefully. It probably means that some required software has not been installed correctly. Re-check all the steps above. Failing that, please email \href{mailto:m.caldwell@ucl.ac.uk}{m.caldwell@ucl.ac.uk} with details of the problem.
+
+If the system appears to have built correctly, try running a simple model:
+\begin{verbatim}
+make build/huxley.detail
+tail -n 1 build/huxley.detail
+\end{verbatim}
+This should print a line that looks something like this:
+\begin{verbatim}
+88	20	0.47454650748579158	0.05586874751218391	0.31533817617053456	0.60142841645812495
+\end{verbatim}
+If you are using Enthought Canopy for your Python installation, you should also be able to run the GUI by typing:
+\begin{verbatim}
+python bgui.py
+\end{verbatim}
+See the main BCMD manual for more information about using these interfaces.
+
+\subsubsection{Updating}
+
+The BCMD distribution on GitHub is updated periodically as new features are added and bugs get fixed. To update your installation to the latest version, open an MSYS window, change to your BCMD directory and type:
+\begin{verbatim}
+git pull
+\end{verbatim}
+Note that this will only work seamlessly if you have not modified the BCMD files yourself (that doesn't include adding new files of your own---model definitions, inputs and so on---which is fine). If you have made changes, you will probably see a warning about conflicting changes. In that case, you can either commit and merge your own changes, or delete the changed files and allow Git to restore the master versions. The latter is usually easier, but is obviously not appropriate if you've made changes you want to keep. For more information about using Git, see the extensive documentation at \url{https://git-scm.com/doc}. You might also find Roger Dudler's quick-and-dirty overview helpful: \url{http://rogerdudler.github.io/git-guide/}.
+
+\section{Additional Capabilities}
+
+The above process should have got you to the point of being able to build and run models. Some further features of BCMD require additional external software. Installing these things is optional but recommended.
+
+\subsection{Python packages}
+
+Optimisation and sensitivity analysis require the installation of additional Python packages. Before doing so, you need to ensure your Enthought Canopy setup tools are up to date:
+
+\begin{itemize}
+\item Run the Canopy GUI.
+\item Log in (create a free user account if you have not done so previously).
+\item Go to the Package Manager and select the Updates item in the list on the left hand side.
+\item As a minimum, check for updates to \textbf{pip} and \textbf{setuptools} and install those if present. In general it is probably a good idea to choose the Install All Updates button, since there may also be other relevant packages that need updating.
+\end{itemize}
+
+Python provides several different ways of distributing packages. Unfortunately, they don't work consistently for our requirements. In particular, packages that have native code dependencies may demand building with Microsoft Visual C++ (possibly even a specific version of it). If you do have this installed, please let us know how it works out for the cases mentioned below that we haven't managed to get working without it.
+
+\subsubsection{Sensitivity Analysis}
+
+The sensitivity analysis features of \texttt{dsim.py} require the Python sensitivity library SALib. This can be installed with \texttt{pip}, without recourse to Visual C++:
+\begin{verbatim}
+pip install SALib
+\end{verbatim}
+
+\subsubsection{Optimisation}
+
+Running optimisation jobs with \texttt{optim.py} requires the OpenOpt libraries (\url{http://openopt.org/}). These do not install correctly with \texttt{pip}, but they will with \texttt{easy\_install}. Four separate installations are needed:
+\begin{verbatim}
+easy_install openopt
+easy_install FuncDesigner
+easy_install DerApproximator
+easy_install SpaceFuncs
+\end{verbatim}
+The distribution provides several useful solvers including the Genetic Algorithm \texttt{galileo}, which is \texttt{optim.py}'s default.
+
+Using the PSwarm method involves an additional external dependency on the PSwarm library by Vaz \& Vicente. Compiled Windows binaries with Python bindings are available from the PSwarm home page at \url{http://www.norg.uminho.pt/aivaz/pswarm/}. However, we have not yet been able to persuade these to work correctly with Canopy.
+
+\subsubsection{libSBML}
+
+Exporting models to SBML requires Python bindings to the parsing library libSBML \citep{Bornstein:2008id}. In theory, the corresponding package should be installable via \texttt{pip}:
+\begin{verbatim}
+pip install python-libsbml
+\end{verbatim}
+However, this not only requires Microsoft Visual C++ but also introduces further dependencies on several other libraries. At present we have not succeeded in getting this to work correctly with Canopy. (To be honest, we don't think the functionality is worth having anyway.)
+
+\subsection{GraphViz}
+
+BCMD creates dependency graphs of models using the GraphViz DOT language. In order to compile these to actual graphics you need to install GraphViz.
+
+Download and run the installer from \url{http://www.graphviz.org/Download_windows.php}. Once installed, you will need to add the GraphViz \texttt{bin} directory to your PATH. Locate this directory---in our tests it was \texttt{C:\textbackslash{}Program Files\textbackslash{}GraphViz2.38\textbackslash{}bin}---and add it to the \texttt{.bash\_profile} file that you edited earlier. Insert a line like this just before the \texttt{export PATH} line:
+\begin{verbatim}
+PATH=$PATH:/c/Program\ Files/GraphViz2.38/bin
+\end{verbatim}
+Note that the space in \texttt{Program Files} needs to be escaped with a backslash \texttt{\textbackslash{}}.
+
+\subsection{LaTeX}
+
+BCMD can generate model documentation in \LaTeX{} \texttt{.tex} format. To typeset this into a final document you will need a \LaTeX{} distribution such as TeX Live, obtainable from the TeX Users Group site (\url{http://www.tug.org/texlive/acquire-netinstall.html}). Alternatively, you could use an online \LaTeX{} service such as \href{https://www.overleaf.com}{Overleaf}.
+
+Note that BCMD does not invoke \LaTeX{} itself, and does not need it to be present to generate the file.
+
+\bibliographystyle{plainnat}
+\bibliography{bib/papers}
+
+\end{document}
