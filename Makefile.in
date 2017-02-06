@@ -21,10 +21,9 @@ PYTHON = python
 # similarly for GraphViz -- which is pretty much optional anyway, but...
 GV = dot
 
-# for the moment, we default to building everything in debug mode,
-# which can generate an enormous amount of output -- this can be
-# overridden by passing DEBUG= to make on the command line
-DEBUG=TRUE
+# By default we set DEBUG=FALSE. This is to allow for correct stdout output
+# when using the BayesCMD bcmd_model code.
+DEBUG=FALSE
 
 # change this to TRUE -- or pass in DEBUG=TRUE on the command line
 # to enable heavy logging from the RADAU wrapper library
