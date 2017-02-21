@@ -19,7 +19,7 @@ TIMEOUT = 30
 # default base directory - this should be a relative directory path
 # leading to bcmd/
 BASEDIR = '..'
-print(BASEDIR)
+print(os.path.abspath(BASEDIR))
 
 
 class ModelBCMD:
