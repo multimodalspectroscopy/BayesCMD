@@ -1,15 +1,26 @@
 import numpy as np
+from .data_import import *
+# All functions here can expect to handle the output from BCMD Model i.e. a dict.
 
-# All functions here can expect to handle the output as a numpy struct array.
+
+def check_for_key(dictionary, target):
+	try:
+		data = dictionary[target]
+	except KeyError:
+		print('Actual data does not contain target value.')
+	return data
 
 class DistanceMeasures:
-    def __init__(self, simulation_data, actual_data):
-        self.actual_data = actual_data
+    def __init__(self,
+    			 target_value,
+    			 simulation_data,
+    			 actual_data_file):
+    	
+		self.actual_data = check_for_key(actual_data_import(actual_data_file), target_value)
 
-        # Only check arrays in sim_data that match those in array_data
-        try:
-            self.sim_data = simulation_data[self.actual_data.dtype.names]
-        except:
+			
+		self.sim_data = check_for_key(sim_data, target_value)
+
 
     def euclidean_dist():
         return [numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2)))]
