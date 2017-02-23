@@ -4,9 +4,10 @@ import numpy.testing as np_test
 import filecmp
 import os
 
-BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__))) # '../..'
-print(BASEDIR) 
-
+BASEDIR = os.path.abspath(os.path.dirname(
+    os.path.dirname(os.path.dirname(__file__))))
+assert os.path.basename(BASEDIR) == 'BayesCMD'
+print(BASEDIR)
 
 
 def test_output_dict_from_buffer():
