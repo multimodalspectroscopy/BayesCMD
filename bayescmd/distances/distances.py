@@ -19,11 +19,15 @@ class DistanceMeasures:
                  simulation_data,
                  actual_data_file):
 
-        self.actual_data = check_for_key(
-            actual_data_import(actual_data_file), target_value)
+        try:
+            self.actual_data = np.array(check_for_key(
+                import_actual_data(actual_data_file), target_value))
+        except TypeError as e:
+            print('Invalid File')
+            print(e)
 
-        self.sim_data = check_for_key(sim_data, target_value)
+        self.sim_data = np.array(check_for_key(simulation_data, target_value))
 
-    def euclidean_dist():
-        return [numpy.sqrt(numpy.sum((self.actual_data - self.sim_data) *
+    def euclidean_dist(self):
+        return [np.sqrt(np.sum((self.actual_data - self.sim_data) *
                                      (self.actual_data - self.sim_data)))]
