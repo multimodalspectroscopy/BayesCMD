@@ -4,7 +4,11 @@ import numpy.testing as np_test
 import filecmp
 import os
 
-BASEDIR = '../..'
+BASEDIR = os.path.abspath(os.path.dirname(
+    os.path.dirname(os.path.dirname(__file__))))
+assert os.path.basename(BASEDIR) == 'BayesCMD'
+print(BASEDIR)
+
 
 
 def test_create_input_and_run_from_file():
