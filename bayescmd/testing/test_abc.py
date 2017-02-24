@@ -1,5 +1,5 @@
-from ..distances.data_import import *
-from ..distances.distances import DistanceMeasures
+from ..abc.data_import import *
+from ..abc.distances import get_distance
 from ..bcmdModel import ModelBCMD
 from nose.tools import assert_true, assert_equal, with_setup, assert_dict_equal
 import numpy.testing as np_test
