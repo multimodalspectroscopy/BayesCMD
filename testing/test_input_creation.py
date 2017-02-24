@@ -1,4 +1,4 @@
-from ..bcmdModel.input_creation import InputCreator
+from bayescmd.bcmdModel.input_creation import InputCreator
 from nose.tools import assert_equal
 import os
 
@@ -27,14 +27,16 @@ def test_default_creation():
 
     assert_equal(content, actual_content)
 
+
 def test_input_file_write():
     """
     Nose test function to check that the default creation function outputs the
     same as a test file.
     :return: None - checks output files are the same
     """
-    output = os.path.join('.', 'test_files', 'test_default.input')
-    actual = os.path.join('.', 'test_files', 'rc_test_default.input')
+    BASEDIR = os.path.abspath(os.path.dirname(__file__))
+    output = os.path.join(BASEDIR, 'test_files', 'test_default.input')
+    actual = os.path.join(BASEDIR, 'test_files', 'rc_test_default.input')
     times = list(range(0, 30, 5))
     params = {"names": ['V'],
               "values": [

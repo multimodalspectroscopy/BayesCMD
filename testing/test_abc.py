@@ -1,12 +1,11 @@
-from ..abc.data_import import *
-from ..abc.distances import get_distance
-from ..bcmdModel import ModelBCMD
+from bayescmd.abc.data_import import *
+from bayescmd.abc.distances import get_distance
+from bayescmd.bcmdModel import ModelBCMD
 from nose.tools import assert_true, assert_equal, with_setup, assert_dict_equal
 import numpy.testing as np_test
 import os
 
-BASEDIR = os.path.abspath(os.path.dirname(
-    os.path.dirname(os.path.dirname(__file__))))
+BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 assert os.path.basename(BASEDIR) == 'BayesCMD'
 print(BASEDIR)
 
@@ -62,7 +61,8 @@ def test_csv_data_import():
 def test_euclidean_distance():
     expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                              'test_files', 'rc_actual_data.csv')
+    expt_data = import_actual_data(expt_file)
 
-    distanceCalc = DistanceMeasures('Vc', test_data, expt_file)
-    distance = distanceCalc.euclidean_dist()
+    distance = get_distance(expt_data, test_data, ['Vc'])
+
     np_test.assert_almost_equal([0.0], distance)

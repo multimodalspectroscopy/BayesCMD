@@ -1,14 +1,12 @@
-from ..bcmdModel.bcmd_model import ModelBCMD
+from bayescmd.bcmdModel.bcmd_model import ModelBCMD
 from nose.tools import assert_true, assert_equal, with_setup
 import numpy.testing as np_test
 import filecmp
 import os
 
-BASEDIR = os.path.abspath(os.path.dirname(
-    os.path.dirname(os.path.dirname(__file__))))
+BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 assert os.path.basename(BASEDIR) == 'BayesCMD'
 print(BASEDIR)
-
 
 
 def test_create_input_and_run_from_file():
