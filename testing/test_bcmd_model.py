@@ -38,7 +38,6 @@ def test_create_input_and_run_from_file():
                               debug=True,
                               basedir=BASEDIR)
 
-    print('INPUT FILE IS %s' % input_file)
     default_model.write_default_input()
     default_model.run_from_file()
     os.remove(default_model.input_file)
@@ -66,9 +65,9 @@ def test_output_dict_from_file():
     params = None
 
     default_model = ModelBCMD('rc',
-                              inputs,
-                              params,
-                              times,
+                              inputs=inputs,
+                              params=params,
+                              times=times,
                               input_file=None,
                               create_input=True,
                               testing=True,
@@ -165,4 +164,95 @@ def test_create_input_and_run_from_buffer():
         actual_content = f_actual.read()
 
     assert_equal(result.stdout.decode(), actual_content)
+    os.remove(default_model.output_detail)
+
+
+def test_init_output_from_buffer():
+    """
+    Check that an output file will be read and processed correctly.
+    """
+
+    times = [0, 2, 4, 12, 15, 25]
+    inputs = {"names": ['V'],
+              "values": [
+                  [5],
+                  [0],
+                  [15],
+                  [-8],
+                  [25]
+    ]
+    }
+    params = {"C": 0.0121805,
+              "R": 1000,
+              "Vc": 0}
+
+    outputs = ['Vc']
+
+    init_model = ModelBCMD('rc',
+                           inputs=inputs,
+                           params=params,
+                           times=times,
+                           outputs=outputs,
+                           input_file=None,
+                           create_input=True,
+                           testing=True,
+                           workdir=os.path.join('.', 'test_files'),
+                           debug=False,
+                           basedir=BASEDIR)
+
+    init_model.create_initialised_input()
+    result = init_model.run_from_buffer()
+    vc_test = init_model.output_parse()['Vc']
+    np_test.assert_almost_equal(vc_test, [5,
+                                          4.2428747349702212,
+                                          9.4222756529437621,
+                                          5.6188422186969031,
+                                          16.472322944130664],
+                                err_msg='Vc Output not the same')
+    os.remove(init_model.output_detail)
+
+
+def test_init_output_from_file():
+    """
+    Check that an output file will be read and processed correctly.
+    """
+
+    times = [0, 2, 4, 12, 15, 25]
+    inputs = {"names": ['V'],
+              "values": [
+                  [5],
+                  [0],
+                  [15],
+                  [-8],
+                  [25]
+    ]
+    }
+    params = {"C": 0.0121805,
+              "R": 1000,
+              "Vc": 0}
+
+    outputs = ['Vc']
+
+    init_model = ModelBCMD('rc',
+                           inputs=inputs,
+                           params=params,
+                           times=times,
+                           outputs=outputs,
+                           input_file=None,
+                           create_input=True,
+                           testing=True,
+                           workdir=os.path.join('.', 'test_files'),
+                           debug=False,
+                           basedir=BASEDIR)
+
+    init_model.write_initialised_input()
+    result = init_model.run_from_file()
+    vc_test = init_model.output_parse()['Vc']
+    np_test.assert_almost_equal(vc_test, [5,
+                                          4.2428747349702212,
+                                          9.4222756529437621,
+                                          5.6188422186969031,
+                                          16.472322944130664],
+                                err_msg='Vc Output not the same')
+    os.remove
     os.remove(default_model.output_detail)

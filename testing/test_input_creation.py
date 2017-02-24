@@ -5,7 +5,7 @@ import os
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 
-class TestInput:
+class TestInputDefault:
 
     def setUp(self):
         self.times = list(range(0, 30, 5))
