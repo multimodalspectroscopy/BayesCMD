@@ -58,41 +58,67 @@ def test_csv_data_import():
     assert_dict_equal(expt_data, test_dict)
 
 
-def test_euclidean_distance():
-    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                             'test_files', 'rc_actual_data.csv')
-    expt_data = import_actual_data(expt_file)
+class TestDistances_Single:
 
-    distance = get_distance(expt_data, test_data, ['Vc'])
+    def setUp(self):
+        self.x1 = {'data': [1, 2, 3]}
+        self.x2 = {'data': [4, 5, 6]}
 
-    np_test.assert_almost_equal([0.0], distance)
+    def test_euclidean_distance(self):
+        distance = get_distance(self.x1, self.x2, ['data'], 'euclidean')
+
+        np_test.assert_almost_equal([5.196152422], distance)
+
+    def test_manhattan_distance(self):
+
+        distance = get_distance(self.x1, self.x2, ['data'], 'manhattan')
+
+        np_test.assert_almost_equal([9.0], distance)
+
+    def test_MSE_distance(self):
+
+        distance = get_distance(self.x1, self.x2, ['data'], 'MSE')
+
+        np_test.assert_almost_equal([9.0], distance)
+
+    def test_MAE_distance(self):
+
+        distance = get_distance(self.x1, self.x2, ['data'], 'MAE')
+
+        np_test.assert_almost_equal([3.0], distance)
 
 
-def test_manhattan_distance():
-    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                             'test_files', 'rc_actual_data.csv')
-    expt_data = import_actual_data(expt_file)
+class TestDistances_Multiple:
 
-    distance = get_distance(expt_data, test_data, ['Vc'], 'manhattan')
+    def setUp(self):
+        self.x1 = {'data1': [1, 2, 3],
+                   'data2': [4, 5, 6]}
+        self.x2 = {'data1': [2, 3, 4],
+                   'data2': [7, 8, 9]}
 
-    np_test.assert_almost_equal([0.0], distance)
+    def test_euclidean_distance(self):
+        distance = get_distance(self.x1, self.x2, ['data1', 'data2'],
+                                'euclidean')
 
+        np_test.assert_almost_equal([6.92820323027], distance)
 
-def test_MAE_distance():
-    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                             'test_files', 'rc_actual_data.csv')
-    expt_data = import_actual_data(expt_file)
+    def test_manhattan_distance(self):
 
-    distance = get_distance(expt_data, test_data, ['Vc'], 'MAE')
+        distance = get_distance(self.x1, self.x2, ['data1', 'data2'],
+                                'manhattan')
 
-    np_test.assert_almost_equal([0.0], distance)
+        np_test.assert_almost_equal([12.0], distance)
 
+    def test_MSE_distance(self):
 
-def test_MSE_distance():
-    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                             'test_files', 'rc_actual_data.csv')
-    expt_data = import_actual_data(expt_file)
+        distance = get_distance(self.x1, self.x2, ['data1', 'data2'],
+                                'MSE')
 
-    distance = get_distance(expt_data, test_data, ['Vc'], 'MSE')
+        np_test.assert_almost_equal([10.0], distance)
 
-    np_test.assert_almost_equal([0.0], distance)
+    def test_MAE_distance(self):
+
+        distance = get_distance(self.x1, self.x2, ['data1', 'data2'],
+                                'MAE')
+
+        np_test.assert_almost_equal([4.0], distance)

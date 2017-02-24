@@ -5,11 +5,76 @@ from .data_import import *
 
 
 def euclidean_dist(data1, data2):
-    return [np.sqrt(np.sum((data1 - data2) * (data1 - data2)))]
+    """
+    Gives the euclidean distance between two numpy arrays.
+
+    :param data1: Numpy array for data1
+    :type data1: np.ndarray
+    :param data2: Numpy array for data2
+    :type data2: np.ndarray
+
+    :return: Euclidean distance measure
+    :rtype: list of float
+    """
+    assert(data1.shape == data2.shape), 'Arrays not of equal size'
+    return [np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))]
+
+
+def manhattan_dist(data1, data2):
+    """
+    Gives the Manhattan distance between two numpy arrays.
+
+    :param data1: Numpy array for data1
+    :type data1: np.ndarray
+    :param data2: Numpy array for data2
+    :type data2: np.ndarray
+
+    :return: Manhattan distance measure
+    :rtype: list of float
+    """
+    assert(data1.shape == data2.shape), 'Arrays not of equal size'
+    return [np.sum(np.abs(data1 - data2))]
+
+
+def mean_square_error_dist(data1, data2):
+    """
+    Gives the mean squared error between two numpy arrays.
+
+    :param data1: Numpy array for data1
+    :type data1: np.ndarray
+    :param data2: Numpy array for data2
+    :type data2: np.ndarray
+
+    :return: MSE distance measure
+    :rtype: list of float
+    """
+    assert(data1.shape == data2.shape), 'Arrays not of equal size'
+    n = data1.shape[1]
+    return [np.sum(1 / n * np.sum((data1 - data2) * (data1 - data2), axis=1))]
+
+
+def mean_absolute_error_dist(data1, data2):
+    """
+    Gives the normalised manhattan distance between two numpy arrays.
+
+    :param data1: Numpy array for data1
+    :type data1: np.ndarray
+    :param data2: Numpy array for data2
+    :type data2: np.ndarray
+
+    :return: MAE distance measure
+    :rtype: list of float
+    """
+    assert(data1.shape == data2.shape), 'Arrays not of equal size'
+    n = data1.shape[1]
+    return [1 / n * np.sum(np.abs(data1 - data2))]
 
 
 DISTANCES = {
-    'euclidean': euclidean_dist
+    'euclidean': euclidean_dist,
+    'manhattan': manhattan_dist,
+    'MSE': mean_square_error_dist,
+    'MAE': mean_absolute_error_dist
 }
 
 
@@ -26,7 +91,6 @@ def get_distance(actual_data, sim_data, targets, distance='euclidean'):
     d0 = []
     d_star = []
     for idx, k in enumerate(targets):
-        print('INDEX: ', idx)
         d0.append(check_for_key(actual_data, k))
         d_star.append(check_for_key(sim_data, k))
 
