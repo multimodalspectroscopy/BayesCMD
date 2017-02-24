@@ -45,8 +45,8 @@ class ModelBCMD:
                  testing=False):
 
         self.model_name = model_name
-        self.params = params  # Appears to be a dictionary in existing code
-        self.inputs = inputs  # Appears to be a dictionary in existing code
+        self.params = params  # dict of non-default params
+        self.inputs = inputs  # any time dependent inputs to the model
         self.times = times
 
         # Determine if input file is present already or if it needs creating
