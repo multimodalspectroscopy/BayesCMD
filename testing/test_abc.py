@@ -66,3 +66,33 @@ def test_euclidean_distance():
     distance = get_distance(expt_data, test_data, ['Vc'])
 
     np_test.assert_almost_equal([0.0], distance)
+
+
+def test_manhattan_distance():
+    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                             'test_files', 'rc_actual_data.csv')
+    expt_data = import_actual_data(expt_file)
+
+    distance = get_distance(expt_data, test_data, ['Vc'], 'manhattan')
+
+    np_test.assert_almost_equal([0.0], distance)
+
+
+def test_MAE_distance():
+    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                             'test_files', 'rc_actual_data.csv')
+    expt_data = import_actual_data(expt_file)
+
+    distance = get_distance(expt_data, test_data, ['Vc'], 'MAE')
+
+    np_test.assert_almost_equal([0.0], distance)
+
+
+def test_MSE_distance():
+    expt_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                             'test_files', 'rc_actual_data.csv')
+    expt_data = import_actual_data(expt_file)
+
+    distance = get_distance(expt_data, test_data, ['Vc'], 'MSE')
+
+    np_test.assert_almost_equal([0.0], distance)
