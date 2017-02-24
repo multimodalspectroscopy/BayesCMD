@@ -23,11 +23,12 @@ class InputCreator:
         remain unchanged.
         :param times: List of times, as per input data. Length should be 1 more
         than actual number of time steps (0-base)
-        :param params: dictionary of 'parameters'. This is any thing, inputs or
+        :param inputs: dictionary of 'inputs'. This is any thing, inputs or
         params, which are defined at subsequent timepoints.
         :return: Output string buffer
         """
-        assert len(self.times[:-1]) == len(self.inputs['values']), "Different number of time steps in log and in data:\n \t" \
+        assert len(self.times[:-1]) == len(self.inputs['values']), "Different" \
+            "number of time steps in log and in data:\n \t" \
             "time steps = %d \n\t" \
             "param steps = %d" % (len(self.times)[:-1],
                                   len(self.inputs['values']))
@@ -44,6 +45,33 @@ class InputCreator:
         self.f_out.seek(0)
         return self.f_out
 
+    def initialised_creation(self):
+        """
+        Create an input file from given arguments that will iinitialise.
+        Assumes parameters remain unchanged.
+        :param times: List of times, as per input data. Length should be 1 more
+        than actual number of time steps (0-base)
+        :param inputs: dictionary of 'inputs'. This is any thing, inputs or
+        params, which are defined at subsequent timepoints.
+        :return: Output string buffer
+        """
+        assert len(self.times[:-1]) == len(self.inputs['values']), "Different" \
+            "number of time steps in log and in data:\n \t" \
+            "time steps = %d \n\t" \
+            "param steps = %d" % (len(self.times)[:-1],
+                                  len(self.inputs['values']))
+
+        self.f_out.write('# File created using BayesCMD file creation\n')
+        self.f_out.write('@%d\n' % len(self.times[:-1]))
+        self.f_out.write(': %d ' % len(self.inputs['names']) +
+                         ' '.join(self.inputs['names']) + '\n')
+        for ii, time in enumerate(self.times[:-1]):
+            self.f_out.write('= %d %d ' % (self.times[ii],
+                                           self.times[ii + 1]) +
+                             ' '.join(str(v) for v in self.inputs['values'][ii]) + '\n')
+
+        self.f_out.seek(0)
+        return self.f_out
 
 if __name__ == '__main__':
     try:
