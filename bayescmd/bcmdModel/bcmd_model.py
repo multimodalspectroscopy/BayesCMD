@@ -29,9 +29,10 @@ class ModelBCMD:
 
     def __init__(self,
                  model_name,
-                 inputs=None,  # Output variables
+                 inputs=None,  # Input variables
                  params=None,  # Parameters
                  times=None,  # Times to run simulation at
+                 outputs=None,
                  create_input=True,
                  input_file=None,
                  suppress=False,
@@ -48,6 +49,7 @@ class ModelBCMD:
         self.params = params  # dict of non-default params
         self.inputs = inputs  # any time dependent inputs to the model
         self.times = times
+        self.outputs = outputs
 
         # Determine if input file is present already or if it needs creating
         self.create_input = create_input
@@ -109,7 +111,8 @@ class ModelBCMD:
                 0] + '_{:%H%M%S-%d%m%y}.input'.format(datetime.datetime.now())
             print('Input file %s already exists.\n Renaming as %s' %
                   (self.input_file, new_input))
-            input_creator = InputCreator(self.times, self.inputs, new_input)
+            input_creator = InputCreator(self.times, self.inputs,
+                                         filename=new_input)
             input_creator.default_creation()
             self.input_file = input_creator.input_file_write()
         except AssertionError:
@@ -142,13 +145,17 @@ class ModelBCMD:
                 0] + '_{:%H%M%S-%d%m%y}.input'.format(datetime.datetime.now())
             print('Input file %s already exists.\n Renaming as %s' %
                   (self.input_file, new_input))
-            input_creator = InputCreator(self.times, self.inputs, new_input)
+            input_creator = InputCreator(self.times, self.inputs,
+                                         params=self.params,
+                                         outputs=self.outputs,
+                                         filename=new_input)
             input_creator.initialised_creation()
             self.input_file = input_creator.input_file_write()
         except AssertionError:
             input_creator = InputCreator(self.times,
                                          self.inputs,
-                                         self.params,
+                                         params=self.params,
+                                         outputs=self.outputs,
                                          filename=self.input_file)
             input_creator.initialised_creation()
             input_creator.input_file_write()
@@ -160,7 +167,8 @@ class ModelBCMD:
         Method to create input file and write to string buffer for access
         direct from memory.
         """
-        input_creator = InputCreator(self.times, self.inputs, self.params)
+        input_creator = InputCreator(self.times, self.inputs,
+                                     params=self.params, outputs=self.outputs)
         self.input_file = input_creator.initialised_creation().getvalue()
 
         return self.input_file
@@ -232,7 +240,7 @@ class ModelBCMD:
                                     timeout=self.timeout)
         else:
             stderrname = os.path.join(
-                self.workdir, '%s.stderr' % ("two_" + self.model_name))
+                self.workdir, '%s.stderr' % ("buffer_" + self.model_name))
 
             # if opening these files fails, we may be in trouble anyway
             # but don't peg out just because of this -- let the the failure
@@ -272,5 +280,5 @@ class ModelBCMD:
         for d in csv.DictReader(file_out, delimiter='\t'):
             for key, value in d.items():
                 self.output_dict[key].append(float(value))
-
+        print(self.output_dict)
         return self.output_dict
