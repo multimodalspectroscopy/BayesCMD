@@ -38,6 +38,7 @@ def test_create_input_and_run_from_file():
                               debug=True,
                               basedir=BASEDIR)
 
+    print('INPUT FILE IS %s' % input_file)
     default_model.write_default_input()
     default_model.run_from_file()
     os.remove(default_model.input_file)
