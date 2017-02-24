@@ -115,7 +115,7 @@ class ModelBCMD:
         except AssertionError:
             input_creator = InputCreator(self.times,
                                          self.inputs,
-                                         self.input_file)
+                                         filename=self.input_file)
             input_creator.default_creation()
             input_creator.input_file_write()
 
@@ -128,6 +128,40 @@ class ModelBCMD:
         """
         input_creator = InputCreator(self.times, self.inputs)
         self.input_file = input_creator.default_creation().getvalue()
+
+        return self.input_file
+
+    def write_initialised_input(self):
+        """
+        Function to write a default input to file.
+        """
+        # Ensure that any existing input files aren't overwritten
+        try:
+            assert os.path.exists(self.input_file)
+            new_input = os.path.splitext(self.input_file)[
+                0] + '_{:%H%M%S-%d%m%y}.input'.format(datetime.datetime.now())
+            print('Input file %s already exists.\n Renaming as %s' %
+                  (self.input_file, new_input))
+            input_creator = InputCreator(self.times, self.inputs, new_input)
+            input_creator.initialised_creation()
+            self.input_file = input_creator.input_file_write()
+        except AssertionError:
+            input_creator = InputCreator(self.times,
+                                         self.inputs,
+                                         self.params,
+                                         filename=self.input_file)
+            input_creator.initialised_creation()
+            input_creator.input_file_write()
+
+        return True
+
+    def create_initialised_input(self):
+        """
+        Method to create input file and write to string buffer for access
+        direct from memory.
+        """
+        input_creator = InputCreator(self.times, self.inputs, self.params)
+        self.input_file = input_creator.initialised_creation().getvalue()
 
         return self.input_file
 

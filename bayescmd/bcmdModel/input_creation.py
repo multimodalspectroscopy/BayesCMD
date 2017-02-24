@@ -5,10 +5,13 @@ from io import StringIO
 
 class InputCreator:
 
-    def __init__(self, times, inputs, filename=None):
+    def __init__(self, times, inputs,
+                 outputs=None, params=None, filename=None):
         self.filename = filename
         self.times = times
         self.inputs = inputs
+        self.params = params
+        self.outputs = outputs,
         self.f_out = StringIO()
 
     def input_file_write(self):
@@ -30,7 +33,7 @@ class InputCreator:
         assert len(self.times[:-1]) == len(self.inputs['values']), "Different" \
             "number of time steps in log and in data:\n \t" \
             "time steps = %d \n\t" \
-            "param steps = %d" % (len(self.times)[:-1],
+            "input steps = %d" % (len(self.times[:-1]),
                                   len(self.inputs['values']))
 
         self.f_out.write('# File created using BayesCMD file creation\n')
@@ -47,32 +50,54 @@ class InputCreator:
 
     def initialised_creation(self):
         """
-        Create an input file from given arguments that will iinitialise.
+        Create an input file from given arguments that will initialise.
         Assumes parameters remain unchanged.
         :param times: List of times, as per input data. Length should be 1 more
         than actual number of time steps (0-base)
         :param inputs: dictionary of 'inputs'. This is any thing, inputs or
         params, which are defined at subsequent timepoints.
+        : param params: dict of non-default parameters of form name: val to
+        initialise at start
+        :param outputs: list of target outputs
         :return: Output string buffer
         """
         assert len(self.times[:-1]) == len(self.inputs['values']), "Different" \
             "number of time steps in log and in data:\n \t" \
             "time steps = %d \n\t" \
-            "param steps = %d" % (len(self.times)[:-1],
+            "input steps = %d" % (len(self.times[:-1]),
                                   len(self.inputs['values']))
 
         self.f_out.write('# File created using BayesCMD file creation\n')
-        self.f_out.write('@%d\n' % len(self.times[:-1]))
+        self.f_out.write('@%d\n' % len(self.times[:-1]) + 1)
+        self.f_out.write('>>> 0\n!0')
+        # Create lists for initialised names and values
+        init_names = list(self.params.keys())
+        init_names.extend(list(self.inputs['names']))
+        init_vals = list(self.params.values())
+        init_vals.extend(self.inputs['values'][0])
+        self.f_out.write(': %d ' % len(init_list) +
+                         ' '.join(init_names) +
+                         '\n')
+        self.f_out.write('= -1000 0 ' + ' '.join(init_vals) +
+                         '\n')
+        self.f_out.write('>>> %d t ' % (len(self.outputs) + 1) +
+                         ' '.join(self.outputs) +
+                         '\n!!!\n')
         self.f_out.write(': %d ' % len(self.inputs['names']) +
-                         ' '.join(self.inputs['names']) + '\n')
+                         ' '.join(self.inputs['names']) +
+                         '\n')
         for ii, time in enumerate(self.times[:-1]):
             self.f_out.write('= %d %d ' % (self.times[ii],
                                            self.times[ii + 1]) +
-                             ' '.join(str(v) for v in self.inputs['values'][ii]) + '\n')
+                             ' '.join(str(v) for v in
+                                      self.inputs['values'][ii]) +
+                             '\n')
 
         self.f_out.seek(0)
         return self.f_out
 
+
+#  TODO: Create method to parse a data file into the inputs dict form
 if __name__ == '__main__':
     try:
         output = os.path.join('.', 'test_files', 'output_input.txt')
