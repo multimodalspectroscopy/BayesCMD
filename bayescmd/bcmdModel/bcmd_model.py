@@ -69,7 +69,8 @@ class ModelBCMD:
                 os.makedirs(workdir)
         else:
             self.workdir = tempfile.mkdtemp(prefix=model_name)
-            print(self.workdir)
+            if debug:
+                print('TEMP DIR: ', self.workdir)
 
         self.timeout = timeout
         self.debug = debug
@@ -280,5 +281,4 @@ class ModelBCMD:
         for d in csv.DictReader(file_out, delimiter='\t'):
             for key, value in d.items():
                 self.output_dict[key].append(float(value))
-        print(self.output_dict)
         return self.output_dict

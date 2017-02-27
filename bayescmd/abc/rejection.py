@@ -1,31 +1,20 @@
 import numpy.random as rd
-from functools import partialmethod
+from ..bcmdModel import ModelBCMD
+from functools import partial
 from .distances import get_distance
 from .data_import import *
+
+import csv
+
+
+def returnConst(x):
+    return x
 
 
 class Rejection:
     """
     This class will run a batch process of a rejection algorithm.
     """
-    priorDict = {
-        "beta": rd.beta,
-        "binomial": rd.binomial,
-        "chisquare": rd.chisquare,
-        "dirichlet": rd.dirichlet,
-        "exponential": rd.exponential,
-        "f": rd.f,
-        "gamma": rd.gamma,
-        "geometric": rd.geometric,
-        "laplace": rd.laplace,
-        "lognormal": rd.lognormal,
-        "neg_binomial": rd.negative_binomial,
-        "normal": rd.normal,
-        "poisson": rd.poisson,
-        "power": rd.power,
-        "rayleigh": rd.rayleigh,
-        "uniform": rd.uniform
-    }
 
     def __init__(self,
                  model_name,
@@ -58,18 +47,24 @@ class Rejection:
 
             particle_limit (int): limit at which to stop constructing posterior
         """
-    self.priors = prior_parameters
+        self.model_name = model_name
 
-    self.eps = epsilon
+        self.priors = prior_parameters
 
-    self.n_particles = n_particles
+        self.eps = epsilon
 
-    self.limit = particle_limit
+        self.n_particles = n_particles
 
-    self.d0 = import_actual_data(data_0)
+        self.inputs = inputs
+
+        self.targets = targets
+
+        self.limit = particle_limit
+
+        self.d0 = import_actual_data(data_0)
 
     @staticmethod
-    def __getDist(v):
+    def __getDistribution(v):
         """
         Get distribution from class prior selection.
         :param v: value from prior_parameters dict key:value pairing.
@@ -78,7 +73,26 @@ class Rejection:
         :return: Function that will generate a prior sample.
         :rtype: function
         """
-        yield partialmethod(priorDict[v[0]], *v[1])
+        priorDict = {
+            "constant": returnConst,
+            "beta": rd.beta,
+            "binomial": rd.binomial,
+            "chisquare": rd.chisquare,
+            "dirichlet": rd.dirichlet,
+            "exponential": rd.exponential,
+            "f": rd.f,
+            "gamma": rd.gamma,
+            "geometric": rd.geometric,
+            "laplace": rd.laplace,
+            "lognormal": rd.lognormal,
+            "neg_binomial": rd.negative_binomial,
+            "normal": rd.normal,
+            "poisson": rd.poisson,
+            "power": rd.power,
+            "rayleigh": rd.rayleigh,
+            "uniform": rd.uniform
+        }
+        return partial(priorDict[v[0]], *v[1])
 
     def definePriors(self):
         """
@@ -87,7 +101,7 @@ class Rejection:
         """
         d = {}
         for k, v in self.priors.items():
-            d[k] = self.__getDist(v)
+            d[k] = self.__getDistribution(v)
 
         self.priorGen = d
         return d
@@ -95,20 +109,23 @@ class Rejection:
     def generateOutput(self):
         params = {k: v() for k, v in self.priorGen.items()}
         data_length = max([len(l) for l in self.d0.values()])
-        if 't' not in self.d0.keys() and sample_rate not None:
-            times = [i * sample_rate for i in range(data_length)]
+        if ('t' not in self.d0.keys()) and (sample_rate is not None):
+            times = [i * sample_rate for i in range(data_length + 1)]
         elif 't' in self.d0.keys():
             times = self.d0['t']
+            if times[0] != 0:
+                times.insert(0, 0)
         else:
             raise KeyError("time ('t') not in given data")
 
-        inputs = self.d0[self.inputs]
+        inputs = inputParse(self.d0, self.inputs)
 
         abc_model = ModelBCMD(self.model_name,
-                              inputs,
-                              params,
-                              times)
-        abc_model.create_default_input()
+                              inputs=inputs,
+                              params=params,
+                              times=times,
+                              outputs=self.targets)
+        abc_model.create_initialised_input()
         abc_model.run_from_buffer()
         output = abc_model.output_parse()
         return params, output
@@ -121,12 +138,19 @@ class Rejection:
             currParticles = len(list(self.posterior.values())[0])
             if currParticles <= self.n_particles:
                 params, output = self.generateOutput()
-                if get_distance(self.d0, output, self.targets) <= self.eps:
+                cost = get_distance(self.d0, output, self.targets)
+                if cost[0] <= self.eps:
                     for k, v in params.items():
-                        self.posterior[k].extend(v)
+                        self.posterior[k].append(v)
                 else:
                     pass
             else:
                 break
+
+        fields = list(self.posterior.keys())
+        with open('~/Desktop/posterior.txt', 'w') as out_file:
+            writer = csv.writer(out_file)
+            writer.writerow(self.posterior.keys())
+            writer.writerows(zip(*self.posterior.values()))
 
         return self.posterior

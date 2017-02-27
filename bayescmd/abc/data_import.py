@@ -1,4 +1,5 @@
 import csv
+from itertools import zip_longest
 
 
 def import_actual_data(fname):
@@ -27,3 +28,21 @@ def import_actual_data(fname):
                     print(e)
                     sys.exit(1)
     return actual_data
+
+
+def inputParse(d0, inputs):
+    """
+    Inputs
+    ======
+    :param d0: Dictionary created from import_actual_data
+    :type d0: dict
+
+    :param inputs: List of input names
+    :type list:
+
+    :return: Dictionary of inputs as used by bcmdModel
+    :rtype: dict
+    """
+    values = [l for k, l in d0.items() if k in inputs]
+    return {"names": [k for k in d0.keys() if k in inputs],
+            "values": list(map(list, zip(*values)))}
