@@ -69,7 +69,7 @@ class InputCreator:
 
         self.f_out.write('# File created using BayesCMD file creation\n')
         self.f_out.write('@%d\n' % (len(self.times[:-1]) + 1))
-        self.f_out.write('>>> 0\n!0')
+        self.f_out.write('>>> 0\n!0\n')
         # Create lists for initialised names and values
         init_names = []
         init_vals = []
@@ -79,7 +79,7 @@ class InputCreator:
 
         init_names.extend(self.inputs['names'])
         init_vals.extend(self.inputs['values'][0])
-        self.f_out.write(': %d ' % len(init_names) +
+        self.f_out.write(':%d ' % len(init_names) +
                          ' '.join(init_names) +
                          '\n')
         self.f_out.write('= -1000 0 ' + ' '.join(str(v) for v in init_vals) +
@@ -90,7 +90,7 @@ class InputCreator:
             self.f_out.write('>>> %d t ' % ((len(self.outputs) + 1)) +
                              ' '.join(self.outputs) +
                              '\n!!!\n')
-        self.f_out.write(': %d ' % len(self.inputs['names']) +
+        self.f_out.write(':%d ' % len(self.inputs['names']) +
                          ' '.join(self.inputs['names']) +
                          '\n')
         for ii, time in enumerate(self.times[:-1]):
