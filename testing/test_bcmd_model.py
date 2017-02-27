@@ -202,12 +202,13 @@ def test_init_output_from_buffer():
 
     init_model.create_initialised_input()
     result = init_model.run_from_buffer()
-    vc_test = init_model.output_parse()['Vc']
-    np_test.assert_almost_equal(vc_test, [5,
-                                          4.2428747349702212,
-                                          9.4222756529437621,
-                                          5.6188422186969031,
-                                          16.472322944130664],
+    vc_test = init_model.output_parse()
+    out = outputs[0]
+    np_test.assert_almost_equal(vc_test[out], [5,
+                                               4.2428747349702212,
+                                               9.4222756529437621,
+                                               5.6188422186969031,
+                                               16.472322944130664],
                                 err_msg='Vc Output not the same')
     os.remove(init_model.output_detail)
 
@@ -247,12 +248,13 @@ def test_init_output_from_file():
 
     init_model.write_initialised_input()
     result = init_model.run_from_file()
-    vc_test = init_model.output_parse()['Vc']
-    np_test.assert_almost_equal(vc_test, [5,
-                                          4.2428747349702212,
-                                          9.4222756529437621,
-                                          5.6188422186969031,
-                                          16.472322944130664],
+    vc_test = init_model.output_parse()
+    out = outputs[0]
+    np_test.assert_almost_equal(vc_test[out], [5,
+                                               4.2428747349702212,
+                                               9.4222756529437621,
+                                               5.6188422186969031,
+                                               16.472322944130664],
                                 err_msg='Vc Output not the same')
-    os.remove
-    os.remove(default_model.output_detail)
+    os.remove(init_model.input_file)
+    os.remove(init_model.output_detail)
