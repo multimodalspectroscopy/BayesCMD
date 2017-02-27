@@ -28,9 +28,9 @@ def test_create_input_and_run_from_file():
     params = None
 
     default_model = ModelBCMD('rc',
-                              inputs,
-                              params,
-                              times,
+                              inputs=inputs,
+                              params=params,
+                              times=times,
                               input_file=input_file,
                               create_input=True,
                               testing=True,

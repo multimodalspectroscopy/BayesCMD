@@ -1,41 +1,16 @@
 from bayescmd.abc.data_import import *
 from bayescmd.abc.distances import get_distance
+from bayescmd.abc.rejection import Rejection
 from bayescmd.bcmdModel import ModelBCMD
+
 from nose.tools import assert_true, assert_equal, with_setup, assert_dict_equal
 import numpy.testing as np_test
+
 import os
 
 BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 assert os.path.basename(BASEDIR) == 'BayesCMD'
 print(BASEDIR)
-
-# Create test model
-times = list(range(0, 30, 5))
-inputs = {"names": ['V'],
-          "values": [
-              [1],
-              [0],
-              [-1],
-              [0],
-              [1]
-]
-}
-params = None
-
-test_model = ModelBCMD('rc',
-                       inputs,
-                       params,
-                       times,
-                       input_file=None,
-                       create_input=True,
-                       testing=True,
-                       workdir=os.path.join('.', 'test_files'),
-                       debug=False,
-                       basedir=BASEDIR)
-
-test_model.create_default_input()
-test_model.run_from_buffer()
-test_data = test_model.output_parse()
 
 
 def test_csv_data_import():
@@ -122,3 +97,35 @@ class TestDistances_Multiple:
                                 'MAE')
 
         np_test.assert_almost_equal([4.0], distance)
+
+
+class TestModelDistances():
+
+    def setUp(self):
+        # We define R here to be not the default in order to generate test
+        # data appropriately.
+        self.name = 'rc'
+        self.priors = {"C": ['uniform', [1e-3, 1]],
+                       "R": ['constant', [1000]]}
+        self.epsilon = 1e-1
+        self.n_particles = 1000
+        self.inputs = ['V']
+        self.targets = ['Vc']
+        self.limit = int(1e8)
+        self.data = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                 'test_files', 'rc_actual_data.csv')
+
+    def test_rejection(self):
+
+        testReject = Rejection(model_name=self.name,
+                               prior_parameters=self.priors,
+                               epsilon=self.epsilon,
+                               n_particles=self.n_particles,
+                               inputs=self.inputs,
+                               targets=self.targets,
+                               particle_limit=self.limit,
+                               data_0=self.data)
+
+        testReject.definePriors()
+        post = testReject.rejectionAlg()
+        print(post)
