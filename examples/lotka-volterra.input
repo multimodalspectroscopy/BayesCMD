@@ -1,0 +1,6 @@
+# Test Input to Lotka-Volterra
+@ 1001
+
+: 0
+= 0 1
+* 1000 1
