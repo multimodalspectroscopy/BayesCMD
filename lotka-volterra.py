@@ -34,14 +34,27 @@ def run_model(model):
 
 def sample_data(data, n_samples=25):
     sample_points = np.random.randint(0,len(data['t']), n_samples)
-    return np.array(list(data.values())).transpose()[sample_points,:]
+    return {k : np.array(v)[sample_points] for k, v in data.items()}
 
+def add_noise(data):
+    d = {k: np.array(v)+np.random.normal(0, 0.5, len(v)) for k,v in data.items() if k != 't'}
+    d['t']=data['t']
+    return d
 
 if __name__ == '__main__':
-    LV_test = run_model(timed_model)
-    data = sample_data(LV_test)
+    data = run_model(timed_model)
+    noisy_data = add_noise(data)
+    sample = sample_data(data)
+    noisy_sample = sample_data(noisy_data)
 
 
-    plt.plot(LV_test['t'],LV_test['x'])
-    plt.plot(LV_test['t'],LV_test['y'])
+    fig = plt.figure()
+    ax = fig.add_subplot(2,1,1)
+    ax.scatter(sample['t'], sample['x'], c='red', marker='+' )
+    #plt.scatter(sample['t'], sample['y'], c='red', marker='*')
+    ax.scatter(noisy_sample['t'], noisy_sample['x'], c='blue', marker='+')
+    #plt.scatter(noisy_sample['t'], noisy_sample['y'], c='blue', marker='*')
+    ax2 = fig.add_subplot(2, 1, 2)
+    noise = sample['x']-noisy_sample['x']
+    ax2.plot(data['t'],noisy_data['t'],'.')
     plt.show()
