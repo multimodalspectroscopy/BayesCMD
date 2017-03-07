@@ -1,5 +1,6 @@
 import numpy
 import numpy.random
+import pprint
 import tempfile
 import shutil
 import csv
@@ -20,20 +21,6 @@ TIMEOUT = 30
 # default base directory - this should be a relative directory path
 # leading to bcmd/
 BASEDIR = findBaseDir()
-# MAX_DEPTH = 5
-# BASEDIR = os.path.abspath(os.path.dirname(__file__))
-# for level in range(MAX_DEPTH):
-#     print('LEVEL %d: %s' % (level, BASEDIR))
-#     if os.path.basename(BASEDIR) is not 'BayesCMD':
-#         BASEDIR = os.path.relpath(os.path.dirname(BASEDIR))
-#     else:
-#         break
-#     if level == MAX_DEPTH:
-#         print('Could not find correct basedir')
-#         sys.exit(status=2)
-
-
-print(BASEDIR)
 
 
 class ModelBCMD:
@@ -190,7 +177,13 @@ class ModelBCMD:
         """
         input_creator = InputCreator(self.times, self.inputs,
                                      params=self.params, outputs=self.outputs)
-        self.input_file = input_creator.initialised_creation().getvalue()
+        f_out = input_creator.initialised_creation()
+
+        if self.debug:
+            print(f_out.getvalue(), file=sys.stderr)
+            f_out.seek(0)
+
+        self.input_file = f_out.getvalue()
 
         return self.input_file
 
@@ -248,6 +241,7 @@ class ModelBCMD:
 
     def run_from_buffer(self):
 
+        # Ensure that input file has seeked to 0
         if self.debug:
             print("Output goes to:\n\tCOARSE:%s\n\tDETAIL:%s" %
                   (self.output_coarse, self.output_detail))
@@ -286,6 +280,10 @@ class ModelBCMD:
                 f_err.close()
 
         self.output_coarse = StringIO(result.stdout.decode())
+
+        if self.debug:
+            pprint.pprint('OUTPUT: ' + self.output_coarse.getvalue(), stream=sys.stderr)
+            self.output_coarse.seek(0)
         return result
 
     def output_parse(self):
@@ -298,6 +296,10 @@ class ModelBCMD:
             file_out = open(self.output_coarse)
         except TypeError:
             file_out = self.output_coarse
+
+        if self.debug:
+            pprint.pprint(file_out.read(), stream=sys.stderr)
+            file_out.seek(0)
 
         for d in csv.DictReader(file_out, delimiter='\t'):
             for key, value in d.items():

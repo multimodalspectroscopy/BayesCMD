@@ -2,11 +2,12 @@ import os
 import sys
 
 
-def findBaseDir(max_depth=5):
+def findBaseDir(max_depth=5, verbose=False):
     MAX_DEPTH = max_depth
     BASEDIR = os.path.abspath(os.path.dirname(__file__))
     for level in range(MAX_DEPTH):
-        print('LEVEL %d: %s' % (level, BASEDIR))
+        if verbose:
+            print('LEVEL %d: %s' % (level, BASEDIR))
         if os.path.basename(BASEDIR) == 'BayesCMD':
             break
         else:
