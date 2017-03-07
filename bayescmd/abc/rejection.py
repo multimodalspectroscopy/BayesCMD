@@ -5,6 +5,7 @@ from .distances import get_distance
 from .data_import import *
 
 import csv
+import tempfile
 
 
 def returnConst(x):
@@ -62,6 +63,8 @@ class Rejection:
         self.limit = particle_limit
 
         self.d0 = import_actual_data(data_0)
+
+        self.workdir = tempfile.mkdtemp(prefix=self.model_name+'_')
 
     @staticmethod
     def __getDistribution(v):
@@ -124,7 +127,8 @@ class Rejection:
                               inputs=inputs,
                               params=params,
                               times=times,
-                              outputs=self.targets)
+                              outputs=self.targets,
+                              workdir=self.workdir)
         abc_model.create_initialised_input()
         abc_model.run_from_buffer()
         output = abc_model.output_parse()
@@ -148,7 +152,7 @@ class Rejection:
                 break
 
         fields = list(self.posterior.keys())
-        with open('~/Desktop/posterior.txt', 'w') as out_file:
+        with open('posterior.txt', 'w') as out_file:
             writer = csv.writer(out_file)
             writer.writerow(self.posterior.keys())
             writer.writerows(zip(*self.posterior.values()))
