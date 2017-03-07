@@ -73,9 +73,10 @@ class InputCreator:
         # Create lists for initialised names and values
         init_names = []
         init_vals = []
-        for k, v in self.params.items():
-            init_names.append(k)
-            init_vals.append(v)
+        if self.params is not None:
+            for k, v in self.params.items():
+                init_names.append(k)
+                init_vals.append(v)
 
         init_names.extend(self.inputs['names'])
         init_vals.extend(self.inputs['values'][0])

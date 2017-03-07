@@ -13,13 +13,27 @@ from io import StringIO
 
 import collections
 from .input_creation import InputCreator
+from ..util import findBaseDir
 
 # default timeout, in seconds
 TIMEOUT = 30
 # default base directory - this should be a relative directory path
 # leading to bcmd/
-BASEDIR = '..'
-print(os.path.abspath(BASEDIR))
+BASEDIR = findBaseDir()
+# MAX_DEPTH = 5
+# BASEDIR = os.path.abspath(os.path.dirname(__file__))
+# for level in range(MAX_DEPTH):
+#     print('LEVEL %d: %s' % (level, BASEDIR))
+#     if os.path.basename(BASEDIR) is not 'BayesCMD':
+#         BASEDIR = os.path.relpath(os.path.dirname(BASEDIR))
+#     else:
+#         break
+#     if level == MAX_DEPTH:
+#         print('Could not find correct basedir')
+#         sys.exit(status=2)
+
+
+print(BASEDIR)
 
 
 class ModelBCMD:
@@ -69,6 +83,7 @@ class ModelBCMD:
                 os.makedirs(workdir)
         else:
             self.workdir = tempfile.mkdtemp(prefix=model_name)
+            self.deleteWorkdir = True
             if debug:
                 print('TEMP DIR: ', self.workdir)
 
@@ -96,6 +111,11 @@ class ModelBCMD:
         self.output_detail = os.path.join(
             self.workdir, self.model_name + TEST_PRE + '.detail')
         self.output_dict = collections.defaultdict(list)
+
+    def _cleanupTemp(self):
+        if self.deleteWorkdir:
+            shutil.rmtree(self.workdir)
+        return None
 
     def get_defaults(self):
         print('GETTING MODEL DEFAULTS.\n')
@@ -223,6 +243,7 @@ class ModelBCMD:
                     f_err.close()
         except AssertionError:
             print("Input file doesn't exist. Can't run from file.")
+
         return None
 
     def run_from_buffer(self):
@@ -281,4 +302,5 @@ class ModelBCMD:
         for d in csv.DictReader(file_out, delimiter='\t'):
             for key, value in d.items():
                 self.output_dict[key].append(float(value))
+        self._cleanupTemp()
         return self.output_dict
