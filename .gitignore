@@ -85,3 +85,6 @@ nosetests.xml
 *.vrb
 *.xdy
 *.tdo
+
+# Specific to BCMD
+/data/
