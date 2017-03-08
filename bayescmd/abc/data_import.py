@@ -1,4 +1,5 @@
 import csv
+import sys
 from itertools import zip_longest
 
 
@@ -23,7 +24,7 @@ def import_actual_data(fname):
         for row in reader:
             for k in row.keys():
                 try:
-                    actual_data.setdefault(k, []).append(float(row[k]))
+                    actual_data.setdefault(k.strip(), []).append(float(row[k]))
                 except ValueError as e:
                     print(e)
                     sys.exit(1)

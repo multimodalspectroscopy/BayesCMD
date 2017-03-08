@@ -66,6 +66,8 @@ class Rejection:
 
         self.workdir = tempfile.mkdtemp(prefix=self.model_name+'_')
 
+        self.sample_rate = sample_rate
+
     @staticmethod
     def __getDistribution(v):
         """
@@ -112,8 +114,8 @@ class Rejection:
     def generateOutput(self):
         params = {k: v() for k, v in self.priorGen.items()}
         data_length = max([len(l) for l in self.d0.values()])
-        if ('t' not in self.d0.keys()) and (sample_rate is not None):
-            times = [i * sample_rate for i in range(data_length + 1)]
+        if ('t' not in self.d0.keys()) and (self.sample_rate is not None):
+            times = [i * self.sample_rate for i in range(data_length + 1)]
         elif 't' in self.d0.keys():
             times = self.d0['t']
             if times[0] != 0:

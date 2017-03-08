@@ -77,36 +77,40 @@ class InputCreator:
         if self.inputs is not None:
             init_names.extend(self.inputs['names'])
             init_vals.extend(self.inputs['values'][0])
+
         self.f_out.write(':%d ' % len(init_names) +
                          ' '.join(init_names) +
                          '\n')
         self.f_out.write('= -1000 0 ' + ' '.join(str(v) for v in init_vals) +
                          '\n')
-        if len(self.outputs) == 1:
+        if len(self.outputs) == 0:
+            self.f_out.write('>>> 1 t \n!!!\n')
+        elif len(self.outputs) == 1:
             self.f_out.write('>>> 2 t %s\n!!!\n' % (self.outputs[0]))
         else:
             self.f_out.write('>>> %d t ' % ((len(self.outputs) + 1)) +
                              ' '.join(self.outputs) +
                              '\n!!!\n')
+
         if self.inputs is not None:
-            assert len(self.times[:-1]) == len(self.inputs['values']), "Different" \
-                                                                       "number of time steps in log and in data:\n \t" \
-                                                                       "time steps = %d \n\t" \
-                                                                       "input steps = %d" % (len(self.times[:-1]),
+            assert len(self.times) == len(self.inputs['values']), "Different " \
+                                                                  "number of time steps in log and in data:\n \t" \
+                                                                  "time steps = %d \n\t" \
+                                                                  "input steps = %d" % (len(self.times[:-1]),
                                                                                              len(self.inputs['values']))
             self.f_out.write(':%d ' % len(self.inputs['names']) +
                              ' '.join(self.inputs['names']) +
                              '\n')
             for ii, time in enumerate(self.times[:-1]):
-                self.f_out.write('= %d %d ' % (self.times[ii],
+                self.f_out.write('= %f %f ' % (self.times[ii],
                                                self.times[ii + 1]) +
                                  ' '.join(str(v) for v in
-                                          self.inputs['values'][ii]) +
+                                          self.inputs['values'][ii+1]) +
                                  '\n')
         else:
             self.f_out.write(':0\n')
             for ii, time in enumerate(self.times[:-1]):
-                self.f_out.write('= %d %d ' % (self.times[ii], self.times[ii + 1]) +'\n')
+                self.f_out.write('= %f %f ' % (self.times[ii], self.times[ii + 1]) +'\n')
 
         self.f_out.seek(0)
         return self.f_out
