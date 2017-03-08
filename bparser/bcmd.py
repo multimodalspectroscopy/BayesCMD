@@ -156,7 +156,8 @@ def process_args():
     if not (args.name is None):
         config['name'] = args.name
     else:
-        srcname, srcext = os.path.splitext(args.file[0])
+        srcpath, srcext = os.path.splitext(args.file[0])
+        srcp, srcname = os.path.split(srcpath)
         config['name'] = srcname
 
     if not (args.o is None):
