@@ -16,8 +16,14 @@ def euclidean_dist(data1, data2):
     :return: Euclidean distance measure
     :rtype: list of float
     """
-    assert(data1.shape == data2.shape), 'Arrays not of equal size'
-    return [np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))]
+    try:
+        assert(data1.shape == data2.shape), 'Arrays not of equal size'
+    except AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+
+    return np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))
 
 
 def manhattan_dist(data1, data2):
@@ -33,7 +39,7 @@ def manhattan_dist(data1, data2):
     :rtype: list of float
     """
     assert(data1.shape == data2.shape), 'Arrays not of equal size'
-    return [np.sum(np.abs(data1 - data2))]
+    return np.sum(np.abs(data1 - data2))
 
 
 def mean_square_error_dist(data1, data2):
@@ -50,7 +56,7 @@ def mean_square_error_dist(data1, data2):
     """
     assert(data1.shape == data2.shape), 'Arrays not of equal size'
     n = data1.shape[1]
-    return [np.sum(1 / n * np.sum((data1 - data2) * (data1 - data2), axis=1))]
+    return np.sum(1 / n * np.sum((data1 - data2) * (data1 - data2), axis=1))
 
 
 def mean_absolute_error_dist(data1, data2):
@@ -67,7 +73,7 @@ def mean_absolute_error_dist(data1, data2):
     """
     assert(data1.shape == data2.shape), 'Arrays not of equal size'
     n = data1.shape[1]
-    return [1 / n * np.sum(np.abs(data1 - data2))]
+    return 1 / n * np.sum(np.abs(data1 - data2))
 
 
 DISTANCES = {
@@ -86,12 +92,15 @@ def check_for_key(dictionary, target):
     return data
 
 
-def get_distance(actual_data, sim_data, targets, distance='euclidean'):
+def get_distance(actual_data, sim_data, targets,
+                 distance='euclidean', zero=False):
 
     d0 = []
     d_star = []
     for idx, k in enumerate(targets):
         d0.append(check_for_key(actual_data, k))
         d_star.append(check_for_key(sim_data, k))
-
+    if zero:
+        print(np.array(d_star)[0,:])
+        d_star = np.array(d_star)-np.array(d_star)[0, :]
     return DISTANCES[distance](np.array(d0), np.array(d_star))

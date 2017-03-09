@@ -62,7 +62,6 @@ class InputCreator:
         :return: Output string buffer
         """
 
-
         self.f_out.write('# File created using BayesCMD file creation\n')
         self.f_out.write('@ %d\n' % (len(self.times[:-1]) + 1))
         self.f_out.write('>>> 0\n!0\n')
@@ -81,15 +80,17 @@ class InputCreator:
         self.f_out.write(':%d ' % len(init_names) +
                          ' '.join(init_names) +
                          '\n')
-        self.f_out.write('= -1000 0 ' + ' '.join(str(v) for v in init_vals) +
+        self.f_out.write('= -1000 -1 ' + ' '.join(str(v) for v in init_vals) +
                          '\n')
         if len(self.outputs) == 0:
             self.f_out.write('>>> 1 t \n!!!\n')
         elif len(self.outputs) == 1:
             self.f_out.write('>>> 2 t %s\n!!!\n' % (self.outputs[0]))
         else:
-            self.f_out.write('>>> %d t ' % ((len(self.outputs) + 1)) +
-                             ' '.join(self.outputs) +
+            self.f_out.write('>>> %d t ' % (len(self.outputs) +
+                                             len(self.inputs['names']) + 1,) +
+                             ' '.join(self.outputs) + ' ' +
+                             ' '.join(self.inputs['names']) +
                              '\n!!!\n')
 
         if self.inputs is not None:
@@ -97,9 +98,13 @@ class InputCreator:
                                                                   "number of time steps in log and in data:\n \t" \
                                                                   "time steps = %d \n\t" \
                                                                   "input steps = %d" % (len(self.times[:-1]),
-                                                                                             len(self.inputs['values']))
+                                                                                        len(self.inputs['values']))
             self.f_out.write(':%d ' % len(self.inputs['names']) +
                              ' '.join(self.inputs['names']) +
+                             '\n')
+            self.f_out.write('= -1 0 ' +
+                             ' '.join(str(v) for v in
+                                      self.inputs['values'][0]) +
                              '\n')
             for ii, time in enumerate(self.times[:-1]):
                 self.f_out.write('= %f %f ' % (self.times[ii],
@@ -108,9 +113,10 @@ class InputCreator:
                                           self.inputs['values'][ii+1]) +
                                  '\n')
         else:
-            self.f_out.write(':0\n')
+            self.f_out.write(':0\n= -1 0\n')
             for ii, time in enumerate(self.times[:-1]):
-                self.f_out.write('= %f %f ' % (self.times[ii], self.times[ii + 1]) +'\n')
+                self.f_out.write('= %f %f ' %
+                                 (self.times[ii], self.times[ii + 1]) + '\n')
 
         self.f_out.seek(0)
         return self.f_out

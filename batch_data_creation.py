@@ -16,13 +16,13 @@ import argparse
 
 # import bayescmd
 from bayescmd.bcmdModel import ModelBCMD
-from bayescmd.abc.data_import import *
+import bayescmd.abc as abc
 from bayescmd.util import findBaseDir
-
 
 
 BASEDIR = findBaseDir()
 assert os.path.basename(os.path.abspath(BASEDIR)) == 'BayesCMD'
+
 
 def returnConst(x):
     return x
@@ -75,7 +75,7 @@ class Batch:
 
         self.limit = limit
 
-        self.d0 = import_actual_data(data_0)
+        self.d0 = abc.import_actual_data(data_0)
 
         self.workdir = workdir
 
@@ -136,7 +136,7 @@ class Batch:
         else:
             raise KeyError("time ('t') not in given data")
         if self.inputs is not None:
-            inputs = inputParse(self.d0, self.inputs)
+            inputs = abc.inputParse(self.d0, self.inputs)
         else:
             inputs = self.inputs
 
@@ -146,32 +146,47 @@ class Batch:
                               times=times,
                               outputs=self.targets,
                               workdir=self.workdir)
+        abc_model.write_initialised_input()
         abc_model.create_initialised_input()
         abc_model.run_from_buffer()
         output = abc_model.output_parse()
         return params, output
 
     def batchCreation(self):
-        prec_zero = max(2,int(math.log10(self.limit)))
+        prec_zero = max(2, int(math.log10(self.limit))/1000)
         parameters = []
+        outputs = []
+        distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
+        costs = []
         for ii in range(self.limit):
             params, output = self.generateOutput()
+            output['ii'] = [ii]*len(output['t'])
+            outputs.append(output)
+            print(output.keys())
+            if ii % 1000 == 0:
+                idx = str(ii).zfill(prec_zero)
+                outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
+                with open(outf, 'w') as out_file:
+                    for output in outputs:
+                        writer = csv.writer(out_file)
+                        writer.writerow(output.keys())
+                        writer.writerows(zip(*output.values()))
+                outputs = []
+            cost = {}
+            for dist in distances:
+                params[dist] = abc.get_distance(self.d0, output, self.targets,
+                                            distance=dist, zero=True)
             parameters.append(params)
-            idx = str(ii).zfill(prec_zero)
-            outf = os.path.join(self.workdir, "output_%s.csv" %(idx,))
-            with open(outf, 'w') as out_file:
-                writer = csv.writer(out_file)
-                writer.writerow(output.keys())
-                writer.writerows(zip(*output.values()))
 
         outf = os.path.join(self.workdir, "parameters.csv")
         header = [k for k in self.priors.keys()]
-        header.insert(0,'idx')
+        header.insert(0, 'idx')
+        header.extend(distances)
         with open(outf, 'w') as out_file:
             writer = csv.DictWriter(out_file, fieldnames=header)
             writer.writeheader()
             for idx, d in enumerate(parameters):
-                d['idx']=idx
+                d['idx'] = idx
                 writer.writerow(d)
 
         return None
@@ -179,29 +194,32 @@ class Batch:
 if __name__ == '__main__':
 
     ap = argparse.ArgumentParser('Choose model to batch run:')
-    ap.add_argument('model', choices= ['lv', 'bsx'])
-    choice = ap.parse_args()
+    ap.add_argument('model', choices=['lv', 'bsx'],
+                    help='choice of model')
+    ap.add_argument('run_length', metavar='RUN_LENGTH', type=int,
+                    help='number of times to run the model')
+    args = ap.parse_args()
 
-    if choice.model == 'lv':
+    if args.model == 'lv':
         model_name = 'lotka-volterra'
         inputs = None  # Input variables
-        priors = {'a': ['uniform', [0,2]],
-                  'b': ['uniform', [0,2]],
-                  'c': ['uniform', [0,2]],
-                  'd': ['uniform', [0,2]],
+        priors = {'a': ['uniform', [0, 2]],
+                  'b': ['uniform', [0, 2]],
+                  'c': ['uniform', [0, 2]],
+                  'd': ['uniform', [0, 2]],
                   'x': ['constant', [80]],
                   'y': ['constant', [40]]}
         outputs = ['x', 'y']
 
-        workdir = os.path.join(BASEDIR,'build','batch',model_name)
+        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
         distutils.dir_util.mkpath(workdir)
 
-        d0 = os.path.join(BASEDIR,'build','lv_data.csv')
+        d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
 
-    elif choice.model == 'bsx':
+    elif args.model == 'bsx':
         model_name = 'bsx'
         inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-        priors = {'t_u':['uniform',[0.4,0.7]],
+        priors = {'t_u': ['uniform', [0.4, 0.7]],
                   'v_un': ['uniform', [0.7, 1.3]]}
         outputs = ['HbO2', 'HHb']
 
@@ -218,7 +236,7 @@ if __name__ == '__main__':
                         priors,
                         inputs,
                         outputs,
-                        1000000,
+                        args.run_length,
                         d0,
                         workdir)
 
