@@ -63,7 +63,7 @@ class InputCreator:
         """
 
         self.f_out.write('# File created using BayesCMD file creation\n')
-        self.f_out.write('@ %d\n' % (len(self.times[:-1]) + 1))
+        self.f_out.write('@ %d\n' % (len(self.times) + 1))
         self.f_out.write('>>> 0\n!0\n')
         # Create lists for initialised names and values
         init_names = []
@@ -87,11 +87,16 @@ class InputCreator:
         elif len(self.outputs) == 1:
             self.f_out.write('>>> 2 t %s\n!!!\n' % (self.outputs[0]))
         else:
-            self.f_out.write('>>> %d t ' % (len(self.outputs) +
-                                             len(self.inputs['names']) + 1,) +
-                             ' '.join(self.outputs) + ' ' +
-                             ' '.join(self.inputs['names']) +
-                             '\n!!!\n')
+            if self.inputs is not None:
+                self.f_out.write('>>> %d t ' % (len(self.outputs) +
+                                                len(self.inputs['names']) + 1,) +
+                                 ' '.join(self.outputs) + ' ' +
+                                 ' '.join(self.inputs['names']) +
+                                 '\n!!!\n')
+            else:
+                self.f_out.write('>>> %d t ' % (len(self.outputs) + 1,) +
+                                 ' '.join(self.outputs) + ' ' +
+                                 '\n!!!\n')
 
         if self.inputs is not None:
             assert len(self.times) == len(self.inputs['values']), "Different " \
@@ -110,7 +115,7 @@ class InputCreator:
                 self.f_out.write('= %f %f ' % (self.times[ii],
                                                self.times[ii + 1]) +
                                  ' '.join(str(v) for v in
-                                          self.inputs['values'][ii+1]) +
+                                          self.inputs['values'][ii + 1]) +
                                  '\n')
         else:
             self.f_out.write(':0\n= -1 0\n')

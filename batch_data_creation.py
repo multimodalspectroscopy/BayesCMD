@@ -145,26 +145,27 @@ class Batch:
                               params=params,
                               times=times,
                               outputs=self.targets,
-                              workdir=self.workdir)
-        abc_model.write_initialised_input()
+                              workdir=self.workdir,
+                              suppress=True)
+        if abc_model.debug:
+            abc_model.write_initialised_input()
         abc_model.create_initialised_input()
         abc_model.run_from_buffer()
         output = abc_model.output_parse()
         return params, output
 
     def batchCreation(self):
-        prec_zero = max(2, int(math.log10(self.limit))/1000)
+        prec_zero = max(2, int(math.log10(self.limit/1000)))
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
         costs = []
         for ii in range(self.limit):
             params, output = self.generateOutput()
-            output['ii'] = [ii]*len(output['t'])
+            output['ii'] = [ii] * len(output['t'])
             outputs.append(output)
-            print(output.keys())
-            if ii % 1000 == 0:
-                idx = str(ii).zfill(prec_zero)
+            if (ii % 1000 == 0) and (ii != 0):
+                idx = str(ii/1000).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 with open(outf, 'w') as out_file:
                     for output in outputs:
@@ -172,10 +173,20 @@ class Batch:
                         writer.writerow(output.keys())
                         writer.writerows(zip(*output.values()))
                 outputs = []
+
+            elif (ii < 1000) and (ii == self.limit-1):
+                idx = str(ii).zfill(prec_zero)
+                outf = os.path.join(self.workdir, "output_00.csv")
+                with open(outf, 'w') as out_file:
+                    writer = csv.writer(out_file)
+                    writer.writerow(outputs[0].keys())
+                    for output in outputs:
+                        writer.writerows(zip(*output.values()))
+                outputs = []
             cost = {}
             for dist in distances:
                 params[dist] = abc.get_distance(self.d0, output, self.targets,
-                                            distance=dist, zero=True)
+                                                distance=dist, zero=True)
             parameters.append(params)
 
         outf = os.path.join(self.workdir, "parameters.csv")

@@ -248,8 +248,7 @@ class ModelBCMD:
         if self.suppress:
             # invoke the model program as a subprocess
             result = subprocess.run([self.program,
-                                     '-I',
-                                     '-d', self.output_detail],
+                                     '-I'],
                                     input=self.input_file.encode(),
                                     stdout=subprocess.PIPE,
                                     stderr=self.DEVNULL,
