@@ -155,7 +155,7 @@ class Batch:
         return params, output
 
     def batchCreation(self):
-        prec_zero = max(2, int(math.log10(self.limit/1000)))
+        prec_zero = max(2, int(math.log10(self.limit / 1000)))
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
@@ -165,7 +165,7 @@ class Batch:
             output['ii'] = [ii] * len(output['t'])
             outputs.append(output)
             if (ii % 1000 == 0) and (ii != 0):
-                idx = str(ii/1000).zfill(prec_zero)
+                idx = str(ii / 1000).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 with open(outf, 'w') as out_file:
                     for output in outputs:
@@ -174,7 +174,7 @@ class Batch:
                         writer.writerows(zip(*output.values()))
                 outputs = []
 
-            elif (ii < 1000) and (ii == self.limit-1):
+            elif (ii < 1000) and (ii == self.limit - 1):
                 idx = str(ii).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_00.csv")
                 with open(outf, 'w') as out_file:
