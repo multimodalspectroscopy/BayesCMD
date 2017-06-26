@@ -88,3 +88,4 @@ nosetests.xml
 
 # Specific to BCMD
 /data/
+*.cprof

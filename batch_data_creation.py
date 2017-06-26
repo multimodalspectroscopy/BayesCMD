@@ -1,11 +1,12 @@
 """
 Class to create batch amounts of data from prior parameter distributions
 """
+
 # import sys and os
 import sys
 sys.path.append('.')
 import os
-
+os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
 import numpy.random as rd
 from functools import partial
@@ -20,8 +21,8 @@ import bayescmd.abc as abc
 from bayescmd.util import findBaseDir
 
 
-BASEDIR = findBaseDir()
-assert os.path.basename(os.path.abspath(BASEDIR)) == 'BayesCMD'
+BASEDIR = findBaseDir(os.environ['BASEDIR'])
+# assert os.path.basename(os.path.abspath(BASEDIR)) == 'BayesCMD'
 
 
 def returnConst(x):
@@ -165,7 +166,7 @@ class Batch:
             output['ii'] = [ii] * len(output['t'])
             outputs.append(output)
             if (ii % 1000 == 0) and (ii != 0):
-                idx = str(ii / 1000).zfill(prec_zero)
+                idx = str(int(ii / 1000)).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 with open(outf, 'w') as out_file:
                     for output in outputs:
@@ -175,8 +176,16 @@ class Batch:
                 outputs = []
 
             elif (ii < 1000) and (ii == self.limit - 1):
-                idx = str(ii).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_00.csv")
+                with open(outf, 'w') as out_file:
+                    writer = csv.writer(out_file)
+                    writer.writerow(outputs[0].keys())
+                    for output in outputs:
+                        writer.writerows(zip(*output.values()))
+                outputs = []
+            elif (ii > 1000) and (ii == self.limit-1):
+                idx = str(int(math.ceil(ii/1000))).zfill(prec_zero)
+                outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
                     writer.writerow(outputs[0].keys())
@@ -188,6 +197,9 @@ class Batch:
                 params[dist] = abc.get_distance(self.d0, output, self.targets,
                                                 distance=dist, zero=True)
             parameters.append(params)
+            print("Number of distances: {0}".format(len(parameters)), end="\r")
+
+            sys.stdout.flush()
 
         outf = os.path.join(self.workdir, "parameters.csv")
         header = [k for k in self.priors.keys()]
