@@ -183,8 +183,8 @@ class Batch:
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
-            elif (ii > 1000) and (ii == self.limit-1):
-                idx = str(int(math.ceil(ii/1000))).zfill(prec_zero)
+            elif (ii > 1000) and (ii == self.limit - 1):
+                idx = str(int(math.ceil(ii / 1000))).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
@@ -217,51 +217,56 @@ class Batch:
 if __name__ == '__main__':
 
     ap = argparse.ArgumentParser('Choose model to batch run:')
-    ap.add_argument('model', choices=['lv', 'bsx'],
+    ap.add_argument('model', choices=['lv', 'bsx', 'BS'],
                     help='choice of model')
     ap.add_argument('run_length', metavar='RUN_LENGTH', type=int,
                     help='number of times to run the model')
+    ap.add_argument('--test', metavar='RUN_LENGTH', action='store_true',
+                    help='Whether to run this as a test')
     args = ap.parse_args()
 
-    if args.model == 'lv':
-        model_name = 'lotka-volterra'
-        inputs = None  # Input variables
-        priors = {'a': ['uniform', [0, 2]],
-                  'b': ['uniform', [0, 2]],
-                  'c': ['uniform', [0, 2]],
-                  'd': ['uniform', [0, 2]],
-                  'x': ['constant', [80]],
-                  'y': ['constant', [40]]}
-        outputs = ['x', 'y']
+    if ap.test:
+        if args.model == 'lv':
+            model_name = 'lotka-volterra'
+            inputs = None  # Input variables
+            priors = {'a': ['uniform', [0, 2]],
+                      'b': ['uniform', [0, 2]],
+                      'c': ['uniform', [0, 2]],
+                      'd': ['uniform', [0, 2]],
+                      'x': ['constant', [80]],
+                      'y': ['constant', [40]]}
+            outputs = ['x', 'y']
 
-        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-        distutils.dir_util.mkpath(workdir)
+            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+            distutils.dir_util.mkpath(workdir)
 
-        d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
+            d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
 
-    elif args.model == 'bsx':
-        model_name = 'bsx'
-        inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-        priors = {'t_u': ['uniform', [0.4, 0.7]],
-                  'v_un': ['uniform', [0.7, 1.3]]}
-        outputs = ['HbO2', 'HHb']
+        elif args.model == 'bsx':
+            model_name = 'bsx'
+            inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
+            priors = {'t_u': ['uniform', [0.4, 0.7]],
+                      'v_un': ['uniform', [0.7, 1.3]]}
+            outputs = ['HbO2', 'HHb']
 
-        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-        distutils.dir_util.mkpath(workdir)
+            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+            distutils.dir_util.mkpath(workdir)
 
-        d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
+            d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
+
+        else:
+            print('Model not chosen')
+            sys.exit(2)
+
+        batchWriter = Batch(model_name,
+                            priors,
+                            inputs,
+                            outputs,
+                            args.run_length,
+                            d0,
+                            workdir)
+
+        batchWriter.definePriors()
+        batchWriter.batchCreation()
 
     else:
-        print('Model not chosen')
-        sys.exit(2)
-
-    batchWriter = Batch(model_name,
-                        priors,
-                        inputs,
-                        outputs,
-                        args.run_length,
-                        d0,
-                        workdir)
-
-    batchWriter.definePriors()
-    batchWriter.batchCreation()

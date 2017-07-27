@@ -87,5 +87,4 @@ nosetests.xml
 *.tdo
 
 # Specific to BCMD
-/data/
 *.cprof
