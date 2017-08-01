@@ -22,7 +22,6 @@ from bayescmd.util import findBaseDir
 
 
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
-# assert os.path.basename(os.path.abspath(BASEDIR)) == 'BayesCMD'
 
 
 def returnConst(x):
@@ -160,57 +159,84 @@ class Batch:
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
-        costs = []
+        pf = os.path.join(self.workdir, "parameters.csv")
+        header = [k for k in self.priors.keys()]
+        header.insert(0, 'idx')
+        header.extend(distances)
         for ii in range(self.limit):
             params, output = self.generateOutput()
             output['ii'] = [ii] * len(output['t'])
             outputs.append(output)
+
+            # ----- Write to file every 1000 entries ----- #
             if (ii % 1000 == 0) and (ii != 0):
                 idx = str(int(ii / 1000)).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
+
+                file_exists = os.path.isfile(pf)
+                with open(pf, 'a') as out_file:
+                    writer = csv.DictWriter(out_file, fieldnames=header)
+                    if not file_exists:
+                        writer.writeheader()
+                    for idx, d in enumerate(parameters):
+                        d['idx'] = idx
+                        writer.writerow(d)
+
                 with open(outf, 'w') as out_file:
                     for output in outputs:
                         writer = csv.writer(out_file)
                         writer.writerow(output.keys())
                         writer.writerows(zip(*output.values()))
                 outputs = []
+                parameters = []
 
             elif (ii < 1000) and (ii == self.limit - 1):
                 outf = os.path.join(self.workdir, "output_00.csv")
+                file_exists = os.path.isfile(pf)
+                with open(pf, 'a') as out_file:
+                    writer = csv.DictWriter(out_file, fieldnames=header)
+                    if not file_exists:
+                        writer.writeheader()
+                    for idx, d in enumerate(parameters):
+                        d['idx'] = idx
+                        writer.writerow(d)
+
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
                     writer.writerow(outputs[0].keys())
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
+                parameters = []
             elif (ii > 1000) and (ii == self.limit - 1):
                 idx = str(int(math.ceil(ii / 1000))).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
+                file_exists = os.path.isfile(pf)
+                with open(pf, 'a') as out_file:
+                    writer = csv.DictWriter(out_file, fieldnames=header)
+                    if not file_exists:
+                        writer.writeheader()
+                    for idx, d in enumerate(parameters):
+                        d['idx'] = idx
+                        writer.writerow(d)
+
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
                     writer.writerow(outputs[0].keys())
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
-            cost = {}
+                parameters = []
+
+            # ----- Add distances to the params dictionary ----- #
             for dist in distances:
                 params[dist] = abc.get_distance(self.d0, output, self.targets,
                                                 distance=dist, zero=True)
             parameters.append(params)
-            print("Number of distances: {0}".format(len(parameters)), end="\r")
+            print("Number of distances: {0:4d}".format(len(parameters)),
+                  end="\r")
 
             sys.stdout.flush()
-
-        outf = os.path.join(self.workdir, "parameters.csv")
-        header = [k for k in self.priors.keys()]
-        header.insert(0, 'idx')
-        header.extend(distances)
-        with open(outf, 'w') as out_file:
-            writer = csv.DictWriter(out_file, fieldnames=header)
-            writer.writeheader()
-            for idx, d in enumerate(parameters):
-                d['idx'] = idx
-                writer.writerow(d)
 
         return None
 
@@ -225,7 +251,7 @@ if __name__ == '__main__':
                     help='Whether to run this as a test')
     args = ap.parse_args()
 
-    if ap.test:
+    if args.test:
         if args.model == 'lv':
             model_name = 'lotka-volterra'
             inputs = None  # Input variables
@@ -254,8 +280,20 @@ if __name__ == '__main__':
 
             d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
 
+        elif args.model == 'BS':
+            model_name = 'BS'
+            inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
+            priors = {'t_u': ['uniform', [0.4, 0.7]],
+                      'v_un': ['uniform', [0.7, 1.3]]}
+            outputs = ['HbO2', 'HHb']
+
+            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+            distutils.dir_util.mkpath(workdir)
+
+            d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
+
         else:
-            print('Model not chosen')
+            print('Suitable test model not chosen')
             sys.exit(2)
 
         batchWriter = Batch(model_name,
@@ -268,5 +306,3 @@ if __name__ == '__main__':
 
         batchWriter.definePriors()
         batchWriter.batchCreation()
-
-    else:

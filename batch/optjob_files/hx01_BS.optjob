@@ -1,0 +1,32 @@
+# optimisation for David's V1 func act data and the modified BrainSignals model
+model: BS
+
+# demand is the only model input in this case
+# we don't have systemic data, and challenge is only visual
+input: Pa_CO2, uniform, 20, 60, 40
+input: P_a, uniform, 10, 120, 100
+input: SaO2sup, uniform, 0.9, 1, 0.96
+
+var: Vmca, constant, 54
+
+var: CCO, constant, 0
+post: CCO, zero
+
+
+# take time from data file
+alias: t, t
+
+# parameter details
+param: Vol_mit, uniform, 0.04, 0.09, 0.067
+param: r_t, uniform, 0.013, 0.023, 0.018
+param: r_m, uniform, 0.019, 0.035, 0.027
+param: r_0, uniform, 0.0088, 0.0164, 0.0126
+param: cytox_tot_tis, uniform, 0.0039, 0.0072, 0.0055
+
+# job details
+job_mode: GLP
+solver: pswarm
+max_iter: 1000
+
+steady: 1000
+

@@ -103,6 +103,7 @@ def zero_array(array):
     zerod = np.apply_along_axis(lambda x: x - init, 0, array)
     return zerod
 
+
 def get_distance(actual_data, sim_data, targets,
                  distance='euclidean', zero=False):
 
@@ -115,7 +116,7 @@ def get_distance(actual_data, sim_data, targets,
         try:
             d_star = zero_array(np.array(d_star))
         except (TypeError, IndexError):
-            print('Invalid Data')
+            print('Invalid Data', end="\r")
             return (float('NaN'))
 
     return DISTANCES[distance](np.array(d0), np.array(d_star))
