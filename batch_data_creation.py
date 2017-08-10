@@ -156,12 +156,11 @@ class Batch:
             abc_model.run_from_buffer()
             output = abc_model.output_parse()
         except TimeoutExpired as e:
-            print("Timeout Expired")
             output = None
         return params, output
 
     def batchCreation(self, zero_flag=None):
-        STORE_VALUE = 100
+        STORE_VALUE = 1000
         prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
         outputs = []
@@ -176,29 +175,7 @@ class Batch:
             if (ii % STORE_VALUE == 0) and (ii != 0):
                 idx = str(int(ii / STORE_VALUE)).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
-                out_exists = os.path.isfile(outf)
                 file_exists = os.path.isfile(pf)
-                with open(pf, 'a') as out_file:
-                    writer = csv.DictWriter(out_file, fieldnames=header)
-                    if not file_exists:
-                        writer.writeheader()
-                    for idx, d in enumerate(parameters):
-                        d['idx'] = idx
-                        writer.writerow(d)
-
-                with open(outf, 'w') as out_file:
-                    for output in outputs:
-                        writer = csv.writer(out_file)
-                        if not out_exists:
-                            writer.writerow(output.keys())
-                        writer.writerows(zip(*output.values()))
-                outputs = []
-                parameters = []
-
-            elif (ii < STORE_VALUE) and (ii == self.limit - 1):
-                outf = os.path.join(self.workdir, "output_00.csv")
-                file_exists = os.path.isfile(pf)
-                out_exists = os.path.isfile(outf)
                 with open(pf, 'a') as out_file:
                     writer = csv.DictWriter(out_file, fieldnames=header)
                     if not file_exists:
@@ -209,8 +186,26 @@ class Batch:
 
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
-                    if not out_exists:
-                        writer.writerow(outputs[0].keys())
+                    writer.writerow(outputs[0].keys())
+                    for output in outputs:
+                        writer.writerows(zip(*output.values()))
+                outputs = []
+                parameters = []
+
+            elif (ii < STORE_VALUE) and (ii == self.limit - 1):
+                outf = os.path.join(self.workdir, "output_00.csv")
+                file_exists = os.path.isfile(pf)
+                with open(pf, 'a') as out_file:
+                    writer = csv.DictWriter(out_file, fieldnames=header)
+                    if not file_exists:
+                        writer.writeheader()
+                    for idx, d in enumerate(parameters):
+                        d['idx'] = idx
+                        writer.writerow(d)
+
+                with open(outf, 'w') as out_file:
+                    writer = csv.writer(out_file)
+                    writer.writerow(outputs[0].keys())
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
@@ -256,7 +251,7 @@ class Batch:
                 sys.stdout.flush()
 
             else:
-                print("TIMEOUT OCCURRED")
+                print("TIMEOUT OCCURRED", end="\n")
                 data_length = max([len(l) for l in self.d0.values()])
                 output = {}
                 output['ii'] = [ii] * data_length
