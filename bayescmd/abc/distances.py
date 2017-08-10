@@ -92,29 +92,29 @@ def check_for_key(dictionary, target):
     return data
 
 
-def zero_array(array):
+def zero_array(array, zero_flags):
     """
     Method to zero an array of data with the initial values.
     :param array: Array of data - rows are time points, columns are signals.
     :return: Zero'd numpy array
     :rtype: np.ndarray
     """
-    init = array[:, 0]
+    init = array[:, 0] * zero_flags
     zerod = np.apply_along_axis(lambda x: x - init, 0, array)
     return zerod
 
 
 def get_distance(actual_data, sim_data, targets,
-                 distance='euclidean', zero=False):
+                 distance='euclidean', zero_flag=None):
 
     d0 = []
     d_star = []
     for idx, k in enumerate(targets):
         d0.append(check_for_key(actual_data, k))
         d_star.append(check_for_key(sim_data, k))
-    if zero:
+    if zero_flag is not None:
         try:
-            d_star = zero_array(np.array(d_star))
+            d_star = zero_array(np.array(d_star), zero_flag)
         except (TypeError, IndexError):
             print('Invalid Data', end="\r")
             return (float('NaN'))
