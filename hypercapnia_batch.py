@@ -9,14 +9,20 @@ BASEDIR = findBaseDir('BayesCMD')
 
 model_name = 'BS'
 inputs = ['Pa_CO2', 'P_a', 'SaO2sup']  # Input variables
-priors = {"Vol_mit": ['uniform', [0.04, 0.09]],
-          'r_t': ['uniform', [0.013, 0.023]],
-          'r_m': ['uniform', [0.019, 0.035]],
-          'r_0': ['uniform', [0.0088, 0.0164]],
-          'cytox_tot_tis': ['uniform', [0.0039, 0.0072]]
+priors = {"Vol_mit": ['uniform', [0.02, 0.12]],
+          'r_t': ['uniform', [0.01, 0.03]],
+          'r_m': ['uniform', [0.01, 0.04]],
+          'r_0': ['uniform', [0.007, 0.0175]],
+          'cytox_tot_tis': ['uniform', [0.0025, 0.009]]
+          }
+test_priors = {"Vol_mit": ['uniform', [0.088, 0.09]],
+          'r_t': ['uniform', [0.0165, 0.017]],
+          'r_m': ['uniform', [0.0315, 0.035]],
+          'r_0': ['uniform', [0.012, 0.0124]],
+          'cytox_tot_tis': ['uniform', [0.00616, 0.0064]]
           }
 outputs = ['Vmca', 'CCO']
-d0 = os.path.join(BASEDIR, 'build', 'hx01_data.csv')
+
 
 
 def process(run_length, input_file, workdir):
@@ -29,7 +35,7 @@ def process(run_length, input_file, workdir):
                         workdir)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation()
+    batchWriter.batchCreation(zero_flag=[0, 1])
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser('Choose model to batch run:')
@@ -42,3 +48,4 @@ if __name__ == '__main__':
 
     workdir = os.path.join(BASEDIR, 'build', 'batch', model_name, now)
     distutils.dir_util.mkpath(workdir)
+    process(args.run_length, args.input_file, workdir)

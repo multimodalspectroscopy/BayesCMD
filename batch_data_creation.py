@@ -9,11 +9,13 @@ import os
 os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
 import numpy.random as rd
+import numpy as np
 from functools import partial
 import math
 import csv
 import distutils.dir_util
 import argparse
+from subprocess import TimeoutExpired
 
 # import bayescmd
 from bayescmd.bcmdModel import ModelBCMD
@@ -149,13 +151,18 @@ class Batch:
                               suppress=True)
         if abc_model.debug:
             abc_model.write_initialised_input()
-        abc_model.create_initialised_input()
-        abc_model.run_from_buffer()
-        output = abc_model.output_parse()
+        try:
+            abc_model.create_initialised_input()
+            abc_model.run_from_buffer()
+            output = abc_model.output_parse()
+        except TimeoutExpired as e:
+            print("Timeout Expired")
+            output = None
         return params, output
 
-    def batchCreation(self):
-        prec_zero = max(2, int(math.log10(self.limit / 1000)))
+    def batchCreation(self, zero_flag=None):
+        STORE_VALUE = 100
+        prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
@@ -164,15 +171,12 @@ class Batch:
         header.insert(0, 'idx')
         header.extend(distances)
         for ii in range(self.limit):
-            params, output = self.generateOutput()
-            output['ii'] = [ii] * len(output['t'])
-            outputs.append(output)
 
-            # ----- Write to file every 1000 entries ----- #
-            if (ii % 1000 == 0) and (ii != 0):
-                idx = str(int(ii / 1000)).zfill(prec_zero)
+            # ----- Write to file every STORE_VALUE entries ----- #
+            if (ii % STORE_VALUE == 0) and (ii != 0):
+                idx = str(int(ii / STORE_VALUE)).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
-
+                out_exists = os.path.isfile(outf)
                 file_exists = os.path.isfile(pf)
                 with open(pf, 'a') as out_file:
                     writer = csv.DictWriter(out_file, fieldnames=header)
@@ -185,14 +189,16 @@ class Batch:
                 with open(outf, 'w') as out_file:
                     for output in outputs:
                         writer = csv.writer(out_file)
-                        writer.writerow(output.keys())
+                        if not out_exists:
+                            writer.writerow(output.keys())
                         writer.writerows(zip(*output.values()))
                 outputs = []
                 parameters = []
 
-            elif (ii < 1000) and (ii == self.limit - 1):
+            elif (ii < STORE_VALUE) and (ii == self.limit - 1):
                 outf = os.path.join(self.workdir, "output_00.csv")
                 file_exists = os.path.isfile(pf)
+                out_exists = os.path.isfile(outf)
                 with open(pf, 'a') as out_file:
                     writer = csv.DictWriter(out_file, fieldnames=header)
                     if not file_exists:
@@ -203,15 +209,17 @@ class Batch:
 
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
-                    writer.writerow(outputs[0].keys())
+                    if not out_exists:
+                        writer.writerow(outputs[0].keys())
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
                 parameters = []
-            elif (ii > 1000) and (ii == self.limit - 1):
-                idx = str(int(math.ceil(ii / 1000))).zfill(prec_zero)
+            elif (ii > STORE_VALUE) and (ii == self.limit - 1):
+                idx = str(int(math.ceil(ii / STORE_VALUE))).zfill(prec_zero)
                 outf = os.path.join(self.workdir, "output_%s.csv" % (idx,))
                 file_exists = os.path.isfile(pf)
+                out_exists = os.path.isfile(outf)
                 with open(pf, 'a') as out_file:
                     writer = csv.DictWriter(out_file, fieldnames=header)
                     if not file_exists:
@@ -222,21 +230,47 @@ class Batch:
 
                 with open(outf, 'w') as out_file:
                     writer = csv.writer(out_file)
-                    writer.writerow(outputs[0].keys())
+                    if not out_exists:
+                        writer.writerow(outputs[0].keys())
                     for output in outputs:
                         writer.writerows(zip(*output.values()))
                 outputs = []
                 parameters = []
 
-            # ----- Add distances to the params dictionary ----- #
-            for dist in distances:
-                params[dist] = abc.get_distance(self.d0, output, self.targets,
-                                                distance=dist, zero=True)
-            parameters.append(params)
-            print("Number of distances: {0:4d}".format(len(parameters)),
-                  end="\r")
+            params, output = self.generateOutput()
 
-            sys.stdout.flush()
+            if output is not None:
+                output['ii'] = [ii] * len(output['t'])
+                outputs.append(output)
+                # ----- Add distances to the params dictionary ----- #
+                for dist in distances:
+                    params[dist] = abc.get_distance(self.d0,
+                                                    output,
+                                                    self.targets,
+                                                    distance=dist,
+                                                    zero_flag=zero_flag)
+                parameters.append(params)
+                print("Number of distances: {0:4d}".format(len(parameters)),
+                      end="\r")
+
+                sys.stdout.flush()
+
+            else:
+                print("TIMEOUT OCCURRED")
+                data_length = max([len(l) for l in self.d0.values()])
+                output = {}
+                output['ii'] = [ii] * data_length
+                for t in self.targets:
+                    output[t] = [np.nan] * data_length
+                outputs.append(output)
+                # ----- Add distances to the params dictionary ----- #
+                for dist in distances:
+                    params[dist] = np.nan
+                parameters.append(params)
+                print("Number of distances: {0:4d}".format(len(parameters)),
+                      end="\r")
+
+                sys.stdout.flush()
 
         return None
 
