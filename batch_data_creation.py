@@ -181,7 +181,7 @@ class Batch:
                     if not file_exists:
                         writer.writeheader()
                     for idx, d in enumerate(parameters):
-                        d['idx'] = idx
+                        d['idx'] = idx + (int(ii / STORE_VALUE)-1) * STORE_VALUE
                         writer.writerow(d)
 
                 with open(outf, 'w') as out_file:
@@ -220,7 +220,7 @@ class Batch:
                     if not file_exists:
                         writer.writeheader()
                     for idx, d in enumerate(parameters):
-                        d['idx'] = idx
+                        d['idx'] = idx + STORE_VALUE * int(math.floor(ii / STORE_VALUE))
                         writer.writerow(d)
 
                 with open(outf, 'w') as out_file:
