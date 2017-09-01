@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-
-BASEDIR = findBaseDir()
+os.environ['BASEDIR']='BayesCMD'
+BASEDIR = findBaseDir('BayesCMD')
 assert os.path.basename(os.path.abspath(BASEDIR)) == 'BayesCMD'
 
 
@@ -35,7 +35,7 @@ def run_model(model):
 
 def sample_data(data, noisy_data, n_samples=25):
     sample_points = random.sample(range(len(data['t'])), n_samples)
-    return {k : np.array(v)[sample_points] for k, v in data.items()},\
+    return {k: np.array(v)[sample_points] for k, v in data.items()},\
            {k: np.array(v)[sample_points] for k, v in noisy_data.items()},\
            sample_points
 
@@ -69,4 +69,3 @@ if __name__ == '__main__':
     ax2.plot(sample['t'],noisy_sample['t'],'.')
     ax2.set_xlim((0,16))
     plt.show()
-
