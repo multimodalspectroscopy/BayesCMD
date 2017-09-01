@@ -155,6 +155,7 @@ class Batch:
                               outputs=self.targets,
                               workdir=self.workdir,
                               debug=self.debug,
+                              burn_in=self.burnin,
                               suppress=True)
         if abc_model.debug:
             abc_model.write_initialised_input()
