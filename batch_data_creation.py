@@ -43,6 +43,7 @@ class Batch:
                  limit,
                  data_0,
                  workdir,
+                 burnin=999,
                  sample_rate=None,
                  debug=False):
         """
@@ -81,6 +82,8 @@ class Batch:
         self.d0 = abc.import_actual_data(data_0)
 
         self.workdir = workdir
+
+        self.burnin = burnin
 
         self.sample_rate = sample_rate
 
@@ -303,7 +306,7 @@ if __name__ == '__main__':
         distutils.dir_util.mkpath(workdir)
 
         d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
-
+        burnin = 0
     elif args.model == 'bsx':
         model_name = 'bsx'
         inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
@@ -315,7 +318,7 @@ if __name__ == '__main__':
         distutils.dir_util.mkpath(workdir)
 
         d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
-
+        burnin = 999
     elif args.model == 'BS':
         model_name = 'BS'
         inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
@@ -327,7 +330,7 @@ if __name__ == '__main__':
         distutils.dir_util.mkpath(workdir)
 
         d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
-
+        burnin = 999
     else:
         print('Suitable test model not chosen')
         sys.exit(2)
@@ -339,6 +342,7 @@ if __name__ == '__main__':
                         args.run_length,
                         d0,
                         workdir,
+                        burnin=burnin,
                         debug=args.debug)
 
     batchWriter.definePriors()
