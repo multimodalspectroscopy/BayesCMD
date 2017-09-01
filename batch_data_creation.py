@@ -43,7 +43,8 @@ class Batch:
                  limit,
                  data_0,
                  workdir,
-                 sample_rate=None):
+                 sample_rate=None,
+                 debug=False):
         """
         Rejection will be used to run a simple ABC Rejection algorithm.
 
@@ -53,19 +54,19 @@ class Batch:
             prior_parameters (dict): Dictionary of prior parameters. These take
             the form {"param":["prior_name", [*args]]}-args are prior specific
 
-            epsilon (float): tolerance to keep/ignore parameter
-
-            limit (int): Number of datasets to generate
-
-            inputs (list): list of the dict keys with driving inputs
+            inputs (list): list of the driving inputs
 
             targets (list): list of target simulation outputs
+
+            limit (int): Number of datasets to generate
 
             data_0 (string): Path to csv of original experimental data
 
             workdir (str): file path to store all output data in.
 
             sample_rate (float): sample rate of data collected. Used only if time not provided in d0.
+
+            debug (bool): Whether to run this in debug mode.
         """
         self.model_name = model_name
 
@@ -82,6 +83,8 @@ class Batch:
         self.workdir = workdir
 
         self.sample_rate = sample_rate
+
+        self.debug = debug
 
     @staticmethod
     def __getDistribution(v):
@@ -148,6 +151,7 @@ class Batch:
                               times=times,
                               outputs=self.targets,
                               workdir=self.workdir,
+                              debug=self.debug,
                               suppress=True)
         if abc_model.debug:
             abc_model.write_initialised_input()
@@ -181,7 +185,8 @@ class Batch:
                     if not file_exists:
                         writer.writeheader()
                     for idx, d in enumerate(parameters):
-                        d['idx'] = idx + (int(ii / STORE_VALUE)-1) * STORE_VALUE
+                        d['idx'] = idx + \
+                            (int(ii / STORE_VALUE) - 1) * STORE_VALUE
                         writer.writerow(d)
 
                 with open(outf, 'w') as out_file:
@@ -220,7 +225,8 @@ class Batch:
                     if not file_exists:
                         writer.writeheader()
                     for idx, d in enumerate(parameters):
-                        d['idx'] = idx + STORE_VALUE * int(math.floor(ii / STORE_VALUE))
+                        d['idx'] = idx + STORE_VALUE * \
+                            int(math.floor(ii / STORE_VALUE))
                         writer.writerow(d)
 
                 with open(outf, 'w') as out_file:
@@ -276,62 +282,64 @@ if __name__ == '__main__':
                     help='choice of model')
     ap.add_argument('run_length', metavar='RUN_LENGTH', type=int,
                     help='number of times to run the model')
-    ap.add_argument('--test', metavar='RUN_LENGTH', action='store_true',
-                    help='Whether to run this as a test')
+    ap.add_argument('--debug', action='store_true',
+                    help='Whether to run this in debugging mode')
     args = ap.parse_args()
 
-    if args.test:
-        if args.model == 'lv':
-            model_name = 'lotka-volterra'
-            inputs = None  # Input variables
-            priors = {'a': ['uniform', [0, 2]],
-                      'b': ['uniform', [0, 2]],
-                      'c': ['uniform', [0, 2]],
-                      'd': ['uniform', [0, 2]],
-                      'x': ['constant', [80]],
-                      'y': ['constant', [40]]}
-            outputs = ['x', 'y']
 
-            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-            distutils.dir_util.mkpath(workdir)
+    if args.model == 'lv':
+        model_name = 'lotka-volterra'
+        inputs = None  # Input variables
+        priors = {'a': ['uniform', [0.95, 1.05]],
+                  #'b': ['uniform', [0.8, 1.2]],
+                  #'c': ['uniform', [0.8, 1.2]],
+                  'd': ['uniform', [0.95, 1.05]]
+                  #'x': ['constant', [80]],
+                  #'y': ['constant', [40]]
+                  }
+        outputs = ['x', 'y']
 
-            d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
+        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+        distutils.dir_util.mkpath(workdir)
 
-        elif args.model == 'bsx':
-            model_name = 'bsx'
-            inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-            priors = {'t_u': ['uniform', [0.4, 0.7]],
-                      'v_un': ['uniform', [0.7, 1.3]]}
-            outputs = ['HbO2', 'HHb']
+        d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
 
-            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-            distutils.dir_util.mkpath(workdir)
+    elif args.model == 'bsx':
+        model_name = 'bsx'
+        inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
+        priors = {'t_u': ['uniform', [0.4, 0.7]],
+                  'v_un': ['uniform', [0.7, 1.3]]}
+        outputs = ['HbO2', 'HHb']
 
-            d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
+        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+        distutils.dir_util.mkpath(workdir)
 
-        elif args.model == 'BS':
-            model_name = 'BS'
-            inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-            priors = {'t_u': ['uniform', [0.4, 0.7]],
-                      'v_un': ['uniform', [0.7, 1.3]]}
-            outputs = ['HbO2', 'HHb']
+        d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
 
-            workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-            distutils.dir_util.mkpath(workdir)
+    elif args.model == 'BS':
+        model_name = 'BS'
+        inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
+        priors = {'t_u': ['uniform', [0.4, 0.7]],
+                  'v_un': ['uniform', [0.7, 1.3]]}
+        outputs = ['HbO2', 'HHb']
 
-            d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
+        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
+        distutils.dir_util.mkpath(workdir)
 
-        else:
-            print('Suitable test model not chosen')
-            sys.exit(2)
+        d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
 
-        batchWriter = Batch(model_name,
-                            priors,
-                            inputs,
-                            outputs,
-                            args.run_length,
-                            d0,
-                            workdir)
+    else:
+        print('Suitable test model not chosen')
+        sys.exit(2)
 
-        batchWriter.definePriors()
-        batchWriter.batchCreation()
+    batchWriter = Batch(model_name,
+                        priors,
+                        inputs,
+                        outputs,
+                        args.run_length,
+                        d0,
+                        workdir,
+                        debug=args.debug)
+
+    batchWriter.definePriors()
+    batchWriter.batchCreation()
