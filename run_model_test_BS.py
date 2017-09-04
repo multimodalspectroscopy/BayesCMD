@@ -8,7 +8,7 @@ from bayescmd.util import findBaseDir
 BASEDIR = findBaseDir('BayesCMD')
 
 model_name = 'BS'
-inputs = ['Pa_CO2', 'P_a', 'SaO2sup']  # Input variables
+inputs = ['u']  # Input variables
 priors = {'r_t': ['uniform', [0.015, 0.03]],
           'r_m': ['uniform', [0.02, 0.037]],
           'r_0': ['uniform', [0.007, 0.012]]
@@ -27,7 +27,7 @@ def process(run_length, input_file, workdir):
                         workdir)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation(zero_flag=[1])
+    batchWriter.batchCreation(zero_flag=[0])
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser('Choose model to batch run:')

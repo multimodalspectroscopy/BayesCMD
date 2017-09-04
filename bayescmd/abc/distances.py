@@ -95,7 +95,7 @@ def check_for_key(dictionary, target):
 def zero_array(array, zero_flags):
     """
     Method to zero an array of data with the initial values.
-    :param array: Array of data - rows are time points, columns are signals.
+    :param array: Array of data - rows are signals, columns are timepoints.
     :return: Zero'd numpy array
     :rtype: np.ndarray
     """
