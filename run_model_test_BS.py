@@ -9,9 +9,9 @@ BASEDIR = findBaseDir('BayesCMD')
 
 model_name = 'BS'
 inputs = ['u']  # Input variables
-priors = {'r_t': ['uniform', [0.015, 0.03]],
-          'r_m': ['uniform', [0.02, 0.037]],
-          'r_0': ['uniform', [0.007, 0.012]]
+priors = {'r_t': ['uniform', [0.009, 0.027]],
+          'r_m': ['uniform', [0.0135, 0.0405]],
+          'r_0': ['uniform', [0.0063, 0.019]]
           }
 outputs = ['CCO']
 
