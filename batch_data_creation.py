@@ -253,7 +253,7 @@ class Batch:
                                                     output,
                                                     self.targets,
                                                     distance=dist,
-                                                    zero_flag=zero_flag)
+                                                    zero_flag=zero_flag)['TOTAL']
                 parameters.append(params)
                 print("Number of distances: {0:4d}".format(len(parameters)),
                       end="\r")

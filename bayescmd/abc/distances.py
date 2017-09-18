@@ -1,7 +1,22 @@
 import numpy as np
+from numpy import AxisError
 from .data_import import *
 # All functions here can expect to handle the output from BCMD Model i.e.
 # a dict.
+
+
+class Error(Exception):
+    """
+    Base class for exceptions in this module.
+    """
+    pass
+
+
+class ZeroArrayError(Error):
+    """
+    Exception raised for errors in the zero array.
+    """
+    pass
 
 
 def euclidean_dist(data1, data2):
@@ -23,7 +38,13 @@ def euclidean_dist(data1, data2):
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
 
-    return np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))
+    try:
+        d = np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))
+    except AxisError:
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        return None
+    return d
 
 
 def manhattan_dist(data1, data2):
@@ -113,10 +134,24 @@ def get_distance(actual_data, sim_data, targets,
         d0.append(check_for_key(actual_data, k))
         d_star.append(check_for_key(sim_data, k))
     if zero_flag is not None:
-        try:
-            d_star = zero_array(np.array(d_star), zero_flag)
-        except (TypeError, IndexError):
-            print('Invalid Data', end="\r")
-            return (float('NaN'))
+        if len(zero_flag) == len(targets):
+            try:
+                d_star = zero_array(np.array(d_star), zero_flag)
+            except (TypeError, IndexError):
+                print('Invalid Data', end="\r")
+                return (float('NaN'))
+        else:
+            raise ZeroArrayError("Length of zero array didn't match targets")
 
-    return DISTANCES[distance](np.array(d0), np.array(d_star))
+    distances = {"TOTAL": DISTANCES[distance](np.array(d0), np.array(d_star))}
+
+    for k in targets:
+        d1 = check_for_key(actual_data, k)
+        d1 = np.array(d1).reshape(1, len(d1))
+
+        d2 = check_for_key(sim_data, k)
+        d2 = np.array(d2).reshape(1, len(d2))
+
+        distances[k] = DISTANCES[distance](d1, d2)
+
+    return distances

@@ -10,7 +10,7 @@ input: SaO2sup, uniform, 0.9, 1, 0.96
 var: Vmca, constant, 54
 
 var: CCO, constant, 0
-post: CCO, zero
+# post: CCO, zero
 
 
 # take time from data file
