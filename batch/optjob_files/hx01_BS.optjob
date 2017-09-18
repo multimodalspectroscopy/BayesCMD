@@ -1,4 +1,4 @@
-# optimisation for David's V1 func act data and the modified BrainSignals model
+# optimisation for BayesCMD Report. Uses hx01 dataprint
 model: BS
 
 # demand is the only model input in this case
@@ -17,11 +17,15 @@ post: CCO, zero
 alias: t, t
 
 # parameter details
-param: Vol_mit, uniform, 0.04, 0.09, 0.067
-param: r_t, uniform, 0.013, 0.023, 0.018
-param: r_m, uniform, 0.019, 0.035, 0.027
-param: r_0, uniform, 0.0088, 0.0164, 0.0126
-param: cytox_tot_tis, uniform, 0.0039, 0.0072, 0.0055
+param: r_t, uniform, 0.013, 0.022, 0.018
+param: sigma_coll, uniform, 47.0, 78.0, 62.79
+param: cytox_tot_tis, uniform, 0.0041, 0.0069, 0.0055
+param: Vol_mit, uniform, 0.05, 0.084, 0.067
+param: O2_n, uniform, 0.018, 0.03, 0.024
+param: r_0, uniform, 0.0095, 0.016, 0.0126
+param: v_cn, uniform, 30.0, 50.0, 40
+param: r_m, uniform, 0.02, 0.034, 0.027
+
 
 # job details
 job_mode: GLP
@@ -29,4 +33,3 @@ solver: pswarm
 max_iter: 1000
 
 steady: 1000
-
