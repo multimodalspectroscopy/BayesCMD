@@ -39,6 +39,6 @@ do
     python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH | tee $LOG_FILE &
     sleep 1m
   else
-    python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH >/dev/null
+    python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH >/dev/null &
   fi
 done
