@@ -15,7 +15,7 @@ import math
 import csv
 import distutils.dir_util
 import argparse
-from subprocess import TimeoutExpired
+from subprocess import TimeoutExpired, CalledProcessError
 
 # import bayescmd
 from bayescmd.bcmdModel import ModelBCMD
@@ -24,6 +24,16 @@ from bayescmd.util import findBaseDir
 
 
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
+
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
+class ModelRunError(Error):
+    """Class for if model run fails"""
+    pass
 
 
 def returnConst(x):
@@ -163,7 +173,22 @@ class Batch:
             abc_model.create_initialised_input()
             abc_model.run_from_buffer()
             output = abc_model.output_parse()
+            if len(output['t']) == 0:
+                raise ModelRunError
+
+            for t in self.targets:
+                try:
+                    if np.isnan(np.array(output[t], dtype=np.float64)).any():
+                        print('\nError in {}'.format(t))
+                        raise ModelRunError
+                except TypeError as e:
+                    print(type(output[t]))
+                    raise e
         except TimeoutExpired as e:
+            print("TIMEOUT OCCURRED", end="\n")
+            output = None
+        except (CalledProcessError, ModelRunError) as e:
+            print("\nIssue with model run", end="\n")
             output = None
         return params, output
 
@@ -249,11 +274,17 @@ class Batch:
                 outputs.append(output)
                 # ----- Add distances to the params dictionary ----- #
                 for dist in distances:
-                    params[dist] = abc.get_distance(self.d0,
-                                                    output,
-                                                    self.targets,
-                                                    distance=dist,
-                                                    zero_flag=zero_flag)['TOTAL']
+                    try:
+                        cost = abc.get_distance(self.d0,
+                                                output,
+                                                self.targets,
+                                                distance=dist,
+                                                zero_flag=zero_flag)
+                        params[dist] = cost['TOTAL']
+                    except ValueError as error:
+                        print("OUTPUT:\n", output)
+                        raise error
+
                 parameters.append(params)
                 print("Number of distances: {0:4d}".format(len(parameters)),
                       end="\r")
@@ -261,7 +292,6 @@ class Batch:
                 sys.stdout.flush()
 
             else:
-                print("TIMEOUT OCCURRED", end="\n")
                 data_length = max([len(l) for l in self.d0.values()])
                 output = {}
                 output['ii'] = [ii] * data_length
@@ -289,7 +319,6 @@ if __name__ == '__main__':
     ap.add_argument('--debug', action='store_true',
                     help='Whether to run this in debugging mode')
     args = ap.parse_args()
-
 
     if args.model == 'lv':
         model_name = 'lotka-volterra'

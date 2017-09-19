@@ -2,6 +2,7 @@ import numpy as np
 from numpy import AxisError
 from scipy.stats import zscore
 from .data_import import *
+import pprint
 # All functions here can expect to handle the output from BCMD Model i.e.
 # a dict.
 
@@ -38,7 +39,6 @@ def euclidean_dist(data1, data2):
         print(e)
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
-
     try:
         d = np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))
     except AxisError:
@@ -149,9 +149,13 @@ def get_distance(actual_data, sim_data, targets,
             raise ZeroArrayError("Length of zero array didn't match targets")
 
     if normalise:
-        d0 = zscore(d0, axis=1)
-        d_star = zscore(d_star, axis=1)
-    distances = {"TOTAL": DISTANCES[distance](d0, d_star)}
+        try:
+            norm_d0 = zscore(d0, axis=1)
+            norm_d_star = zscore(d_star, axis=1)
+        except TypeError as e:
+            print(d_star)
+            raise e
+    distances = {"TOTAL": DISTANCES[distance](norm_d0, norm_d_star)}
 
     for k in targets:
         d1 = check_for_key(actual_data, k)
@@ -161,8 +165,16 @@ def get_distance(actual_data, sim_data, targets,
         d2 = np.array(d2).reshape(1, len(d2))
 
         if normalise:
-            d1 = zscore(d1, axis=1)
-            d2 = zscore(d2, axis=1)
+            try:
+                d1 = zscore(d1, axis=1)
+            except TypeError as e:
+                print(d1)
+                raise e
+            try:
+                d2 = zscore(d2, axis=1)
+            except TypeError as e:
+                print(d2)
+                raise e
 
         distances[k] = DISTANCES[distance](d1, d2)
 

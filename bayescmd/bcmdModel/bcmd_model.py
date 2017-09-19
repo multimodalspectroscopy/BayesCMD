@@ -203,7 +203,8 @@ class ModelBCMD:
                                        '-d', self.output_detail],
                                       stdout=self.DEVNULL,
                                       stderr=self.DEVNULL,
-                                      timeout=self.timeout)
+                                      timeout=self.timeout,
+                                      check=True)
             else:
                 stdoutname = os.path.join(
                     self.workdir, '%s.stdout' % (self.model_name))
@@ -230,7 +231,8 @@ class ModelBCMD:
                                        '-d', self.output_detail],
                                       stdout=f_out,
                                       stderr=f_err,
-                                      timeout=self.timeout)
+                                      timeout=self.timeout,
+                                      check=True)
 
                 if f_out:
                     f_out.close()
@@ -254,7 +256,8 @@ class ModelBCMD:
                                     input=self.input_file.encode(),
                                     stdout=subprocess.PIPE,
                                     stderr=self.DEVNULL,
-                                    timeout=self.timeout)
+                                    timeout=self.timeout,
+                                    check=True)
         else:
             stderrname = os.path.join(
                 self.workdir, '%s.stderr' % ("buffer_" + self.model_name))
@@ -275,7 +278,8 @@ class ModelBCMD:
                                     input=self.input_file.encode(),
                                     stdout=subprocess.PIPE,
                                     stderr=f_err,
-                                    timeout=self.timeout)
+                                    timeout=self.timeout,
+                                    check=True)
 
             if f_err:
                 f_err.close()

@@ -49,7 +49,7 @@ def process(run_length, input_file, workdir):
                         workdir)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation(zero_flag=[0, 0])
+    batchWriter.batchCreation(zero_flag=None)
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser('Choose batch run data and length:')

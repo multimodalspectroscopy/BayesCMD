@@ -40,5 +40,6 @@ do
     sleep 1m
   else
     python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH >/dev/null &
+    sleep 1m
   fi
 done
