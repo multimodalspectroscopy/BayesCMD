@@ -122,7 +122,7 @@ class RunModel:
         return output
 
     def writeOutput(self):
-        outf = os.path.join(self.workdir, "model_run.out".format(now))
+        outf = os.path.join(self.workdir, "model_run_output.csv".format(now))
 
         with open(outf, 'w') as out_file:
             writer = csv.writer(out_file)

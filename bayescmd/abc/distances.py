@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import AxisError
+from scipy.stats import zscore
 from .data_import import *
 # All functions here can expect to handle the output from BCMD Model i.e.
 # a dict.
@@ -126,13 +127,17 @@ def zero_array(array, zero_flags):
 
 
 def get_distance(actual_data, sim_data, targets,
-                 distance='euclidean', zero_flag=None):
+                 distance='euclidean', zero_flag=None,
+                 normalise=True):
 
     d0 = []
     d_star = []
     for idx, k in enumerate(targets):
         d0.append(check_for_key(actual_data, k))
         d_star.append(check_for_key(sim_data, k))
+    d0 = np.array(d0)
+    d_star = np.array(d_star)
+
     if zero_flag is not None:
         if len(zero_flag) == len(targets):
             try:
@@ -143,7 +148,10 @@ def get_distance(actual_data, sim_data, targets,
         else:
             raise ZeroArrayError("Length of zero array didn't match targets")
 
-    distances = {"TOTAL": DISTANCES[distance](np.array(d0), np.array(d_star))}
+    if normalise:
+        d0 = zscore(d0, axis=1)
+        d_star = zscore(d_star, axis=1)
+    distances = {"TOTAL": DISTANCES[distance](d0, d_star)}
 
     for k in targets:
         d1 = check_for_key(actual_data, k)
@@ -151,6 +159,10 @@ def get_distance(actual_data, sim_data, targets,
 
         d2 = check_for_key(sim_data, k)
         d2 = np.array(d2).reshape(1, len(d2))
+
+        if normalise:
+            d1 = zscore(d1, axis=1)
+            d2 = zscore(d2, axis=1)
 
         distances[k] = DISTANCES[distance](d1, d2)
 

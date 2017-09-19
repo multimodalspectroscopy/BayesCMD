@@ -1,7 +1,7 @@
 # custom distance functions for use with abc-sysbio and the BCMD batch scripts
 import numpy
 import numpy.linalg
-
+from scipy.stats import zscore
 # how do we deal with non-numeric results?
 # in some cases, client code may want to change this in order to get
 # wrong but pragmatic results (yes, this is a hack)
@@ -19,6 +19,12 @@ def substitute(x):
 def euclideanDistance(data1, data2, parameters, model):
     return [numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2)))]
 
+# z-score Euclidean distance
+def zscoreDistance(data1, data2, parameters, model):
+
+    data1 = zscore(data1)
+    data2 = zscore(data2)
+    return [numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2)))]
 # Tracy's custom distance metric
 def meanDistance(data1, data2, parameters, model):
     return [numpy.sqrt(numpy.mean((data1 - data2) * (data1 - data2)))]
@@ -48,7 +54,7 @@ def angularDistance(data1, data2, parameters, model):
     n = numpy.linalg.norm(data1) * numpy.linalg.norm(data2)
     c = d/n
     return [numpy.arccos(c)/numpy.pi]
-    
+
 # similar to the above, but without conversion to an angle
 # again, scaled to the interval [0,1]
 def cosineDistance(data1, data2, parameters, model):
@@ -61,6 +67,13 @@ def cosineDistance(data1, data2, parameters, model):
 # -- generic distance functions that just return a scalar
 
 def euclidean(data1, data2):
+    return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
+
+def zscoredistance(data1, data2):
+
+    data1 = zscore(data1)
+    data2 = zscore(data2)
+
     return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
 
 def cosine(data1, data2):
