@@ -36,10 +36,10 @@ do
   echo "sysout to $LOG_FILE"
   echo "Running batch $i of length $RUN_LENGTH"
   if [ $i -eq 1 ]; then
-    python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH | tee $LOG_FILE &
+    python3 hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH | tee $LOG_FILE &
     sleep 1m
   else
-    python hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH >/dev/null &
+    python3 hypercapnia_batch.py $INPUT_FILE $RUN_LENGTH >/dev/null &
     sleep 1m
   fi
 done
