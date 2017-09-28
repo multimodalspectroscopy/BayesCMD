@@ -128,7 +128,7 @@ def zero_array(array, zero_flags):
 
 def get_distance(actual_data, sim_data, targets,
                  distance='euclidean', zero_flag=None,
-                 normalise=True):
+                 normalise=False):
 
     d0 = []
     d_star = []

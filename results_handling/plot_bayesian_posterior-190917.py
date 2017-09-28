@@ -289,7 +289,7 @@ def plot_repeated_outputs(df, model_name, parameters, input_path, inputs, openop
 
     true_data = pd.read_csv(input_path)
     times = true_data['t'].as_matrix()
-    print(times[-1])
+
     openopt_data = pd.read_csv(openopt_path)
 
     try:
@@ -312,6 +312,10 @@ def plot_repeated_outputs(df, model_name, parameters, input_path, inputs, openop
     d['Errors']['Average'] = np.nanmean([o[0]['TOTAL'] for o in outputs_list])
     for target in targets:
         d['Errors'][target] = np.nanmean([o[0][target] for o in outputs_list])
+        print([any(np.isnan(o[1][target])) for o in outputs_list])
+        for o in outputs_list:
+            if any(np.isnan(o[1][target])):
+                print(o[0])
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
     with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
@@ -370,15 +374,15 @@ if __name__=='__main__':
         #print("Generating scatter plot")
         #scatter_dist_plot(results, params, f, 6)
         #plt.show()
-        print("Generating KDE plot")
-        g = kde_plot(results, params, f)
-        plt.show()
+        #print("Generating KDE plot")
+        #g = kde_plot(results, params, f)
+        #plt.show()
         print("Generating averaged time series plot")
         plot_repeated_outputs(results, n_repeats=75, frac=f, **config)
         plt.show()
 
     #TODO: Fix issue with plot formatting, cutting off axes etc
-    #TODO:
+    #TODO: Fix issue with time series cutting short.
     rt_range = np.linspace(0.01, 0.03, 100)
     rm_range = np.linspace(0.01, 0.04, 100)
     r0_range = np.linspace(0.007, 0.0175, 100)
