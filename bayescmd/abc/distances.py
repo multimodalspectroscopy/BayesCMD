@@ -155,7 +155,9 @@ def get_distance(actual_data, sim_data, targets,
         except TypeError as e:
             print(d_star)
             raise e
-    distances = {"TOTAL": DISTANCES[distance](norm_d0, norm_d_star)}
+        distances = {"TOTAL": DISTANCES[distance](norm_d0, norm_d_star)}
+    else:
+        distances = {"TOTAL": DISTANCES[distance](d0, d_star)}
 
     for k in targets:
         d1 = check_for_key(actual_data, k)
