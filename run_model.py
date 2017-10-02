@@ -131,6 +131,7 @@ class RunModel:
 
         print("output written to {}".format(outf))
 
+
 if __name__ == '__main__':
 
     ap = argparse.ArgumentParser('Choose configuration file:')
@@ -143,7 +144,8 @@ if __name__ == '__main__':
     with open(args.conf, 'r') as conf_f:
         config = json.load(conf_f)
 
-    workdir = os.path.join(BASEDIR, 'build', 'batch', config['model_name'], now)
+    workdir = os.path.join(BASEDIR, 'build', 'batch',
+                           config['model_name'], now)
     distutils.dir_util.mkpath(workdir)
 
     model = RunModel(conf=config, data_0=args.input_file, workdir=workdir)
