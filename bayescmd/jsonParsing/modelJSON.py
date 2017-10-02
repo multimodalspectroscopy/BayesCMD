@@ -1,8 +1,8 @@
 import json
 import os.path
-import re
+# import re
 import pprint
-import subprocess
+# import subprocess
 import sys
 sys.path.append(os.path.abspath(os.path.join(
     os.path.dirname(__file__), os.path.join("..", ".."))))
@@ -13,24 +13,90 @@ BASEDIR = findBaseDir(os.environ['BASEDIR'])
 
 
 def float_or_str(n):
+    """Determine if a string can be returned as a float.
+
+    Parameters
+    ----------
+    n : str
+        String to convert to float if possible
+
+    Returns
+    -------
+    s: float
+        `n` as float, or str if not a number.
+
+    """
     try:
         s = float(n)
-        return s
     except ValueError:
-        return n
+        s = n
+    return s
 
 
 def get_model_name(fpath):
+    """Return model name from file path.
+
+    Parameters
+    ----------
+    fpath: str
+        Path to model def file.
+
+    Returns
+    -------
+    str
+        Name of model, as determined by modeldef file.
+
+    """
     fname = os.path.split(fpath)[-1]
     return fname.split('.')[0]
 
 
 def json_writer(model_name, dictionary):
-    with open(os.path.join(os.path.dirname(__file__), 'data', '%s.json' % model_name), 'w') as fp:
+    """Write a python dictionary to JSON.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of BCMD model.
+    dictionary dict:
+        Dict to write to file.
+
+    Returns
+    -------
+    None
+        Writes to JSON file in ``data/`` dir with name `model_name`.json
+
+    """
+    with open(os.path.join(os.path.dirname(__file__),
+                           'data', '%s.json' % model_name), 'w') as fp:
         json.dump(dictionary, fp)
+    return None
 
 
 def modeldefParse(fpath):
+    """Process a modeldef file to extract information.
+
+    Function reads a modeldef file and extracts default model inputs, outputs
+    and parameters.
+
+    Parameters
+    ----------
+    fpath: str
+        Path to modeldef file.
+
+    Returns
+    -------
+    model_data: dict
+        Dictionary of model information. Has form::
+        {
+            model_name: name of model, obtained via :func:`get_model_name`
+            input: :obj:`list` of :obj:`str` for each model input.
+            output: :obj:`list` of :obj:`str` for each model output.
+            parameters: :obj:`dict` of param_name (:obj:`str`):
+            param_value(:obj:`str`)
+        }
+
+    """
     model_data = {'params': {}}
 
     with open(fpath) as f:
@@ -60,6 +126,7 @@ def getDefaultFilePath(model_name):
                 modelPath = os.path.join(root, file)
                 print(modelPath)
     return modelPath
+
 
 if __name__ == '__main__':
     import argparse
