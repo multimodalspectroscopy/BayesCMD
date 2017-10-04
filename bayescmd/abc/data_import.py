@@ -1,23 +1,23 @@
+"""Functions to import and parse real data for use in model."""
 import csv
 import sys
-from itertools import zip_longest
 
 
 def import_actual_data(fname):
+    """Parse a csv into the correct format to compare with simulated data.
+
+    Parameters
+    ----------
+    fname : str
+        Filepath/filename of the actual data to parse
+
+    Returns
+    -------
+    actual_data : dict
+        Dictionary of actual data. Keys are column headers, values are lists
+        of data.
+
     """
-    Method to parse a csv of data into the correct format for comparing with simulated data.
-
-    Inputs:
-    ======
-    :param fname: Filepath/filename of the actual data to parse
-    :type fname: str
-
-    Returns:
-    =======
-    :return: Dictionary of actual data. Keys are columns headers, values are lists of data.
-    :rtype: dict
-    """
-
     actual_data = {}
     with open(fname, "r") as csvfile:
         reader = csv.DictReader(csvfile, delimiter=",")
@@ -32,17 +32,21 @@ def import_actual_data(fname):
 
 
 def inputParse(d0, inputs):
-    """
-    Inputs
-    ======
-    :param d0: Dictionary created from import_actual_data
-    :type d0: dict
+    """Parse dictionary of actual data for use with ModelBCMD.
 
-    :param inputs: List of input names
-    :type list:
+    Parameters
+    ----------
+    d0 : dict
+        Dictionary created from import_actual_data
 
-    :return: Dictionary of inputs as used by bcmdModel
-    :rtype: dict
+    inputs : list
+        List of model input names which should all be :obj:`str` objects.
+
+    Returns
+    -------
+    dict
+        Dictionary of inputs as used by :class:`bayescmd.bcmd_model.ModelBCMD`
+
     """
     values = [l for k, l in d0.items() if k in inputs]
     return {"names": [k for k in d0.keys() if k in inputs],

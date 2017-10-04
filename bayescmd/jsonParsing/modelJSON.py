@@ -4,11 +4,12 @@ import os.path
 import pprint
 # import subprocess
 import sys
-sys.path.append(os.path.abspath(os.path.join(
-    os.path.dirname(__file__), os.path.join("..", ".."))))
-from ..bcmdModel.bcmd_model import ModelBCMD
-from ..util import findBaseDir
-from io import StringIO
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.path.join("..", ".."))))
+from ..bcmdModel.bcmd_model import ModelBCMD  # noqa
+from ..util import findBaseDir  # noqa
+from io import StringIO  # noqa
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
 
 
@@ -67,8 +68,10 @@ def json_writer(model_name, dictionary):
         Writes to JSON file in ``data/`` dir with name `model_name`.json
 
     """
-    with open(os.path.join(os.path.dirname(__file__),
-                           'data', '%s.json' % model_name), 'w') as fp:
+    with open(
+            os.path.join(
+                os.path.dirname(__file__), 'data', '%s.json' % model_name),
+            'w') as fp:
         json.dump(dictionary, fp)
     return None
 
@@ -109,15 +112,29 @@ def modeldefParse(fpath):
                                       []).extend([item for item in li[1:]])
     model = ModelBCMD(model_data['model_name'])
     result = StringIO(model.get_defaults().stdout.decode())
-    model_data['params'].update({line.strip('\n').split('\t')[0]:
-                                 line.strip('\n').split('\t')[1]
-                                 for line in result})
+    model_data['params'].update({
+        line.strip('\n').split('\t')[0]: line.strip('\n').split('\t')[1]
+        for line in result
+    })
     json_writer(model_data['model_name'], model_data)
 
     return model_data
 
 
 def getDefaultFilePath(model_name):
+    """Given a model name, return the default path to the modeldef file.
+
+    Parameters
+    ----------
+    model_name: str
+        Name of model
+
+    Returns
+    -------
+    modelPath: str
+        Path to modeldef file
+
+    """
     def_path = os.path.join(BASEDIR, 'examples')
     modelPath = None
     for root, dirs, files in os.walk(def_path, topdown=True):

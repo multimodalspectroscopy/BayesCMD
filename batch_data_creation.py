@@ -1,6 +1,4 @@
-"""
-Class to create batch amounts of data from prior parameter distributions
-"""
+"""Class to create batch amounts of data from prior parameter distributions."""
 
 # import sys and os
 import sys
@@ -308,6 +306,7 @@ class Batch:
                 sys.stdout.flush()
 
         return None
+
 
 if __name__ == '__main__':
 

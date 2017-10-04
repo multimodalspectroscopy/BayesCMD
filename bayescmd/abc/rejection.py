@@ -64,7 +64,7 @@ class Rejection:
 
         self.d0 = import_actual_data(data_0)
 
-        self.workdir = tempfile.mkdtemp(prefix=self.model_name+'_')
+        self.workdir = tempfile.mkdtemp(prefix=self.model_name + '_')
 
         self.sample_rate = sample_rate
 
@@ -125,12 +125,13 @@ class Rejection:
 
         inputs = inputParse(self.d0, self.inputs)
 
-        abc_model = ModelBCMD(self.model_name,
-                              inputs=inputs,
-                              params=params,
-                              times=times,
-                              outputs=self.targets,
-                              workdir=self.workdir)
+        abc_model = ModelBCMD(
+            self.model_name,
+            inputs=inputs,
+            params=params,
+            times=times,
+            outputs=self.targets,
+            workdir=self.workdir)
         abc_model.create_initialised_input()
         abc_model.run_from_buffer()
         output = abc_model.output_parse()
