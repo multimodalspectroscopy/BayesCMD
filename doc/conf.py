@@ -19,10 +19,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath(os.path.join('..','bayescmd')))
-print(sys.path)
 
 # -- General configuration ------------------------------------------------
 
@@ -176,6 +173,3 @@ texinfo_documents = [
      author, 'BayesCMD', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

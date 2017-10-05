@@ -11,9 +11,8 @@ Welcome to BayesCMD's documentation!
    :caption: Contents:
 
 .. automodule:: bayescmd.bcmdModel.bcmd_model
-    :members:
 
-.. autoclass:: bcmdModel.ModelBCMD
+.. autoclass:: bayescmd.bcmdModel.ModelBCMD
     :members:
 
 .. automodule:: bayescmd.abc.distances

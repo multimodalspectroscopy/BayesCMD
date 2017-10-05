@@ -12,7 +12,7 @@ Welcome to BayesCMD's documentation!
 
 .. automodule:: bayescmd.bcmdModel.bcmd_model
 
-.. autoclass:: bcmdModel.ModelBCMD
+.. autoclass:: bayescmd.bcmdModel.ModelBCMD
     :members:
 
 .. automodule:: bayescmd.abc.distances

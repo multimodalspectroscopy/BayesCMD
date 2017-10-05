@@ -44,76 +44,38 @@
 <div class="toctree-wrapper compound">
 </div>
 <span class="target" id="module-bayescmd.bcmdModel.bcmd_model"></span><dl class="class">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD">
-<em class="property">class </em><code class="descclassname">bayescmd.bcmdModel.bcmd_model.</code><code class="descname">ModelBCMD</code><span class="sig-paren">(</span><em>model_name</em>, <em>inputs=None</em>, <em>params=None</em>, <em>times=None</em>, <em>outputs=None</em>, <em>burn_in=999</em>, <em>create_input=True</em>, <em>input_file=None</em>, <em>suppress=False</em>, <em>workdir=None</em>, <em>deleteWorkdir=False</em>, <em>timeout=30</em>, <em>basedir='../bayescmd'</em>, <em>debug=False</em>, <em>testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD">
+<em class="property">class </em><code class="descclassname">bayescmd.bcmdModel.</code><code class="descname">ModelBCMD</code><span class="sig-paren">(</span><em>model_name</em>, <em>inputs=None</em>, <em>params=None</em>, <em>times=None</em>, <em>outputs=None</em>, <em>burn_in=999</em>, <em>create_input=True</em>, <em>input_file=None</em>, <em>suppress=False</em>, <em>workdir=None</em>, <em>deleteWorkdir=False</em>, <em>timeout=30</em>, <em>basedir='../bayescmd'</em>, <em>debug=False</em>, <em>testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD" title="Permalink to this definition">¶</a></dt>
 <dd><p>BCMD model class. this can be used to create inputs, run simulations etc.</p>
 <dl class="method">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_default_input">
-<code class="descname">create_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.create_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_default_input" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD.create_default_input">
+<code class="descname">create_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.create_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD.create_default_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to create input file and write to string buffer for acces
 direct from memory.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_initialised_input">
-<code class="descname">create_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.create_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_initialised_input" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD.create_initialised_input">
+<code class="descname">create_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.create_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD.create_initialised_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to create input file and write to string buffer for access
 direct from memory.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_parse">
-<code class="descname">output_parse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.output_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_parse" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD.output_parse">
+<code class="descname">output_parse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.output_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD.output_parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to parse the output files into a dictionary.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_default_input">
-<code class="descname">write_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.write_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_default_input" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD.write_default_input">
+<code class="descname">write_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.write_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD.write_default_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to write a default input to file.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_initialised_input">
-<code class="descname">write_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.write_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_initialised_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to write a default input to file.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bcmdModel.ModelBCMD">
-<em class="property">class </em><code class="descclassname">bcmdModel.</code><code class="descname">ModelBCMD</code><span class="sig-paren">(</span><em>model_name</em>, <em>inputs=None</em>, <em>params=None</em>, <em>times=None</em>, <em>outputs=None</em>, <em>burn_in=999</em>, <em>create_input=True</em>, <em>input_file=None</em>, <em>suppress=False</em>, <em>workdir=None</em>, <em>deleteWorkdir=False</em>, <em>timeout=30</em>, <em>basedir='../bayescmd'</em>, <em>debug=False</em>, <em>testing=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD" title="Permalink to this definition">¶</a></dt>
-<dd><p>BCMD model class. this can be used to create inputs, run simulations etc.</p>
-<dl class="method">
-<dt id="bcmdModel.ModelBCMD.create_default_input">
-<code class="descname">create_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD.create_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD.create_default_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to create input file and write to string buffer for acces
-direct from memory.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bcmdModel.ModelBCMD.create_initialised_input">
-<code class="descname">create_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD.create_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD.create_initialised_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to create input file and write to string buffer for access
-direct from memory.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bcmdModel.ModelBCMD.output_parse">
-<code class="descname">output_parse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD.output_parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD.output_parse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to parse the output files into a dictionary.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bcmdModel.ModelBCMD.write_default_input">
-<code class="descname">write_default_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD.write_default_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD.write_default_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to write a default input to file.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bcmdModel.ModelBCMD.write_initialised_input">
-<code class="descname">write_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bcmdModel/bcmd_model.html#ModelBCMD.write_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bcmdModel.ModelBCMD.write_initialised_input" title="Permalink to this definition">¶</a></dt>
+<dt id="bayescmd.bcmdModel.ModelBCMD.write_initialised_input">
+<code class="descname">write_initialised_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bayescmd/bcmdModel/bcmd_model.html#ModelBCMD.write_initialised_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bayescmd.bcmdModel.ModelBCMD.write_initialised_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to write a default input to file.</p>
 </dd></dl>
 
@@ -212,7 +174,7 @@ as between each signal in the data.</p>
 <li><strong>actual_data</strong> (<em>dict</em>) – Dictionary of actual data, as generated by
 <code class="xref py py-meth docutils literal"><span class="pre">bayescmd.abc.data_import.import_actual_data()</span></code></li>
 <li><strong>sim_data</strong> (<em>dict</em>) – Dictionary of simulated data, as created by
-<code class="xref py py-meth docutils literal"><span class="pre">bayescmd.bcmdModel.ModelBCMD.output_parse()</span></code></li>
+<a class="reference internal" href="#bayescmd.bcmdModel.ModelBCMD.output_parse" title="bayescmd.bcmdModel.ModelBCMD.output_parse"><code class="xref py py-meth docutils literal"><span class="pre">bayescmd.bcmdModel.ModelBCMD.output_parse()</span></code></a></li>
 <li><strong>targets</strong> (list of <code class="xref py py-obj docutils literal"><span class="pre">str</span></code>) – List of model targets, which should all be strings.</li>
 <li><strong>zero_flag</strong> (<em>dict</em>) – <p>Dictionary of form target(<code class="xref py py-obj docutils literal"><span class="pre">str</span></code>): bool, where bool indicates
 whether to zero that target.</p>
