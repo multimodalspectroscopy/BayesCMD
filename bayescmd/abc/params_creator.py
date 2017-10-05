@@ -1,24 +1,4 @@
-"""Create priors for use in BayesCMd and openopt."""
-from math import log10, floor
-
-
-def round_sig(x, sig=1):
-    """Round a value to N sig fig.
-
-    Parameters
-    ----------
-    x : float
-        Value to round
-    sig : int, optional
-        Number of sig figs, default is 1
-
-    Returns
-    -------
-    float
-        Rounded value
-
-    """
-    return round(x, sig - int(floor(log10(abs(x)))) - 1)
+"""Create priors for use in BayesCMD and openopt."""
 
 
 def priors_creator(params, variation, dist_type='uniform'):

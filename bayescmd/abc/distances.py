@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Distances module.
-
-This module is used to generate distance measures between simulated and real
-time series.
+"""Use to generate distance measures between simulated and real time series.
 
 Attributes
 ----------

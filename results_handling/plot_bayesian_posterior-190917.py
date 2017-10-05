@@ -1,3 +1,10 @@
+"""Process results obtained using BayesCMD.
+
+Process the various results obtained using BayesCMD, such as the
+`parameters.csv` file. It is also possible to concatenate a number of different
+`parameters.csv` files obtained using parallel batch runs into a single
+parameters file.
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,33 +18,36 @@ import sys
 import argparse
 sys.path.append('..')
 os.environ['BASEDIR'] = 'BayesCMD'
-from bayescmd.util import findBaseDir
+from bayescmd.util import findBaseDir  # noqa
 sns.set_context('talk')
 sns.set_style('ticks')
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
-from bayescmd import abc
-from bayescmd.bcmdModel import ModelBCMD
-
-
-def round_sig(x, sig=1):
-    return round(x, sig - int(floor(log10(abs(x)))) - 1)
+from bayescmd import abc  # noqa
+from bayescmd.bcmdModel import ModelBCMD  # noqa
+from bayescmd.util import round_sig  # noqa
 
 
 def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
-    """
-    Function to import
-    :param pfile: Path to the file of parameters and distances
-    :type pfile: str
-    :param nan_sub: Number to substitute for NaN distances/params
-    :type nan_sub: int or float
-    :param chunk_size: Size of chunks to load for dataframe
-    :type: int
-    :param verbose: Boolean as to whether include verbose information.
-    :type verbose: boolean
-    :return: Dataframe containing all the parameters and distances, with NaN swapped for nan_sub
-    :rtype: pd.DataFrame
-    """
+    """Import a parameters file produced by a batch process.
 
+    Parameters
+    ----------
+    pfile : str
+        Path to the file of parameters and distances
+    nan_sub: int or float, optional
+        Number to substitute for NaN distances/params. Default of 100000
+    chunk_size : int, optional
+        Size of chunks to load for dataframe. Default of 10000
+    verbose : bool, optional
+        Boolean as to whether include verbose information. Default of True
+
+    Returns
+    -------
+    result : pd.DataFrame
+        Dataframe containing all the parameters and distances, with NaN swapped
+        for nan_sub
+
+    """
     result = pd.DataFrame()
 
     num_lines = sum(1 for line in open(pfile)) - 1
@@ -54,14 +64,22 @@ def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
 
 
 def frac_calculator(df, frac):
-    """
+    """Calculate the number of lines for a given fraction.
 
-    :param df: Data frame to find fraction of
-    :type df: pd.DataFrame
-    :param frac: fraction of results to consider. Should be given as a percentage i.e. 1=1%, 0.1=0.1%
-    :type frac: float
-    :return: Number of values that make up the fraction
-    :rtype: int
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Data frame to find fraction of. Normally the output of
+        :method:`data_import`
+    frac : float
+        The fraction of results to consider. Should be given as a percentage
+        i.e. 1=1%, 0.1=0.1%
+
+    Returns
+    -------
+    int
+        Number of lines that make up the fraction.
+
     """
     return int(len(df) * frac / 100)
 

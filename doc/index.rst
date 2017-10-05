@@ -6,10 +6,15 @@
 Welcome to BayesCMD's documentation!
 ====================================
 
+BayesCMD is a package intended to expand the capabilities of the
+Brain/Circulation Modelling (BCMD) framework. It introduces the ability to
+obtain posterior distributions for model parameters by using Approximate
+Bayesian Computation (ABC).
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    bcmdModel
    abc
    jsonParsing

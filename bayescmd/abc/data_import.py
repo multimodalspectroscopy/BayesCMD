@@ -1,4 +1,4 @@
-"""Functions to import and parse real data for use in model."""
+"""Import and parse real data for use in model."""
 import csv
 import sys
 
