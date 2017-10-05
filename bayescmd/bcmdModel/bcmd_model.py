@@ -14,14 +14,17 @@ from io import StringIO
 
 import collections
 from .input_creation import InputCreator
-from ..util import findBaseDir
+from bayescmd.util import findBaseDir
 
 
 # default timeout, in seconds
 TIMEOUT = 30
 # default base directory - this should be a relative directory path
-# leading to bcmd/
-BASEDIR = findBaseDir(os.environ['BASEDIR'])
+# leading to bayescmd/
+try:
+    BASEDIR = findBaseDir(os.environ['BASEDIR'])
+except KeyError:
+    BASEDIR = findBaseDir('bayescmd')
 
 
 class ModelBCMD:

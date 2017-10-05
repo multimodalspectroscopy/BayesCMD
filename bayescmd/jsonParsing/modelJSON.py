@@ -1,3 +1,4 @@
+"""Convert model information to JSON for use with WeBCMD."""
 import json
 import os.path
 # import re
