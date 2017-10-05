@@ -9,14 +9,14 @@ Welcome to BayesCMD's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   bcmdModel
+   abc
+   jsonParsing
+   misc
 
-.. automodule:: bayescmd.bcmdModel.bcmd_model
 
-.. autoclass:: bayescmd.bcmdModel.ModelBCMD
-    :members:
 
-.. automodule:: bayescmd.abc.distances
-    :members:
 
 Indices and tables
 ==================

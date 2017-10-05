@@ -69,7 +69,7 @@
     <span class="n">BASEDIR</span> <span class="o">=</span> <span class="n">findBaseDir</span><span class="p">(</span><span class="s1">&#39;bayescmd&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="ModelBCMD"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD">[docs]</a><span class="k">class</span> <span class="nc">ModelBCMD</span><span class="p">:</span>
+<div class="viewcode-block" id="ModelBCMD"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD">[docs]</a><span class="k">class</span> <span class="nc">ModelBCMD</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    BCMD model class. this can be used to create inputs, run simulations etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -156,7 +156,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;GETTING MODEL DEFAULTS.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="s1">&#39;-s&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ModelBCMD.write_default_input"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_default_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_default_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBCMD.write_default_input"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_default_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_default_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to write a default input to file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -180,7 +180,7 @@
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="ModelBCMD.create_default_input"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_default_input">[docs]</a>    <span class="k">def</span> <span class="nf">create_default_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBCMD.create_default_input"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_default_input">[docs]</a>    <span class="k">def</span> <span class="nf">create_default_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to create input file and write to string buffer for acces</span>
 <span class="sd">        direct from memory.</span>
@@ -190,7 +190,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span></div>
 
-<div class="viewcode-block" id="ModelBCMD.write_initialised_input"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_initialised_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_initialised_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBCMD.write_initialised_input"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.write_initialised_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_initialised_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to write a default input to file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -218,7 +218,7 @@
 
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="ModelBCMD.create_initialised_input"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_initialised_input">[docs]</a>    <span class="k">def</span> <span class="nf">create_initialised_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBCMD.create_initialised_input"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_initialised_input">[docs]</a>    <span class="k">def</span> <span class="nf">create_initialised_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to create input file and write to string buffer for access</span>
 <span class="sd">        direct from memory.</span>
@@ -336,7 +336,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">output_coarse</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-<div class="viewcode-block" id="ModelBCMD.output_parse"><a class="viewcode-back" href="../../../index.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_parse">[docs]</a>    <span class="k">def</span> <span class="nf">output_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelBCMD.output_parse"><a class="viewcode-back" href="../../../bcmdModel.html#bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_parse">[docs]</a>    <span class="k">def</span> <span class="nf">output_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to parse the output files into a dictionary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -380,6 +380,13 @@
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bcmdModel.html">bcmdModel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../abc.html">abc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../jsonParsing.html">jsonParsing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../misc.html">Miscellaneous</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
