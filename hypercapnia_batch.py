@@ -20,22 +20,6 @@ priors = priors_creator({"Vol_mit": 0.067,
                          "cytox_tot_tis": 0.0055,
                          "v_cn": 40,
                          "sigma_coll": 62.79}, 0.25)
-
-# priors = {"Vol_mit": ['uniform', [0.02, 0.12]],
-#           'r_t': ['uniform', [0.01, 0.03]],
-#           'r_m': ['uniform', [0.01, 0.04]],
-#           'r_0': ['uniform', [0.007, 0.0175]],
-#           'cytox_tot_tis': ['uniform', [0.0025, 0.009]]
-#           'v_cn': ['uniform', [28, 52]]
-#           'sigma_coll':
-#           'O2_n':
-#           }
-# test_priors = {"Vol_mit": ['uniform', [0.088, 0.09]],
-#                'r_t': ['uniform', [0.0165, 0.017]],
-#                'r_m': ['uniform', [0.0315, 0.035]],
-#                'r_0': ['uniform', [0.012, 0.0124]],
-#                'cytox_tot_tis': ['uniform', [0.00616, 0.0064]]
-#                }
 outputs = ['Vmca', 'CCO']
 
 
@@ -49,7 +33,7 @@ def process(run_length, input_file, workdir):
                         workdir)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation(zero_flag=None)
+    batchWriter.batchCreation(zero_flag={k: False for k in outputs})
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser('Choose batch run data and length:')

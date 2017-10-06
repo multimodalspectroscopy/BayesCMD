@@ -190,7 +190,7 @@ class Batch:
             output = None
         return params, output
 
-    def batchCreation(self, zero_flag=None):
+    def batchCreation(self, zero_flag):
         STORE_VALUE = 1000
         prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
