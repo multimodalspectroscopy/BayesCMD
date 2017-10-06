@@ -82,7 +82,7 @@ Bayesian Computation (ABC).
 \label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:running-the-bcmd-model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}\index{ModelBCMD (class in bayescmd.bcmdModel)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{bayescmd.bcmdModel.}\sphinxbfcode{ModelBCMD}}{\emph{model\_name}, \emph{inputs=None}, \emph{params=None}, \emph{times=None}, \emph{outputs=None}, \emph{burn\_in=999}, \emph{create\_input=True}, \emph{input\_file=None}, \emph{suppress=False}, \emph{workdir=None}, \emph{deleteWorkdir=False}, \emph{timeout=30}, \emph{basedir='../bayescmd'}, \emph{debug=False}, \emph{testing=False}}{}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{bayescmd.bcmdModel.}\sphinxbfcode{ModelBCMD}}{\emph{model\_name}, \emph{inputs=None}, \emph{params=None}, \emph{times=None}, \emph{outputs=None}, \emph{burn\_in=999}, \emph{create\_input=True}, \emph{input\_file=None}, \emph{suppress=False}, \emph{workdir=None}, \emph{deleteWorkdir=False}, \emph{timeout=30}, \emph{basedir='..'}, \emph{debug=False}, \emph{testing=False}}{}
 BCMD model class. this can be used to create inputs, run simulations etc.
 \index{create\_default\_input() (bayescmd.bcmdModel.ModelBCMD method)}
 
@@ -137,7 +137,7 @@ Input files are required by the BCMD model.
 
 
 \subsection{input\_creation}
-\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.input_creation}}\label{\detokenize{bcmdModel:id1}}\index{bayescmd.bcmdModel.input\_creation (module)}
+\label{\detokenize{bcmdModel:id1}}\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.input_creation}}\index{bayescmd.bcmdModel.input\_creation (module)}
 Create input files for use with a BCMD model.
 
 Input files are needed in order to set model parameters and provide driving
@@ -289,7 +289,7 @@ Write input file from buffer to file.
 
 
 \chapter{abc}
-\label{\detokenize{abc:abc}}\label{\detokenize{abc::doc}}
+\label{\detokenize{abc::doc}}\label{\detokenize{abc:abc}}
 The \sphinxtitleref{abc} subpackage is used to handle the Approximate Bayesian Computation
 (ABC) specific components of BayesCMD. This includes running the model multiple
 times in a batch process, calculating distances between datasets and generating
@@ -297,7 +297,7 @@ priors for parameters.
 \phantomsection\label{\detokenize{abc:module-bayescmd.abc}}\index{bayescmd.abc (module)}
 
 \section{Distances}
-\label{\detokenize{abc:distances}}\label{\detokenize{abc:module-bayescmd.abc.distances}}\index{bayescmd.abc.distances (module)}
+\label{\detokenize{abc:module-bayescmd.abc.distances}}\label{\detokenize{abc:distances}}\index{bayescmd.abc.distances (module)}
 Use to generate distance measures between simulated and real time series.
 \index{DISTANCES (in module bayescmd.abc.distances)}
 
@@ -597,6 +597,452 @@ Here you will find a number of useful functions that are used throughout
 the general BayesCMD package.
 
 
+\section{Utility Functions}
+\label{\detokenize{misc:module-bayescmd.util}}\label{\detokenize{misc:utility-functions}}\index{bayescmd.util (module)}
+Miscellaneous utility functions used throughout BayesCMD.
+
+This module contains a number of utility functions that are used throughout
+the different BayesCMD subpackages.
+\index{findBaseDir() (in module bayescmd.util)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.util.findBaseDir}}\pysiglinewithargsret{\sphinxcode{bayescmd.util.}\sphinxbfcode{findBaseDir}}{\emph{basename}, \emph{max\_depth=5}, \emph{verbose=False}}{}
+Get relative path to a BASEDIR.
+:param basename: Name of the basedir to path to
+:type basename: str
+\begin{quote}\begin{description}
+\item[{Returns}] \leavevmode
+Relative path to base directory.
+
+\item[{Return type}] \leavevmode
+StringIO
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{round\_sig() (in module bayescmd.util)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.util.round_sig}}\pysiglinewithargsret{\sphinxcode{bayescmd.util.}\sphinxbfcode{round\_sig}}{\emph{x}, \emph{sig=1}}{}
+Round a value to N sig fig.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{x} (\sphinxstyleliteralemphasis{float}) \textendash{} Value to round
+
+\item {} 
+\sphinxstyleliteralstrong{sig} (\sphinxstyleliteralemphasis{int}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{optional}) \textendash{} Number of sig figs, default is 1
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Rounded value
+
+\item[{Return type}] \leavevmode
+float
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+
+
+\section{Processing Results}
+\label{\detokenize{misc:processing-results}}\label{\detokenize{misc:module-bayescmd.results_handling}}\index{bayescmd.results\_handling (module)}
+Process results obtained using BayesCMD.
+
+Process the various results obtained using BayesCMD, such as the
+\sphinxtitleref{parameters.csv} file. It is also possible to concatenate a number of different
+\sphinxtitleref{parameters.csv} files obtained using parallel batch runs into a single
+parameters file.
+\index{BAYESCMD (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.BAYESCMD}}\pysigline{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{BAYESCMD}}
+\sphinxcode{str} \textendash{} Absolute path to base directory. Found using
+{\hyperref[\detokenize{misc:bayescmd.util.findBaseDir}]{\sphinxcrossref{\sphinxcode{bayescmd.util.findBaseDir}}}}
+
+\end{fulllineitems}
+
+\index{data\_import() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.data_import}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{data\_import}}{\emph{pfile}, \emph{nan\_sub=100000}, \emph{chunk\_size=10000}, \emph{verbose=True}}{}
+Import a parameters file produced by a batch process.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{pfile} (\sphinxstyleliteralemphasis{str}) \textendash{} Path to the file of parameters and distances
+
+\item {} 
+\sphinxstyleliteralstrong{nan\_sub} (\sphinxstyleliteralemphasis{int}\sphinxstyleliteralemphasis{ or }\sphinxstyleliteralemphasis{float}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{optional}) \textendash{} Number to substitute for NaN distances/params. Default of 100000
+
+\item {} 
+\sphinxstyleliteralstrong{chunk\_size} (\sphinxstyleliteralemphasis{int}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{optional}) \textendash{} Size of chunks to load for dataframe. Default of 10000
+
+\item {} 
+\sphinxstyleliteralstrong{verbose} (\sphinxstyleliteralemphasis{bool}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{optional}) \textendash{} Boolean as to whether include verbose information. Default of True
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{result} \textendash{} Dataframe containing all the parameters and distances, with NaN swapped
+for nan\_sub
+
+\item[{Return type}] \leavevmode
+pd.DataFrame
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{data\_merge() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.data_merge}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{data\_merge}}{\emph{parent\_directory}, \emph{verbose=True}}{}
+Merge a set of parameters.csv files into one.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{parent\_directory} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} Parent directory to a set of directories each containing model runs and
+a parameters.csv file.
+
+\item {} 
+\sphinxstyleliteralstrong{verbose} (\sphinxcode{boolean}, optional) \textendash{} Boolean indicator of whether to print extra information.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Concatenated will be written to file in \sphinxtitleref{parent\_directory}
+
+\item[{Return type}] \leavevmode
+None
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{diag\_kde\_plot() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.diag_kde_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{diag\_kde\_plot}}{\emph{x}, \emph{**kws}}{}
+Plot univariate KDE and barplot with median of distribution marked on.
+
+Includes median of distribution as a line and as text.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{x} (\sphinxstyleliteralemphasis{array-like}) \textendash{} Array-like of data to plot.
+
+\item {} 
+\sphinxstyleliteralstrong{kws} (\sphinxstyleliteralemphasis{key}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{value pairings.}) \textendash{} Other keyword arguments to pass to \sphinxcode{sns.distplot}.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{ax} \textendash{} AxesSubplot object of univariate KDE and bar plot with median marked
+on as well as text.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{matplotlib.AxesSubplot}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{frac\_calculator() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.frac_calculator}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{frac\_calculator}}{\emph{df}, \emph{frac}}{}
+Calculate the number of lines for a given fraction.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{df} (\sphinxstyleliteralemphasis{pd.DataFrame}) \textendash{} Data frame to find fraction of. Normally the output of
+{\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import}}}}
+
+\item {} 
+\sphinxstyleliteralstrong{frac} (\sphinxstyleliteralemphasis{float}) \textendash{} The fraction of results to consider. Should be given as a percentage
+i.e. 1=1\%, 0.1=0.1\%
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Number of lines that make up the fraction.
+
+\item[{Return type}] \leavevmode
+int
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{get\_output() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.get_output}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{get\_output}}{\emph{model\_name}, \emph{p}, \emph{times}, \emph{input\_data}, \emph{d0}, \emph{targets}, \emph{distance='euclidean'}, \emph{zero\_flag=None}}{}
+Generate model output and distances.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{model\_name} (\sphinxcode{str}) \textendash{} Name of model
+
+\item {} 
+\sphinxstyleliteralstrong{p} (\sphinxcode{dict}) \textendash{} Dict of form \{‘parameter’: value\} for which posteriors are being
+investigated.
+
+\item {} 
+\sphinxstyleliteralstrong{times} (\sphinxcode{list} of \sphinxcode{float}) \textendash{} List of times at which the data was collected.
+
+\item {} 
+\sphinxstyleliteralstrong{input\_data} (\sphinxcode{dict}) \textendash{} Dictionary of input data as generated by \sphinxcode{abc.inputParse}.
+
+\item {} 
+\sphinxstyleliteralstrong{targets} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model outputs against which the model is being optimised.
+
+\item {} 
+\sphinxstyleliteralstrong{distance} (\sphinxcode{str}) \textendash{} Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+
+\item {} 
+\sphinxstyleliteralstrong{zero\_flag} (\sphinxstyleliteralemphasis{dict}) \textendash{} 
+Dictionary of form target(\sphinxcode{str}): bool, where bool indicates
+whether to zero that target.
+
+Note: zero\_flag keys should match targets list.
+
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+A tuple of (p, model output data).
+
+\item[{Return type}] \leavevmode
+\sphinxcode{tuple}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{histogram\_plot() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.histogram_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{histogram\_plot}}{\emph{df}, \emph{distance='euclidean'}, \emph{fraction=1}, \emph{n\_bins=100}}{}
+Plot histogram of distance values.
+
+Plot a histogram showing the distribution of distance values for a given
+fraction of all distances in the dataframe. Distance values will have been
+calculated during the batch process.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{df} (\sphinxcode{pandas.DataFrame}) \textendash{} Dataframe of distances and parameters, generated using
+{\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import()}}}}
+
+\item {} 
+\sphinxstyleliteralstrong{distance} (\sphinxcode{str}, optional) \textendash{} Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+Default is ‘euclidean’.
+
+\item {} 
+\sphinxstyleliteralstrong{fraction} (\sphinxcode{float}, optional) \textendash{} Fraction of all distances to plot. Varies from 0 to 1. Default is 1.
+
+\item {} 
+\sphinxstyleliteralstrong{n\_bins} (\sphinxcode{int}, optional) \textendash{} Number of histogram bins. Default is 100.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+AxesSubplotobject that contains histogram of distance values.
+
+\item[{Return type}] \leavevmode
+matplotlib.AxesSubplot
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{kde\_plot() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.kde_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{kde\_plot}}{\emph{df}, \emph{params}, \emph{frac}, \emph{plot\_param=1}, \emph{n\_ticks=6}, \emph{d='euclidean'}, \emph{verbose=False}}{}
+Plot the model parameters pairwide as a KDE.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{df} (\sphinxcode{pandas.DataFrame}) \textendash{} Dataframe of distances and parameters, generated using
+{\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import()}}}}
+
+\item {} 
+\sphinxstyleliteralstrong{params} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model parameters to compare pairwise.
+
+\item {} 
+\sphinxstyleliteralstrong{frac} (\sphinxcode{float}) \textendash{} Fraction of results to consider. Should be given as a percentage i.e.
+1=1\%, 0.1=0.1\%
+
+\item {} 
+\sphinxstyleliteralstrong{plot\_param} (\sphinxcode{int}) \textendash{} 
+Which group to plot:
+\begin{quote}
+
+0: Outside posterior
+1: Inside posterior
+2: Failed run
+\end{quote}
+
+
+\item {} 
+\sphinxstyleliteralstrong{n\_ticks} (\sphinxcode{int}, optional) \textendash{} Number of x-axis ticks. Useful when a large number of parameters are
+bring compared, as the axes can become crowded if the number of ticks
+is too high.
+
+\item {} 
+\sphinxstyleliteralstrong{d} (\sphinxcode{str}, optional) \textendash{} 
+Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+\begin{quote}
+
+Note: Should be given  as a raw string if latex is used i.e.
+\sphinxtitleref{r’MAE’}.
+\end{quote}
+
+
+\item {} 
+\sphinxstyleliteralstrong{verbose} (\sphinxcode{boolean}, optional) \textendash{} Boolean to indicate verbosity. Default is False.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{g} \textendash{} Seaborn pairgrid object is returned in case of further formatting.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{seaborn.PairGrid}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{plot\_repeated\_outputs() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.plot_repeated_outputs}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{plot\_repeated\_outputs}}{\emph{df}, \emph{model\_name}, \emph{parameters}, \emph{input\_path}, \emph{inputs}, \emph{openopt\_path}, \emph{targets}, \emph{n\_repeats}, \emph{frac}, \emph{distance='euclidean'}, \emph{zero\_flag=None}}{}
+Generate model output and distances multiple times.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{model\_name} (\sphinxcode{str}) \textendash{} Name of model. Should match the modeldef file for model being generated
+i.e. model\_name of ‘model{}`’ should have a modeldef file
+‘model1.modeldef’.
+
+\item {} 
+\sphinxstyleliteralstrong{parameters} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of parameters for which posteriors are being investigated.
+
+\item {} 
+\sphinxstyleliteralstrong{input\_path} (\sphinxcode{str}) \textendash{} Path to the true data file
+
+\item {} 
+\sphinxstyleliteralstrong{inputs} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model inputs.
+
+\item {} 
+\sphinxstyleliteralstrong{targets} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model outputs against which the model is being optimised.
+
+\item {} 
+\sphinxstyleliteralstrong{n\_repeats} \textendash{} Number of times to generate output data
+
+\item {} 
+\sphinxstyleliteralstrong{frac} (\sphinxcode{float}) \textendash{} Fraction of results to consider. Should be given as a percentage i.e.
+1=1\%, 0.1=0.1\%
+
+\item {} 
+\sphinxstyleliteralstrong{distance} (\sphinxcode{str}) \textendash{} Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+
+\item {} 
+\sphinxstyleliteralstrong{zero\_flag} (\sphinxstyleliteralemphasis{dict}) \textendash{} 
+Dictionary of form target(\sphinxcode{str}): bool, where bool indicates
+whether to zero that target.
+
+Note: zero\_flag keys should match targets list.
+
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+
+
+\item[{Return type}] \leavevmode
+None
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{run\_model() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.run_model}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{run\_model}}{\emph{model}}{}
+Run a BCMD Model.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{model} ({\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD}]{\sphinxcrossref{\sphinxcode{bayescmd.bcmdModel.ModelBCMD}}}}) \textendash{} An initialised instance of a ModelBCMD class.
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{output} \textendash{} Dictionary of parsed model output.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{dict}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{scatter\_dist\_plot() (in module bayescmd.results\_handling)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.scatter_dist_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{scatter\_dist\_plot}}{\emph{df}, \emph{params}, \emph{frac}, \emph{n\_ticks=6}, \emph{d='euclidean'}, \emph{verbose=False}}{}
+Plot distribution of parameters as a scatter PairPlot.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{df} (\sphinxcode{pandas.DataFrame}) \textendash{} Dataframe of distances and parameters, generated using
+{\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import()}}}}
+
+\item {} 
+\sphinxstyleliteralstrong{params} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model parameters to compare pairwise.
+
+\item {} 
+\sphinxstyleliteralstrong{frac} (\sphinxcode{float}) \textendash{} Fraction of results to consider. Should be given as a percentage i.e.
+1=1\%, 0.1=0.1\%
+
+\item {} 
+\sphinxstyleliteralstrong{n\_ticks} (\sphinxcode{int}, optional) \textendash{} Number of x-axis ticks. Useful when a large number of parameters are
+bring compared, as the axes can become crowded if the number of ticks
+is too high.
+
+\item {} 
+\sphinxstyleliteralstrong{d} (\sphinxcode{str}, optional) \textendash{} 
+Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+\begin{quote}
+
+Note: Should be given  as a raw string if latex is used i.e.
+\sphinxtitleref{r’MAE’}.
+\end{quote}
+
+
+\item {} 
+\sphinxstyleliteralstrong{verbose} (\sphinxcode{boolean}, optional) \textendash{} Boolean to indicate verbosity. Default is False.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{g} \textendash{} Seaborn pairgrid object is returned in case of further formatting.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{seaborn.PairGrid}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+
+
 \chapter{Indices and tables}
 \label{\detokenize{index:indices-and-tables}}\begin{itemize}
 \item {} 
@@ -619,6 +1065,8 @@ the general BayesCMD package.
 \item {\sphinxstyleindexentry{bayescmd.abc.distances}}\sphinxstyleindexpageref{abc:\detokenize{module-bayescmd.abc.distances}}
 \item {\sphinxstyleindexentry{bayescmd.bcmdModel.bcmd\_model}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.bcmd_model}}
 \item {\sphinxstyleindexentry{bayescmd.bcmdModel.input\_creation}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.input_creation}}
+\item {\sphinxstyleindexentry{bayescmd.results\_handling}}\sphinxstyleindexpageref{misc:\detokenize{module-bayescmd.results_handling}}
+\item {\sphinxstyleindexentry{bayescmd.util}}\sphinxstyleindexpageref{misc:\detokenize{module-bayescmd.util}}
 \end{sphinxtheindex}
 
 \renewcommand{\indexname}{Index}

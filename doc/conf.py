@@ -24,7 +24,8 @@ import mock
 sys.path.insert(0, os.path.abspath('..'))
 
 MOCK_MODULES = ['numpy', 'scipy.stats', 'matplotlib', 'matplotlib.pyplot',
-                'numpy.random']
+                'numpy.random', 'pandas', 'matplotlib.lines', 'seaborn',
+                'scipy.integrate', 'scipy']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
