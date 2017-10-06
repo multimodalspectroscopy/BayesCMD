@@ -55,7 +55,7 @@
 
 
 \title{BayesCMD Documentation}
-\date{Oct 05, 2017}
+\date{Oct 06, 2017}
 \release{}
 \author{Joshua Russell-Buckland}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -69,9 +69,17 @@
 \phantomsection\label{\detokenize{index::doc}}
 
 
+BayesCMD is a package intended to expand the capabilities of the
+Brain/Circulation Modelling (BCMD) framework. It introduces the ability to
+obtain posterior distributions for model parameters by using Approximate
+Bayesian Computation (ABC).
+
 
 \chapter{bcmdModel}
-\label{\detokenize{bcmdModel::doc}}\label{\detokenize{bcmdModel:welcome-to-bayescmd-s-documentation}}\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:bcmdmodel}}\index{bayescmd.bcmdModel.bcmd\_model (module)}\index{ModelBCMD (class in bayescmd.bcmdModel)}
+\label{\detokenize{bcmdModel:welcome-to-bayescmd-s-documentation}}\label{\detokenize{bcmdModel:bcmdmodel}}\label{\detokenize{bcmdModel::doc}}
+
+\section{Running the BCMD Model}
+\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:running-the-bcmd-model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}\index{ModelBCMD (class in bayescmd.bcmdModel)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{bayescmd.bcmdModel.}\sphinxbfcode{ModelBCMD}}{\emph{model\_name}, \emph{inputs=None}, \emph{params=None}, \emph{times=None}, \emph{outputs=None}, \emph{burn\_in=999}, \emph{create\_input=True}, \emph{input\_file=None}, \emph{suppress=False}, \emph{workdir=None}, \emph{deleteWorkdir=False}, \emph{timeout=30}, \emph{basedir='../bayescmd'}, \emph{debug=False}, \emph{testing=False}}{}
@@ -123,8 +131,165 @@ Function to write a default input to file.
 
 
 
+\section{Input Creation}
+\label{\detokenize{bcmdModel:input-creation}}
+Input files are required by the BCMD model.
+
+
+\subsection{input\_creation}
+\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.input_creation}}\label{\detokenize{bcmdModel:id1}}\index{bayescmd.bcmdModel.input\_creation (module)}
+Create input files for use with a BCMD model.
+
+Input files are needed in order to set model parameters and provide driving
+inputs.
+\index{InputCreator (class in bayescmd.bcmdModel)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.InputCreator}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{bayescmd.bcmdModel.}\sphinxbfcode{InputCreator}}{\emph{times}, \emph{inputs}, \emph{outputs=None}, \emph{params=None}, \emph{filename=None}}{}
+Create an input file by passing relevant information to the class.
+
+This input file is then used to create an input file that can either be
+written to file or kept in buffer and passed directly to the model.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{times} (\sphinxcode{list} of \sphinxcode{float} or \sphinxcode{int}) \textendash{} List of times at which measurement data has been collected and needs
+to be simulated.
+
+\item {} 
+\sphinxstyleliteralstrong{inputs} (\sphinxstyleliteralemphasis{dict}) \textendash{} Dictionary of model inputs and their values. Has form
+\{‘names’ : \sphinxcode{list} of \sphinxcode{str},
+‘values’ : \sphinxcode{list} of \sphinxcode{list} of \sphinxcode{float}\}
+where \sphinxtitleref{names} should be a list of each model input name, matching up to
+the model inputs and \sphinxtitleref{values} would be a list of lsits, where each
+sublist is the input values for that time point. With this in mind,
+the length of \sphinxtitleref{inputs{[}‘values’{]}{}`} should equal length of \sphinxtitleref{times}.
+
+\item {} 
+\sphinxstyleliteralstrong{filename} (\sphinxcode{str}, optional) \textendash{} Name of the input file to be written to if writing to file is required.
+Default is \sphinxcode{None}.
+
+\item {} 
+\sphinxstyleliteralstrong{params} (\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{float}, optional) \textendash{} Dictionary of \{‘parameter’: param\_value\}
+
+\item {} 
+\sphinxstyleliteralstrong{outputs} (\sphinxcode{list} of \sphinxcode{str}, optional) \textendash{} List of model outputs to return.
+
+\end{itemize}
+
+\end{description}\end{quote}
+\index{times (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.times}}\pysigline{\sphinxbfcode{times}}
+\sphinxcode{list} of \sphinxcode{float} or \sphinxcode{int} \textendash{} List of times at which measurement data has been collected and needs
+to be simulated.
+
+\end{fulllineitems}
+
+\index{inputs (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.inputs}}\pysigline{\sphinxbfcode{inputs}}
+\sphinxstyleemphasis{dict} \textendash{} Dictionary of model inputs and their values. Has form
+\{‘names’ : \sphinxcode{list} of \sphinxcode{str},
+‘values’ : \sphinxcode{list} of \sphinxcode{list} of \sphinxcode{float}\}
+where \sphinxtitleref{names} should be a list of each model input name, matching up to
+the model inputs and \sphinxtitleref{values} would be a list of lsits, where each
+sublist is the input values for that time point. With this in mind,
+the length of \sphinxtitleref{inputs{[}‘values’{]}{}`} should equal length of \sphinxtitleref{times}.
+
+\end{fulllineitems}
+
+\index{f\_out (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.f_out}}\pysigline{\sphinxbfcode{f\_out}}
+\sphinxcode{StringIO()} \textendash{} String buffer object to which the input file will be written.
+
+\end{fulllineitems}
+
+\index{filename (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.filename}}\pysigline{\sphinxbfcode{filename}}
+\sphinxstyleemphasis{str} \textendash{} Name of the input file to be written to if writing to file is required.
+Default is \sphinxcode{None}.
+
+\end{fulllineitems}
+
+\index{params (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.params}}\pysigline{\sphinxbfcode{params}}
+dict of \sphinxcode{str}: \sphinxcode{float}. \textendash{} Dictionary of \{‘parameter’: param\_value\}
+
+\end{fulllineitems}
+
+\index{outputs (bayescmd.bcmdModel.input\_creation.InputCreator attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.input_creation.InputCreator.outputs}}\pysigline{\sphinxbfcode{outputs}}
+\sphinxcode{list} of \sphinxcode{str} \textendash{} List of model outputs to return.
+
+\end{fulllineitems}
+
+\index{default\_creation() (bayescmd.bcmdModel.InputCreator method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.InputCreator.default_creation}}\pysiglinewithargsret{\sphinxbfcode{default\_creation}}{}{}
+Create a default input file from given arguments.
+
+Assumes parameters remain unchanged from default values.
+\begin{quote}\begin{description}
+\item[{Returns}] \leavevmode
+Returns the input file as a String.IO() buffer object.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{String.IO()}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{initialised\_creation() (bayescmd.bcmdModel.InputCreator method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.InputCreator.initialised_creation}}\pysiglinewithargsret{\sphinxbfcode{initialised\_creation}}{\emph{burn\_in}}{}
+Create an input file from given arguments.
+
+Creates an input file thatcan have non-default parameter values and
+outputs, as well as a burn in period. Assumes parameters remain
+constant for the full duration of the simulation.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{burn\_in} (\sphinxcode{float} or \sphinxcode{int}) \textendash{} Length of burn in period at start of the simulation.
+
+\item[{Returns}] \leavevmode
+Returns the input file as a String.IO() buffer object.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{String.IO()}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{input\_file\_write() (bayescmd.bcmdModel.InputCreator method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.InputCreator.input_file_write}}\pysiglinewithargsret{\sphinxbfcode{input\_file\_write}}{}{}
+Write input file from buffer to file.
+
+\end{fulllineitems}
+
+
+\end{fulllineitems}
+
+
+
 \chapter{abc}
-\label{\detokenize{abc::doc}}\label{\detokenize{abc:abc}}
+\label{\detokenize{abc:abc}}\label{\detokenize{abc::doc}}
 The \sphinxtitleref{abc} subpackage is used to handle the Approximate Bayesian Computation
 (ABC) specific components of BayesCMD. This includes running the model multiple
 times in a batch process, calculating distances between datasets and generating
@@ -132,7 +297,7 @@ priors for parameters.
 \phantomsection\label{\detokenize{abc:module-bayescmd.abc}}\index{bayescmd.abc (module)}
 
 \section{Distances}
-\label{\detokenize{abc:module-bayescmd.abc.distances}}\label{\detokenize{abc:distances}}\index{bayescmd.abc.distances (module)}
+\label{\detokenize{abc:distances}}\label{\detokenize{abc:module-bayescmd.abc.distances}}\index{bayescmd.abc.distances (module)}
 Use to generate distance measures between simulated and real time series.
 \index{DISTANCES (in module bayescmd.abc.distances)}
 
@@ -422,12 +587,12 @@ list
 
 
 \chapter{jsonParsing}
-\label{\detokenize{jsonParsing::doc}}\label{\detokenize{jsonParsing:jsonparsing}}
+\label{\detokenize{jsonParsing:jsonparsing}}\label{\detokenize{jsonParsing::doc}}
 ..automodule:: bayescmd.jsonParsing.modelJSON
 
 
 \chapter{Miscellaneous}
-\label{\detokenize{misc::doc}}\label{\detokenize{misc:miscellaneous}}
+\label{\detokenize{misc:miscellaneous}}\label{\detokenize{misc::doc}}
 Here you will find a number of useful functions that are used throughout
 the general BayesCMD package.
 
@@ -453,6 +618,7 @@ the general BayesCMD package.
 \item {\sphinxstyleindexentry{bayescmd.abc}}\sphinxstyleindexpageref{abc:\detokenize{module-bayescmd.abc}}
 \item {\sphinxstyleindexentry{bayescmd.abc.distances}}\sphinxstyleindexpageref{abc:\detokenize{module-bayescmd.abc.distances}}
 \item {\sphinxstyleindexentry{bayescmd.bcmdModel.bcmd\_model}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.bcmd_model}}
+\item {\sphinxstyleindexentry{bayescmd.bcmdModel.input\_creation}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.input_creation}}
 \end{sphinxtheindex}
 
 \renewcommand{\indexname}{Index}
