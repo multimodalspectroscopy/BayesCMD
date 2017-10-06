@@ -1,3 +1,21 @@
+"""Configure and run a BCMD model.
+
+The BCMD Model class is used to configure and run a BCMD model. It is done by
+passing a number of configuration variables, creating a model input file and
+then running the model. Models can also be run from a pre-existing input file
+and input files can be written to file for later access also.
+
+Attributes
+----------
+TIMEOUT : :obj:`int`
+    Max number of seconds for a simulation to run before being cancelled.
+    Default is 30 seconds.
+BASEDIR : :obj:`str`
+    Path to Base directory, which should be 'BayesCMD'. It is found by running
+    the :obj:`bayescmd.util.findBaseDir` method, passing either an environment
+    variable or a string to the method.
+
+"""
 import numpy
 import numpy.random
 import pprint
@@ -16,7 +34,6 @@ import collections
 from .input_creation import InputCreator
 from bayescmd.util import findBaseDir
 
-
 # default timeout, in seconds
 TIMEOUT = 30
 # default base directory - this should be a relative directory path
@@ -28,28 +45,148 @@ except KeyError:
 
 
 class ModelBCMD:
-    """
-    BCMD model class. this can be used to create inputs, run simulations etc.
+    """Use to create inputs, run simulations and parse outputs.
+
+    Parameters
+    ----------
+    model_name : :obj:`str`
+        Name of model. Should match the modeldef file for model being generated
+        i.e. model_name of 'model`' should have a modeldef file
+        'model1.modeldef'.
+    inputs : :obj:`dict` or :obj:`None`, optional
+        Dictionary of model inputs and their values. Has form
+        {'names' : :obj:`list` of :obj:`str`,
+        'values' : :obj:`list` of :obj:`list` of :obj:`float`}
+        where `names` should be a list of each model input name, matching up to
+        the model inputs and `values` would be a list of lists, where each
+        sublist is the input values for that time point. With this in mind,
+        the length of `inputs['values']`` should equal length of `times`.
+        Default is None.
+    params : :obj:`dict` of :obj:`str`: :obj:`float` or :obj:`None`, optional
+        Dictionary of {'parameter': param_value}. Default is None
+    times : :obj:`list` of :obj:`float` or :obj:`int` or :obj:`None`, optional
+        List of times at which measurement data has been collected and needs
+        to be simulated. Default is None.
+    outputs : :obj:`list` of :obj:`str` or :obj:`None`, optional
+        List of model outputs to return. Default is None.
+    burn_in : :obj:`float` or :obj:`int`, optional
+        Length of burn in period at start of the simulation. Default is 999
+    create_input : :obj:`boolean`, optional
+        Boolean indicator as to whether an input file needs creating. Default
+        is True.
+    input_file : :obj:`str` or :obj:`None`, optional
+        Path to existing input file or to where one needs creating. Default is
+        None.
+    suppress : :obj:`boolean`, optional
+        Indicates if console output should be suppressed during model runs.
+        This will prevent writing of both stderr and stdout. Default is False.
+    workdir : :obj:`str` or :obj:`None`, optional
+        Path to working directory if one exists. If not set, it will default
+        to a temporary directory in 'tmp/'. If you wish to write input files
+        and similar to file, it is recommended that the working directory is
+        set manually by the user.
+    deleteWorkdir : :obj:`boolean`, optional
+        Indicates if the working directory should be deleted after finishing.
+        Default is False.
+    timeout : :obj:`float` or :obj:`int`, optional
+        Maximum length in seconds to let model run before cancelling. Default
+        is :obj:`TIMEOUT`.
+    basedir : :obj:`str`, optional
+        Path to base 'BayesCMD' directory. By default it is set to
+        :obj:`BASEDIR`.
+    debug : :obj:`boolean`, optional
+        Indicates if debugging information should be written to console.
+    testing : :obj:`boolean`, optional
+        If True, appends '_test' to coarse and detailed model output. Useful
+        if you wish to test settings and want to avoid test results becoming
+        mixed in with real result files.
+
+    Attributes
+    ----------
+    model_name : :obj:`str`
+        Name of model. Should match the modeldef file for model being generated
+        i.e. model_name of 'model`' should have a modeldef file
+        'model1.modeldef'.
+    inputs : :obj:`dict` or :obj:`None`
+        Dictionary of model inputs and their values. Has form
+        {'names' : :obj:`list` of :obj:`str`,
+        'values' : :obj:`list` of :obj:`list` of :obj:`float`}
+        where `names` should be a list of each model input name, matching up to
+        the model inputs and `values` would be a list of lists, where each
+        sublist is the input values for that time point. With this in mind,
+        the length of `inputs['values']`` should equal length of `times`.
+        Default is None.
+    params : :obj:`dict` of :obj:`str`: :obj:`float` or :obj:`None`
+        Dictionary of {'parameter': param_value}. Default is None
+    times : :obj:`list` of :obj:`float` or :obj:`int` or :obj:`None`
+        List of times at which measurement data has been collected and needs
+        to be simulated. Default is None.
+    outputs : :obj:`list` of :obj:`str` or :obj:`None`
+        List of model outputs to return. Default is None.
+    burn_in : :obj:`float` or :obj:`int`
+        Length of burn in period at start of the simulation. Default is 999
+    create_input : :obj:`boolean`
+        Boolean indicator as to whether an input file needs creating. Default
+        is True.
+    input_file : :obj:`str`
+        Path to existing input file or to where one needs creating. If
+        :obj:`create_input` is True and no path is given, the input file will
+        be written to :obj:`workdir` as :obj:`model_name`.input.
+    suppress : :obj:`boolean`
+        Indicates if console output should be suppressed during model runs.
+        This will prevent writing of both stderr and stdout. Default is False.
+    DEVNULL : :obj:`_io.BufferedWriter`
+        If :obj:`suppress` is set to True, this will be an io buffer that
+        redirects stderr and stdout to the null device.
+    workdir : :obj:`str` or :obj:`None`
+        Path to working directory if one exists. If not set, it will default
+        to a temporary directory in 'tmp/'. If you wish to write input files
+        and similar to file, it is recommended that the working directory is
+        set manually by the user.
+
+        If no working directory is given, the :obj:`deleteWorkdir` attribute
+        will be set to True in order to ensure that the file space does not
+        become excessively full during batch runs.
+    deleteWorkdir : :obj:`boolean`
+        Indicates if the working directory should be deleted after finishing.
+        Default is False, but this will always be set to True if :obj:`workdir`
+        is set to None.
+    timeout : :obj:`float` or :obj:`int`
+        Maximum length in seconds to let model run before cancelling. Default
+        is :obj:`TIMEOUT`.
+    basedir : :obj:`str`
+        Path to base 'BayesCMD' directory. By default it is set to
+        :obj:`BASEDIR`.
+    debug : :obj:`boolean`
+        Indicates if debugging information should be written to console
+    program : :obj:`str`
+        Path to the compiled model file. This is expected to be in
+        ':obj:`basedir`/build', with the name :obj:`model_name`.model.
+    output_{coarse,detail} : :obj:`str`
+        Location to write coarse and detailed output files to. This will be
+        the working directory, with coarse output files having the suffix
+        '.out' and detailed output files having the suffix '.detail'.
+    output_dict : :obj:`collections.defaultdict(:obj:`list`)`
+
     """
 
-    def __init__(self,
-                 model_name,
-                 inputs=None,  # Input variables
-                 params=None,  # Parameters
-                 times=None,  # Times to run simulation at
-                 outputs=None,
-                 burn_in=999,
-                 create_input=True,
-                 input_file=None,
-                 suppress=False,
-                 workdir=None,  # default is to create a temp directory
-                 # not quite sure when the best time for this is, probably in
-                 # __del__?
-                 deleteWorkdir=False,
-                 timeout=TIMEOUT,
-                 basedir=BASEDIR,
-                 debug=False,
-                 testing=False):
+    def __init__(
+            self,
+            model_name,
+            inputs=None,  # Input variables
+            params=None,  # Parameters
+            times=None,  # Times to run simulation at
+            outputs=None,
+            burn_in=999,
+            create_input=True,
+            input_file=None,
+            suppress=False,
+            workdir=None,  # default is to create a temp directory
+            deleteWorkdir=False,
+            timeout=TIMEOUT,
+            basedir=BASEDIR,
+            debug=False,
+            testing=False):
 
         self.model_name = model_name
         self.params = params  # dict of non-default params
@@ -86,8 +223,8 @@ class ModelBCMD:
         if input_file is not None:
             self.input_file = input_file
         elif create_input:
-            self.input_file = os.path.join(
-                self.workdir, self.model_name + '.input')
+            self.input_file = os.path.join(self.workdir,
+                                           self.model_name + '.input')
         else:
             self.input_file = None
 
@@ -97,10 +234,10 @@ class ModelBCMD:
             TEST_PRE = ''
 
         self.basedir = basedir
-        self.program = os.path.join(
-            self.basedir, 'build', self.model_name + '.model')
-        self.output_coarse = os.path.join(
-            self.workdir, self.model_name + TEST_PRE + '.out')
+        self.program = os.path.join(self.basedir, 'build',
+                                    self.model_name + '.model')
+        self.output_coarse = os.path.join(self.workdir,
+                                          self.model_name + TEST_PRE + '.out')
         self.output_detail = os.path.join(
             self.workdir, self.model_name + TEST_PRE + '.detail')
         self.output_dict = collections.defaultdict(list)
@@ -111,6 +248,7 @@ class ModelBCMD:
         return None
 
     def get_defaults(self):
+        """Obtain default model configuration."""
         print('GETTING MODEL DEFAULTS.\n')
         return subprocess.run([self.program, '-s'], stdout=subprocess.PIPE)
 
@@ -121,18 +259,18 @@ class ModelBCMD:
         # Ensure that any existing input files aren't overwritten
         try:
             assert os.path.exists(self.input_file)
-            new_input = os.path.splitext(self.input_file)[
-                0] + '_{:%H%M%S-%d%m%y}.input'.format(datetime.datetime.now())
+            new_input = os.path.splitext(
+                self.input_file)[0] + '_{:%H%M%S-%d%m%y}.input'.format(
+                    datetime.datetime.now())
             print('Input file %s already exists.\n Renaming as %s' %
                   (self.input_file, new_input))
-            input_creator = InputCreator(self.times, self.inputs,
-                                         filename=new_input)
+            input_creator = InputCreator(
+                self.times, self.inputs, filename=new_input)
             input_creator.default_creation()
             self.input_file = input_creator.input_file_write()
         except AssertionError:
-            input_creator = InputCreator(self.times,
-                                         self.inputs,
-                                         filename=self.input_file)
+            input_creator = InputCreator(
+                self.times, self.inputs, filename=self.input_file)
             input_creator.default_creation()
             input_creator.input_file_write()
 
@@ -155,22 +293,26 @@ class ModelBCMD:
         # Ensure that any existing input files aren't overwritten
         try:
             assert os.path.exists(self.input_file)
-            new_input = os.path.splitext(self.input_file)[
-                0] + '_{:%H%M%S-%d%m%y}.input'.format(datetime.datetime.now())
+            new_input = os.path.splitext(
+                self.input_file)[0] + '_{:%H%M%S-%d%m%y}.input'.format(
+                    datetime.datetime.now())
             print('Input file %s already exists.\n Renaming as %s' %
                   (self.input_file, new_input))
-            input_creator = InputCreator(self.times, self.inputs,
-                                         params=self.params,
-                                         outputs=self.outputs,
-                                         filename=new_input)
+            input_creator = InputCreator(
+                self.times,
+                self.inputs,
+                params=self.params,
+                outputs=self.outputs,
+                filename=new_input)
             input_creator.initialised_creation(self.burn_in)
             self.input_file = input_creator.input_file_write()
         except AssertionError:
-            input_creator = InputCreator(self.times,
-                                         self.inputs,
-                                         params=self.params,
-                                         outputs=self.outputs,
-                                         filename=self.input_file)
+            input_creator = InputCreator(
+                self.times,
+                self.inputs,
+                params=self.params,
+                outputs=self.outputs,
+                filename=self.input_file)
             input_creator.initialised_creation(self.burn_in)
             input_creator.input_file_write()
 
@@ -181,8 +323,8 @@ class ModelBCMD:
         Method to create input file and write to string buffer for access
         direct from memory.
         """
-        input_creator = InputCreator(self.times, self.inputs,
-                                     params=self.params, outputs=self.outputs)
+        input_creator = InputCreator(
+            self.times, self.inputs, params=self.params, outputs=self.outputs)
         f_out = input_creator.initialised_creation(self.burn_in)
 
         if self.debug:
@@ -200,19 +342,20 @@ class ModelBCMD:
                       (self.output_coarse, self.output_detail))
             if self.suppress:
                 # invoke the model program as a subprocess
-                succ = subprocess.run([self.program,
-                                       '-i', self.input_file,
-                                       '-o', self.output_coarse,
-                                       '-d', self.output_detail],
-                                      stdout=self.DEVNULL,
-                                      stderr=self.DEVNULL,
-                                      timeout=self.timeout,
-                                      check=True)
+                succ = subprocess.run(
+                    [
+                        self.program, '-i', self.input_file, '-o',
+                        self.output_coarse, '-d', self.output_detail
+                    ],
+                    stdout=self.DEVNULL,
+                    stderr=self.DEVNULL,
+                    timeout=self.timeout,
+                    check=True)
             else:
-                stdoutname = os.path.join(
-                    self.workdir, '%s.stdout' % (self.model_name))
-                stderrname = os.path.join(
-                    self.workdir, '%s.stderr' % (self.model_name))
+                stdoutname = os.path.join(self.workdir,
+                                          '%s.stdout' % (self.model_name))
+                stderrname = os.path.join(self.workdir,
+                                          '%s.stderr' % (self.model_name))
 
                 # if opening these files fails, we may be in trouble anyway
                 # but don't peg out just because of this -- let the the failure
@@ -228,14 +371,15 @@ class ModelBCMD:
                     f_err = None
 
                 # invoke the model program as a subprocess
-                succ = subprocess.run([self.program,
-                                       '-i', self.input_file,
-                                       '-o', self.output_coarse,
-                                       '-d', self.output_detail],
-                                      stdout=f_out,
-                                      stderr=f_err,
-                                      timeout=self.timeout,
-                                      check=True)
+                succ = subprocess.run(
+                    [
+                        self.program, '-i', self.input_file, '-o',
+                        self.output_coarse, '-d', self.output_detail
+                    ],
+                    stdout=f_out,
+                    stderr=f_err,
+                    timeout=self.timeout,
+                    check=True)
 
                 if f_out:
                     f_out.close()
@@ -254,16 +398,16 @@ class ModelBCMD:
                   (self.output_coarse, self.output_detail))
         if self.suppress:
             # invoke the model program as a subprocess
-            result = subprocess.run([self.program,
-                                     '-I'],
-                                    input=self.input_file.encode(),
-                                    stdout=subprocess.PIPE,
-                                    stderr=self.DEVNULL,
-                                    timeout=self.timeout,
-                                    check=True)
+            result = subprocess.run(
+                [self.program, '-I'],
+                input=self.input_file.encode(),
+                stdout=subprocess.PIPE,
+                stderr=self.DEVNULL,
+                timeout=self.timeout,
+                check=True)
         else:
-            stderrname = os.path.join(
-                self.workdir, '%s.stderr' % ("buffer_" + self.model_name))
+            stderrname = os.path.join(self.workdir, '%s.stderr' %
+                                      ("buffer_" + self.model_name))
 
             # if opening these files fails, we may be in trouble anyway
             # but don't peg out just because of this -- let the the failure
@@ -275,14 +419,13 @@ class ModelBCMD:
                 f_err = None
 
             # invoke the model program as a subprocess
-            result = subprocess.run([self.program,
-                                     '-I',
-                                     '-d', self.output_detail],
-                                    input=self.input_file.encode(),
-                                    stdout=subprocess.PIPE,
-                                    stderr=f_err,
-                                    timeout=self.timeout,
-                                    check=True)
+            result = subprocess.run(
+                [self.program, '-I', '-d', self.output_detail],
+                input=self.input_file.encode(),
+                stdout=subprocess.PIPE,
+                stderr=f_err,
+                timeout=self.timeout,
+                check=True)
 
             if f_err:
                 f_err.close()
@@ -290,7 +433,8 @@ class ModelBCMD:
         self.output_coarse = StringIO(result.stdout.decode())
 
         if self.debug:
-            pprint.pprint('OUTPUT: ' + self.output_coarse.getvalue(), stream=sys.stderr)
+            pprint.pprint(
+                'OUTPUT: ' + self.output_coarse.getvalue(), stream=sys.stderr)
             self.output_coarse.seek(0)
         return result
 

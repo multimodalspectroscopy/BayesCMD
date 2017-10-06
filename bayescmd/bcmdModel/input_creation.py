@@ -24,7 +24,7 @@ class InputCreator:
         {'names' : :obj:`list` of :obj:`str`,
         'values' : :obj:`list` of :obj:`list` of :obj:`float`}
         where `names` should be a list of each model input name, matching up to
-        the model inputs and `values` would be a list of lsits, where each
+        the model inputs and `values` would be a list of lists, where each
         sublist is the input values for that time point. With this in mind,
         the length of `inputs['values']`` should equal length of `times`.
     filename : :obj:`str`, optional
