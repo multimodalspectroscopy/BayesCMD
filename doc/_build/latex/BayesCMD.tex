@@ -79,11 +79,290 @@ Bayesian Computation (ABC).
 \label{\detokenize{bcmdModel:welcome-to-bayescmd-s-documentation}}\label{\detokenize{bcmdModel:bcmdmodel}}\label{\detokenize{bcmdModel::doc}}
 
 \section{Running the BCMD Model}
-\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:running-the-bcmd-model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}\index{ModelBCMD (class in bayescmd.bcmdModel)}
+\label{\detokenize{bcmdModel:running-the-bcmd-model}}
+The BCMD model can be run in a number of ways, both using the command lines
+and the WeBCMD interface. Over time, both the BayesCMD package and the WeBCMD
+package are expected to merge. As a result, the BCMD model class has been
+designed to allow flexibility and compatibility with both the current BayesCMD
+framework and the WeBCMD framework.
+
+
+\subsection{bcmd\_model}
+\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:bcmd-model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}
+Configure and run a BCMD model.
+
+The BCMD Model class is used to configure and run a BCMD model. It is done by
+passing a number of configuration variables, creating a model input file and
+then running the model. Models can also be run from a pre-existing input file
+and input files can be written to file for later access also.
+\index{TIMEOUT (in module bayescmd.bcmdModel.bcmd\_model)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.TIMEOUT}}\pysigline{\sphinxcode{bayescmd.bcmdModel.bcmd\_model.}\sphinxbfcode{TIMEOUT}}
+\sphinxcode{int} \textendash{} Max number of seconds for a simulation to run before being cancelled.
+Default is 30 seconds.
+
+\end{fulllineitems}
+
+\index{BASEDIR (in module bayescmd.bcmdModel.bcmd\_model)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.BASEDIR}}\pysigline{\sphinxcode{bayescmd.bcmdModel.bcmd\_model.}\sphinxbfcode{BASEDIR}}
+\sphinxcode{str} \textendash{} Path to Base directory, which should be ‘BayesCMD’. It is found by running
+the {\hyperref[\detokenize{misc:bayescmd.util.findBaseDir}]{\sphinxcrossref{\sphinxcode{bayescmd.util.findBaseDir}}}} method, passing either an environment
+variable or a string to the method.
+
+\end{fulllineitems}
+
+\index{ModelBCMD (class in bayescmd.bcmdModel)}
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD}}\pysiglinewithargsret{\sphinxbfcode{class }\sphinxcode{bayescmd.bcmdModel.}\sphinxbfcode{ModelBCMD}}{\emph{model\_name}, \emph{inputs=None}, \emph{params=None}, \emph{times=None}, \emph{outputs=None}, \emph{burn\_in=999}, \emph{create\_input=True}, \emph{input\_file=None}, \emph{suppress=False}, \emph{workdir=None}, \emph{deleteWorkdir=False}, \emph{timeout=30}, \emph{basedir='..'}, \emph{debug=False}, \emph{testing=False}}{}
-BCMD model class. this can be used to create inputs, run simulations etc.
+Use to create inputs, run simulations and parse outputs.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{model\_name} (\sphinxcode{str}) \textendash{} Name of model. Should match the modeldef file for model being generated
+i.e. model\_name of ‘model{}`’ should have a modeldef file
+‘model1.modeldef’.
+
+\item {} 
+\sphinxstyleliteralstrong{inputs} (\sphinxcode{dict} or \sphinxcode{None}, optional) \textendash{} Dictionary of model inputs and their values. Has form
+\{‘names’ : \sphinxcode{list} of \sphinxcode{str},
+‘values’ : \sphinxcode{list} of \sphinxcode{list} of \sphinxcode{float}\}
+where \sphinxtitleref{names} should be a list of each model input name, matching up to
+the model inputs and \sphinxtitleref{values} would be a list of lists, where each
+sublist is the input values for that time point. With this in mind,
+the length of \sphinxtitleref{inputs{[}‘values’{]}{}`} should equal length of \sphinxtitleref{times}.
+Default is None.
+
+\item {} 
+\sphinxstyleliteralstrong{params} (\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{float} or \sphinxcode{None}, optional) \textendash{} Dictionary of \{‘parameter’: param\_value\}. Default is None
+
+\item {} 
+\sphinxstyleliteralstrong{times} (\sphinxcode{list} of \sphinxcode{float} or \sphinxcode{int} or \sphinxcode{None}, optional) \textendash{} List of times at which measurement data has been collected and needs
+to be simulated. Default is None.
+
+\item {} 
+\sphinxstyleliteralstrong{outputs} (\sphinxcode{list} of \sphinxcode{str} or \sphinxcode{None}, optional) \textendash{} List of model outputs to return. Default is None.
+
+\item {} 
+\sphinxstyleliteralstrong{burn\_in} (\sphinxcode{float} or \sphinxcode{int}, optional) \textendash{} Length of burn in period at start of the simulation. Default is 999
+
+\item {} 
+\sphinxstyleliteralstrong{create\_input} (\sphinxcode{boolean}, optional) \textendash{} Boolean indicator as to whether an input file needs creating. Default
+is True.
+
+\item {} 
+\sphinxstyleliteralstrong{input\_file} (\sphinxcode{str} or \sphinxcode{None}, optional) \textendash{} Path to existing input file or to where one needs creating. Default is
+None.
+
+\item {} 
+\sphinxstyleliteralstrong{suppress} (\sphinxcode{boolean}, optional) \textendash{} Indicates if console output should be suppressed during model runs.
+This will prevent writing of both stderr and stdout. Default is False.
+
+\item {} 
+\sphinxstyleliteralstrong{workdir} (\sphinxcode{str} or \sphinxcode{None}, optional) \textendash{} Path to working directory if one exists. If not set, it will default
+to a temporary directory in ‘tmp/’. If you wish to write input files
+and similar to file, it is recommended that the working directory is
+set manually by the user.
+
+\item {} 
+\sphinxstyleliteralstrong{deleteWorkdir} (\sphinxcode{boolean}, optional) \textendash{} Indicates if the working directory should be deleted after finishing.
+Default is False.
+
+\item {} 
+\sphinxstyleliteralstrong{timeout} (\sphinxcode{float} or \sphinxcode{int}, optional) \textendash{} Maximum length in seconds to let model run before cancelling. Default
+is {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.TIMEOUT}]{\sphinxcrossref{\sphinxcode{TIMEOUT}}}}.
+
+\item {} 
+\sphinxstyleliteralstrong{basedir} (\sphinxcode{str}, optional) \textendash{} Path to base ‘BayesCMD’ directory. By default it is set to
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.BASEDIR}]{\sphinxcrossref{\sphinxcode{BASEDIR}}}}.
+
+\item {} 
+\sphinxstyleliteralstrong{debug} (\sphinxcode{boolean}, optional) \textendash{} Indicates if debugging information should be written to console.
+
+\item {} 
+\sphinxstyleliteralstrong{testing} (\sphinxcode{boolean}, optional) \textendash{} If True, appends ‘\_test’ to coarse and detailed model output. Useful
+if you wish to test settings and want to avoid test results becoming
+mixed in with real result files.
+
+\end{itemize}
+
+\end{description}\end{quote}
+\index{model\_name (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.model_name}}\pysigline{\sphinxbfcode{model\_name}}
+\sphinxcode{str} \textendash{} Name of model. Should match the modeldef file for model being generated
+i.e. model\_name of ‘model{}`’ should have a modeldef file
+‘model1.modeldef’.
+
+\end{fulllineitems}
+
+\index{inputs (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.inputs}}\pysigline{\sphinxbfcode{inputs}}
+\sphinxcode{dict} or \sphinxcode{None} \textendash{} Dictionary of model inputs and their values. Has form
+\{‘names’ : \sphinxcode{list} of \sphinxcode{str},
+‘values’ : \sphinxcode{list} of \sphinxcode{list} of \sphinxcode{float}\}
+where \sphinxtitleref{names} should be a list of each model input name, matching up to
+the model inputs and \sphinxtitleref{values} would be a list of lists, where each
+sublist is the input values for that time point. With this in mind,
+the length of \sphinxtitleref{inputs{[}‘values’{]}{}`} should equal length of \sphinxtitleref{times}.
+Default is None.
+
+\end{fulllineitems}
+
+\index{params (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.params}}\pysigline{\sphinxbfcode{params}}
+\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{float} or \sphinxcode{None} \textendash{} Dictionary of \{‘parameter’: param\_value\}. Default is None
+
+\end{fulllineitems}
+
+\index{times (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.times}}\pysigline{\sphinxbfcode{times}}
+\sphinxcode{list} of \sphinxcode{float} or \sphinxcode{int} or \sphinxcode{None} \textendash{} List of times at which measurement data has been collected and needs
+to be simulated. Default is None.
+
+\end{fulllineitems}
+
+\index{outputs (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.outputs}}\pysigline{\sphinxbfcode{outputs}}
+\sphinxcode{list} of \sphinxcode{str} or \sphinxcode{None} \textendash{} List of model outputs to return. Default is None.
+
+\end{fulllineitems}
+
+\index{burn\_in (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.burn_in}}\pysigline{\sphinxbfcode{burn\_in}}
+\sphinxcode{float} or \sphinxcode{int} \textendash{} Length of burn in period at start of the simulation. Default is 999
+
+\end{fulllineitems}
+
+\index{create\_input (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_input}}\pysigline{\sphinxbfcode{create\_input}}
+\sphinxcode{boolean} \textendash{} Boolean indicator as to whether an input file needs creating. Default
+is True.
+
+\end{fulllineitems}
+
+\index{input\_file (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}}\pysigline{\sphinxbfcode{input\_file}}
+\sphinxcode{str} \textendash{} Path to existing input file or to where one needs creating. If
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.create_input}]{\sphinxcrossref{\sphinxcode{create\_input}}}} is True and no path is given, the input file will
+be written to {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.workdir}]{\sphinxcrossref{\sphinxcode{workdir}}}} as {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.model_name}]{\sphinxcrossref{\sphinxcode{model\_name}}}}.input.
+
+\end{fulllineitems}
+
+\index{suppress (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.suppress}}\pysigline{\sphinxbfcode{suppress}}
+\sphinxcode{boolean} \textendash{} Indicates if console output should be suppressed during model runs.
+This will prevent writing of both stderr and stdout. Default is False.
+
+\end{fulllineitems}
+
+\index{DEVNULL (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.DEVNULL}}\pysigline{\sphinxbfcode{DEVNULL}}
+\sphinxcode{\_io.BufferedWriter} \textendash{} If {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.suppress}]{\sphinxcrossref{\sphinxcode{suppress}}}} is set to True, this will be an io buffer that
+redirects stderr and stdout to the null device.
+
+\end{fulllineitems}
+
+\index{workdir (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.workdir}}\pysigline{\sphinxbfcode{workdir}}
+\sphinxcode{str} or \sphinxcode{None} \textendash{} Path to working directory if one exists. If not set, it will default
+to a temporary directory in ‘tmp/’. If you wish to write input files
+and similar to file, it is recommended that the working directory is
+set manually by the user.
+
+If no working directory is given, the {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.deleteWorkdir}]{\sphinxcrossref{\sphinxcode{deleteWorkdir}}}} attribute
+will be set to True in order to ensure that the file space does not
+become excessively full during batch runs.
+
+\end{fulllineitems}
+
+\index{deleteWorkdir (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.deleteWorkdir}}\pysigline{\sphinxbfcode{deleteWorkdir}}
+\sphinxcode{boolean} \textendash{} Indicates if the working directory should be deleted after finishing.
+Default is False, but this will always be set to True if {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.workdir}]{\sphinxcrossref{\sphinxcode{workdir}}}}
+is set to None.
+
+\end{fulllineitems}
+
+\index{timeout (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.timeout}}\pysigline{\sphinxbfcode{timeout}}
+\sphinxcode{float} or \sphinxcode{int} \textendash{} Maximum length in seconds to let model run before cancelling. Default
+is {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.TIMEOUT}]{\sphinxcrossref{\sphinxcode{TIMEOUT}}}}.
+
+\end{fulllineitems}
+
+\index{basedir (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.basedir}}\pysigline{\sphinxbfcode{basedir}}
+\sphinxcode{str} \textendash{} Path to base ‘BayesCMD’ directory. By default it is set to
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.BASEDIR}]{\sphinxcrossref{\sphinxcode{BASEDIR}}}}.
+
+\end{fulllineitems}
+
+\index{debug (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.debug}}\pysigline{\sphinxbfcode{debug}}
+\sphinxcode{boolean} \textendash{} Indicates if debugging information should be written to console
+
+\end{fulllineitems}
+
+\index{program (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.program}}\pysigline{\sphinxbfcode{program}}
+\sphinxcode{str} \textendash{} Path to the compiled model file. This is expected to be in
+‘{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.basedir}]{\sphinxcrossref{\sphinxcode{basedir}}}}/build’, with the name {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.model_name}]{\sphinxcrossref{\sphinxcode{model\_name}}}}.model.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\sphinxbfcode{output\_\{coarse,detail\}}}
+\sphinxcode{str} \textendash{} Location to write coarse and detailed output files to. This will be
+the working directory, with coarse output files having the suffix
+‘.out’ and detailed output files having the suffix ‘.detail’.
+
+\end{fulllineitems}
+
+\index{output\_dict (bayescmd.bcmdModel.bcmd\_model.ModelBCMD attribute)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_dict}}\pysigline{\sphinxbfcode{output\_dict}}
+\sphinxcode{collections.defaultdict(:obj:{}`list}){}`
+
+\end{fulllineitems}
+
 \index{create\_default\_input() (bayescmd.bcmdModel.ModelBCMD method)}
 
 \begin{fulllineitems}
@@ -99,6 +378,14 @@ direct from memory.
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.create_initialised_input}}\pysiglinewithargsret{\sphinxbfcode{create\_initialised\_input}}{}{}
 Method to create input file and write to string buffer for access
 direct from memory.
+
+\end{fulllineitems}
+
+\index{get\_defaults() (bayescmd.bcmdModel.ModelBCMD method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.get_defaults}}\pysiglinewithargsret{\sphinxbfcode{get\_defaults}}{}{}
+Obtain default model configuration.
 
 \end{fulllineitems}
 
@@ -133,11 +420,12 @@ Function to write a default input to file.
 
 \section{Input Creation}
 \label{\detokenize{bcmdModel:input-creation}}
-Input files are required by the BCMD model.
+Input files are required by the BCMD model. A special class has been created
+that will create a correctly formatted input file for a variety of use cases.
 
 
 \subsection{input\_creation}
-\label{\detokenize{bcmdModel:id1}}\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.input_creation}}\index{bayescmd.bcmdModel.input\_creation (module)}
+\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.input_creation}}\label{\detokenize{bcmdModel:id1}}\index{bayescmd.bcmdModel.input\_creation (module)}
 Create input files for use with a BCMD model.
 
 Input files are needed in order to set model parameters and provide driving
@@ -161,7 +449,7 @@ to be simulated.
 \{‘names’ : \sphinxcode{list} of \sphinxcode{str},
 ‘values’ : \sphinxcode{list} of \sphinxcode{list} of \sphinxcode{float}\}
 where \sphinxtitleref{names} should be a list of each model input name, matching up to
-the model inputs and \sphinxtitleref{values} would be a list of lsits, where each
+the model inputs and \sphinxtitleref{values} would be a list of lists, where each
 sublist is the input values for that time point. With this in mind,
 the length of \sphinxtitleref{inputs{[}‘values’{]}{}`} should equal length of \sphinxtitleref{times}.
 
@@ -289,7 +577,7 @@ Write input file from buffer to file.
 
 
 \chapter{abc}
-\label{\detokenize{abc::doc}}\label{\detokenize{abc:abc}}
+\label{\detokenize{abc:abc}}\label{\detokenize{abc::doc}}
 The \sphinxtitleref{abc} subpackage is used to handle the Approximate Bayesian Computation
 (ABC) specific components of BayesCMD. This includes running the model multiple
 times in a batch process, calculating distances between datasets and generating
@@ -598,7 +886,7 @@ the general BayesCMD package.
 
 
 \section{Utility Functions}
-\label{\detokenize{misc:module-bayescmd.util}}\label{\detokenize{misc:utility-functions}}\index{bayescmd.util (module)}
+\label{\detokenize{misc:utility-functions}}\label{\detokenize{misc:module-bayescmd.util}}\index{bayescmd.util (module)}
 Miscellaneous utility functions used throughout BayesCMD.
 
 This module contains a number of utility functions that are used throughout
