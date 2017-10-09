@@ -19,10 +19,16 @@ ap.add_argument(
 args = ap.parse_args()
 
 pfile = args.input_file  # 'concatenated_results_190917.csv'
-params = [
-    r'r_t', r'r_0', r'r_m', r'cytox_tot_tis', r'Vol_mit', r'O2_n', r'v_cn',
-    r'sigma_coll'
-]
+params = {
+    r'r_t': (0.0135, 0.0225),
+    r'r_0': (0.00945, 0.01575),
+    r'r_m': (0.02025, 0.03375),
+    r'cytox_tot_tis': (0.004125, 0.006875),
+    r'Vol_mit': (0.05025, 0.08375),
+    r'O2_n': (0.018, 0.03),
+    r'v_cn': (30.0, 50.0),
+    r'sigma_coll': (47.0925, 78.4875)
+}
 
 input_path = os.path.join(BASEDIR, 'data', 'hx01.csv')
 openopt_path = os.path.join(BASEDIR, 'data', 'model_run_output.csv')
@@ -42,20 +48,20 @@ config = {
 
 results = data_import(pfile)
 
-histogram_plot(results)
-plt.show()
-histogram_plot(results, fraction=0.01)
-plt.show()
+# histogram_plot(results)
+# plt.show()
+# histogram_plot(results, fraction=0.01)
+# plt.show()
 for f in [0.01, 0.1, 1.0]:
     print("Considering lowest {}% of values".format(f))
     # print("Generating scatter plot")
-    # scatter_dist_plot(results, params, f, 6)
+    # scatter_dist_plot(results, params, f, n_ticks=4)
     # plt.show()
     print("Generating KDE plot")
-    g = kde_plot(results, params, f)
+    g = kde_plot(results, params, f, n_ticks=4)
     plt.show()
     print("Generating averaged time series plot")
-    plot_repeated_outputs(results, n_repeats=75, frac=f, **config)
+    plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
     plt.show()
 
 # TODO: Fix issue with plot formatting, cutting off axes etc

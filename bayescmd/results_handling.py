@@ -176,8 +176,9 @@ def scatter_dist_plot(df,
     df: :obj:`pandas.DataFrame`
         Dataframe of distances and parameters, generated using
         :func:`data_import`
-    params : :obj:`list` of :obj:`str`
-        List of model parameters to compare pairwise.
+    params : :obj:`dict` of :obj:`str`: :obj:`tuple`
+        Dict of model parameters to compare, with value tuple of the prior max
+        and min.
     frac : :obj:`float`
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
@@ -199,6 +200,7 @@ def scatter_dist_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
+    p_names = list(params.keys)
     sorted_df = df.sort_values(by=d)
 
     accepted_limit = frac_calculator(df, frac)
@@ -212,14 +214,17 @@ def scatter_dist_plot(df,
 
     with sns.plotting_context("talk", font_scale=1.2):
         g = sns.PairGrid(
-            sorted_df, vars=params, hue='Accepted', diag_sharey=False)
+            sorted_df, vars=p_names, hue='Accepted', diag_sharey=False)
         g.map_diag(sns.kdeplot)
         g.map_offdiag(plt.scatter, s=1)
         g.add_legend()
         for ii, ax in enumerate(g.axes.flat):
-            # TODO: Need to ensure xmin/xmax equal prior limits
-            xmax = max(sorted_df[params[ii % len(params)]])
-            xmin = min(sorted_df[params[ii % len(params)]])
+            ii_y = ii // len(p_names)
+            ii_x = ii % len(p_names)
+            ax.set_ylim(params[p_names[ii_y]])
+            ax.set_xlim(params[p_names[ii_x]])
+            xmax = params[p_names[ii_x]][1]
+            xmin = params[p_names[ii_x]][0]
             xticks = np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
             ax.set_xticks(xticks)
             for label in ax.get_xticklabels():
@@ -238,7 +243,7 @@ def scatter_dist_plot(df,
     return g
 
 
-def diag_kde_plot(x, **kws):
+def diag_kde_plot(x, medians, **kws):
     """Plot univariate KDE and barplot with median of distribution marked on.
 
     Includes median of distribution as a line and as text.
@@ -247,6 +252,8 @@ def diag_kde_plot(x, **kws):
     ----------
     x : array-like
         Array-like of data to plot.
+    medians : :obj:`dict`
+        Dictionary of parameter, median pairings.
     kws : key, value pairings.
         Other keyword arguments to pass to :obj:`sns.distplot`.
 
@@ -265,12 +272,7 @@ def diag_kde_plot(x, **kws):
     cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
     nearest_05 = np.abs(cdf - 0.5).argmin()
     x_median = x1[nearest_05]
-
-    ax.text(
-        0.2,
-        0.9,
-        "Median: {}".format(str(round_sig(x_median, 2))),
-        transform=ax.transAxes)
+    medians[x.name] = round_sig(x_median, 2)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
 
     return ax
@@ -290,8 +292,9 @@ def kde_plot(df,
     df: :obj:`pandas.DataFrame`
         Dataframe of distances and parameters, generated using
         :func:`data_import`
-    params : :obj:`list` of :obj:`str`
-        List of model parameters to compare pairwise.
+    params : :obj:`dict` of :obj:`str`: :obj:`tuple`
+        Dict of model parameters to compare, with value tuple of the prior max
+        and min.
     frac : :obj:`float`
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
@@ -319,6 +322,7 @@ def kde_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
+    p_names = list(params.keys())
     sorted_df = df.sort_values(by=d)
 
     accepted_limit = frac_calculator(df, frac)
@@ -333,11 +337,14 @@ def kde_plot(df,
 
     g = sns.PairGrid(
         kde_df,
-        vars=params,
+        vars=p_names,
         hue='Accepted',
         palette=color_pal,
         diag_sharey=False)
-    g.map_diag(diag_kde_plot)
+    medians = {}
+    g.map_diag(diag_kde_plot, medians=medians)
+    for k, v in medians.items():
+        print("{}: {}".format(k, v))
     g.map_lower(sns.kdeplot, lw=3)
     for i, j in zip(*np.triu_indices_from(g.axes, 1)):
         g.axes[i, j].set_visible(False)
@@ -345,12 +352,15 @@ def kde_plot(df,
     for ii, ax in enumerate(g.axes.flat):
         for label in ax.get_xticklabels():
             label.set_rotation(50)
-        ax.set_ylim(
-            min(sorted_df[params[ii // len(params)]]),
-            max(sorted_df[params[ii // len(params)]]))
-        ax.set_xlim(
-            min(sorted_df[params[ii % len(params)]]),
-            max(sorted_df[params[ii % len(params)]]))
+        ii_y = ii // len(p_names)
+        ii_x = ii % len(p_names)
+        ax.set_ylim(params[p_names[ii_y]])
+        ax.set_xlim(params[p_names[ii_x]])
+        xmax = params[p_names[ii_x]][1]
+        xmin = params[p_names[ii_x]][0]
+        xticks = np.arange(xmin, xmax,
+                           round_sig((xmax - xmin) / n_ticks, sig=1))
+        ax.set_xticks(xticks)
     plt.subplots_adjust(top=0.9)
     title_dict = {
         0: "Outside Posterior",
@@ -361,6 +371,7 @@ def kde_plot(df,
         frac, d, title_dict[plot_param]))
 
     g.fig.tight_layout()
+    g.fig.subplots_adjust(bottom=0.15)
     return g
 
 
@@ -459,8 +470,9 @@ def plot_repeated_outputs(df,
         Name of model. Should match the modeldef file for model being generated
         i.e. model_name of 'model`' should have a modeldef file
         'model1.modeldef'.
-    parameters : :obj:`list` of :obj:`str`
-        List of parameters for which posteriors are being investigated.
+    parameters : :obj:`dict` of :obj:`str`: :obj:`tuple`
+        Dict of model parameters to compare, with value tuple of the prior max
+        and min.
     input_path : :obj:`str`
         Path to the true data file
     inputs : :obj:`list` of :obj:`str`
@@ -485,7 +497,7 @@ def plot_repeated_outputs(df,
     None
 
     """
-
+    p_names = list(parameters.keys())
     sorted_df = df.sort_values(by=distance)
 
     outputs_list = []
@@ -513,10 +525,10 @@ def plot_repeated_outputs(df,
             file=sys.stderr)
         raise e
 
-    posteriors = sorted_df.iloc[:posterior_size][parameters].as_matrix()
+    posteriors = sorted_df.iloc[:posterior_size][p_names].as_matrix()
     while len(outputs_list) < n_repeats:
         idx = rand_selection.pop()
-        p = dict(zip(parameters, posteriors[idx]))
+        p = dict(zip(p_names, posteriors[idx]))
         output = get_output(
             model_name,
             p,
@@ -539,7 +551,7 @@ def plot_repeated_outputs(df,
     with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
         fig, ax = plt.subplots(len(targets))
         for ii, target in enumerate(targets):
-            g = sns.tsplot(
+            sns.tsplot(
                 data=d['Outputs'][target],
                 time=times,
                 estimator=np.median,
@@ -564,5 +576,5 @@ def plot_repeated_outputs(df,
         ax[0].legend(
             handles=[bayes_line, true_plot, openopt_plot],
             prop={"size": 17},
-            bbox_to_anchor=(1.25, -0.5))
+            bbox_to_anchor=(1.05, -0.5))
     return None
