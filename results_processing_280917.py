@@ -48,10 +48,15 @@ config = {
 
 results = data_import(pfile)
 
-# histogram_plot(results)
-# plt.show()
-# histogram_plot(results, fraction=0.01)
-# plt.show()
+figPath = "/home/buck06191/Dropbox/phd/BayesCMD/Figures/"
+print("Plotting total histogram")
+hist1 = histogram_plot(results)
+hist1.savefig(
+    os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
+print("Plotting fraction histogram")
+hist2 = histogram_plot(results, fraction=0.01)
+hist2.savefig(
+    os.path.join(figPath, 'fraction_histogram_real.png'), bbox_inches='tight')
 for f in [0.01, 0.1, 1.0]:
     print("Considering lowest {}% of values".format(f))
     # print("Generating scatter plot")
@@ -59,10 +64,17 @@ for f in [0.01, 0.1, 1.0]:
     # plt.show()
     print("Generating KDE plot")
     g = kde_plot(results, params, f, n_ticks=4)
-    plt.show()
+    g.fig.savefig(
+        os.path.join(figPath, 'kde_{}_real.png'
+                     .format(str(f).replace('.', '_'))),
+        bbox_inches='tight')
     print("Generating averaged time series plot")
-    plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
-    plt.show()
+    fig = plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
+    fig.set_size_inches(18.5, 12.5)
+    fig.savefig(
+        os.path.join(figPath, 'TS_{}_real.png'
+                     .format(str(f).replace('.', '_'))),
+        dpi=100)
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.

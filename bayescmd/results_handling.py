@@ -149,18 +149,20 @@ def histogram_plot(df, distance='euclidean', fraction=1, n_bins=100):
 
     Returns
     -------
-    matplotlib.AxesSubplot
-        AxesSubplotobject that contains histogram of distance values.
+    matplotlib.figure
+        Matplotlib figure with histogram on.
 
     """
     sorted_df = df.sort_values(by=distance)
+    fig = plt.figure()
     ax = plt.subplot(
         111,
         xlabel='Error - {}'.format(distance),
         title='Distribution of '
         '{} Error Values'.format(distance.capitalize()))
-    return sorted_df[distance].head(int(len(sorted_df) * fraction)).plot(
+    sorted_df[distance].head(int(len(sorted_df) * fraction)).plot(
         kind='hist', bins=n_bins, ax=ax)
+    return fig
 
 
 def scatter_dist_plot(df,
@@ -494,7 +496,8 @@ def plot_repeated_outputs(df,
 
     Returns
     -------
-    None
+    fig : :obj:`matplotlib.figure`
+        Figure containing all axes.
 
     """
     p_names = list(parameters.keys())
@@ -548,13 +551,14 @@ def plot_repeated_outputs(df,
         d['Errors'][target] = np.nanmean([o[0][target] for o in outputs_list])
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
-    with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
+    with sns.plotting_context("talk", rc={"figure.figsize": (24, 18)}):
         fig, ax = plt.subplots(len(targets))
         for ii, target in enumerate(targets):
             sns.tsplot(
                 data=d['Outputs'][target],
                 time=times,
                 estimator=np.median,
+                ci=95,
                 ax=ax[ii])
             true_plot, = ax[ii].plot(
                 times, true_data[target], 'g', label='True')
@@ -570,11 +574,11 @@ def plot_repeated_outputs(df,
             for item in ([ax[0].xaxis.label, ax[0].yaxis.label] +
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(17)
-        fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-        fig.suptitle("Simulated output for {} repeats using top {}% of data".
-                     format(n_repeats, frac))
         ax[0].legend(
             handles=[bayes_line, true_plot, openopt_plot],
-            prop={"size": 17},
-            bbox_to_anchor=(1.05, -0.5))
-    return None
+            prop={"size": 15},
+            bbox_to_anchor=(1.15, -0.5))
+        plt.tight_layout()
+        fig.suptitle("Simulated output for {} repeats using top {}% of data".
+                     format(n_repeats, frac))
+    return fig
