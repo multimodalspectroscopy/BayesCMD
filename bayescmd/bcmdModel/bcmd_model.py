@@ -243,6 +243,7 @@ class ModelBCMD:
         self.output_dict = collections.defaultdict(list)
 
     def _cleanupTemp(self):
+        """Delete working directory."""
         if self.deleteWorkdir:
             shutil.rmtree(self.workdir)
         return None
@@ -253,8 +254,11 @@ class ModelBCMD:
         return subprocess.run([self.program, '-s'], stdout=subprocess.PIPE)
 
     def write_default_input(self):
-        """
-        Function to write a default input to file.
+        """Create and write a default input to file.
+
+        Create an input file using default configuration values and write it to
+        the file specified by :obj:`input_file`. All inputs, outputs and
+        parameters are set to default values and there is no burn in.
         """
         # Ensure that any existing input files aren't overwritten
         try:
@@ -277,9 +281,11 @@ class ModelBCMD:
         return True
 
     def create_default_input(self):
-        """
-        Method to create input file and write to string buffer for acces
-        direct from memory.
+        """Create configured default input file and write to string buffer.
+
+        Using this method allows the configured input file to be written to
+        memory, thus reducing the number of operations involving writing to
+        disk.
         """
         input_creator = InputCreator(self.times, self.inputs)
         self.input_file = input_creator.default_creation().getvalue()
@@ -287,8 +293,11 @@ class ModelBCMD:
         return self.input_file
 
     def write_initialised_input(self):
-        """
-        Function to write a default input to file.
+        """Create and write a custom, initialised input to file.
+
+        Create an input file using configuration values specified by
+        :obj:`inputs`, :obj:`times`, :obj:`params` and :obj:`outputs`, and
+        write it to the file specified by :obj:`input_file`.
         """
         # Ensure that any existing input files aren't overwritten
         try:
@@ -319,9 +328,14 @@ class ModelBCMD:
         return True
 
     def create_initialised_input(self):
-        """
-        Method to create input file and write to string buffer for access
-        direct from memory.
+        """Create a custom, initialised input and write to buffer.
+
+        Create an input file using configuration values specified by
+        :obj:`inputs`, :obj:`times`, :obj:`params` and :obj:`outputs`, and
+        write it to the file specified by :obj:`input_file`.
+
+        The configured input file will be written to memory, thus reducing the
+        number of operations involving writing to disk.
         """
         input_creator = InputCreator(
             self.times, self.inputs, params=self.params, outputs=self.outputs)
@@ -335,6 +349,12 @@ class ModelBCMD:
         return self.input_file
 
     def run_from_file(self):
+        """Run model using an input file found at :obj:`input_file`.
+
+        The model will be run using an already created input file that has been
+        written manually or using the :obj:`write_default_input` or
+        :obj:`write_initialised_input` methods.
+        """
         try:
             assert os.path.exists(self.input_file)
             if self.debug:
@@ -391,7 +411,11 @@ class ModelBCMD:
         return None
 
     def run_from_buffer(self):
+        """Run the model using an input file written to memory.
 
+        The input file will need to have been created using
+        :obj:`create_initialised_input` or :obj:`create_default_input`.
+        """
         # Ensure that input file has seeked to 0
         if self.debug:
             print("Output goes to:\n\tCOARSE:%s\n\tDETAIL:%s" %
@@ -439,8 +463,11 @@ class ModelBCMD:
         return result
 
     def output_parse(self):
-        """
-        Function to parse the output files into a dictionary.
+        """Parse the output files into a dictionary.
+
+        This allows the model output to be sent to JSON, is uding WeBCMD, or
+        simply processed in a more pythonic fashion for any Bayesian (or
+        similar) analysis.
         """
         # Check if file is open
 

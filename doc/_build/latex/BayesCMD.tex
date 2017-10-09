@@ -55,7 +55,7 @@
 
 
 \title{BayesCMD Documentation}
-\date{Oct 06, 2017}
+\date{Oct 09, 2017}
 \release{}
 \author{Joshua Russell-Buckland}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -76,7 +76,7 @@ Bayesian Computation (ABC).
 
 
 \chapter{bcmdModel}
-\label{\detokenize{bcmdModel:welcome-to-bayescmd-s-documentation}}\label{\detokenize{bcmdModel:bcmdmodel}}\label{\detokenize{bcmdModel::doc}}
+\label{\detokenize{bcmdModel::doc}}\label{\detokenize{bcmdModel:welcome-to-bayescmd-s-documentation}}\label{\detokenize{bcmdModel:bcmdmodel}}
 
 \section{Running the BCMD Model}
 \label{\detokenize{bcmdModel:running-the-bcmd-model}}
@@ -363,6 +363,14 @@ the working directory, with coarse output files having the suffix
 
 \end{fulllineitems}
 
+\index{\_cleanupTemp() (bayescmd.bcmdModel.ModelBCMD method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD._cleanupTemp}}\pysiglinewithargsret{\sphinxbfcode{\_cleanupTemp}}{}{}
+Delete working directory.
+
+\end{fulllineitems}
+
 \index{create\_default\_input() (bayescmd.bcmdModel.ModelBCMD method)}
 
 \begin{fulllineitems}
@@ -401,7 +409,10 @@ Function to parse the output files into a dictionary.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.write_default_input}}\pysiglinewithargsret{\sphinxbfcode{write\_default\_input}}{}{}
-Function to write a default input to file.
+Write a default input to file.
+
+Take a configured input file and write to the file specified by
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}.
 
 \end{fulllineitems}
 
@@ -880,7 +891,7 @@ list
 
 
 \chapter{Miscellaneous}
-\label{\detokenize{misc:miscellaneous}}\label{\detokenize{misc::doc}}
+\label{\detokenize{misc::doc}}\label{\detokenize{misc:miscellaneous}}
 Here you will find a number of useful functions that are used throughout
 the general BayesCMD package.
 
