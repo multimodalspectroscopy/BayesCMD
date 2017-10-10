@@ -458,12 +458,12 @@ def plot_repeated_outputs(df,
                           parameters,
                           input_path,
                           inputs,
-                          openopt_path,
                           targets,
                           n_repeats,
                           frac,
-                          distance='euclidean',
-                          zero_flag=None):
+                          zero_flag,
+                          openopt_path=None,
+                          distance='euclidean'):
     """Generate model output and distances multiple times.
 
     Parameters
@@ -486,13 +486,15 @@ def plot_repeated_outputs(df,
     frac : :obj:`float`
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
-    distance : :obj:`str`
-        Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
     zero_flag : dict
         Dictionary of form target(:obj:`str`): bool, where bool indicates
         whether to zero that target.
 
         Note: zero_flag keys should match targets list.
+    openopt_path : :obj:`str` or :obj:`None`
+        Path to the openopt data file if it exists. Default is None.
+    distance : :obj:`str`, optional
+        Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
 
     Returns
     -------
@@ -516,7 +518,8 @@ def plot_repeated_outputs(df,
     true_data = pd.read_csv(input_path)
     times = true_data['t'].as_matrix()
 
-    openopt_data = pd.read_csv(openopt_path)
+    if openopt_path:
+        openopt_data = pd.read_csv(openopt_path)
 
     try:
         rand_selection = random.sample(range(posterior_size), n_repeats)
@@ -540,8 +543,7 @@ def plot_repeated_outputs(df,
             d0,
             targets,
             distance='euclidean',
-            zero_flag={'CCO': False,
-                       'Vmca': False})
+            zero_flag=zero_flag)
         outputs_list.append(output)
 
     d = {"Errors": {}, "Outputs": {}}
@@ -553,6 +555,8 @@ def plot_repeated_outputs(df,
 
     with sns.plotting_context("talk", rc={"figure.figsize": (24, 18)}):
         fig, ax = plt.subplots(len(targets))
+        if type(ax) != np.ndarray:
+            ax = np.asarray([ax])
         for ii, target in enumerate(targets):
             sns.tsplot(
                 data=d['Outputs'][target],
@@ -560,12 +564,17 @@ def plot_repeated_outputs(df,
                 estimator=np.median,
                 ci=95,
                 ax=ax[ii])
+            paths = []
             true_plot, = ax[ii].plot(
                 times, true_data[target], 'g', label='True')
-            openopt_plot, = ax[ii].plot(
-                times, openopt_data[target], 'r', label='OpenOpt')
+            paths.append(true_plot)
+            if openopt_path:
+                openopt_plot, = ax[ii].plot(
+                    times, openopt_data[target], 'r', label='OpenOpt')
+                paths.append(openopt_plot)
             bayes_line = mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
+            paths.append(bayes_line)
             ax[ii].set_title("{}: Average Euclidean Distance of {:.4f}".format(
                 target, d['Errors'][target]))
             ax[ii].set_ylabel(r'{}'.format(target))
@@ -575,7 +584,7 @@ def plot_repeated_outputs(df,
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(17)
         ax[0].legend(
-            handles=[bayes_line, true_plot, openopt_plot],
+            handles=paths,
             prop={"size": 15},
             bbox_to_anchor=(1.15, -0.5))
         plt.tight_layout()
