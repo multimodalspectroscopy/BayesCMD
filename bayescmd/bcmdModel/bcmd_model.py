@@ -16,14 +16,11 @@ BASEDIR : :obj:`str`
     variable or a string to the method.
 
 """
-import numpy
-import numpy.random
 import pprint
 import tempfile
 import shutil
 import csv
 import os
-import copy
 import sys
 import datetime
 
@@ -96,10 +93,11 @@ class ModelBCMD:
         :obj:`BASEDIR`.
     debug : :obj:`boolean`, optional
         Indicates if debugging information should be written to console.
+        Default is False.
     testing : :obj:`boolean`, optional
         If True, appends '_test' to coarse and detailed model output. Useful
         if you wish to test settings and want to avoid test results becoming
-        mixed in with real result files.
+        mixed in with real result files. Default is False.
 
     Attributes
     ----------
@@ -158,7 +156,7 @@ class ModelBCMD:
         Path to base 'BayesCMD' directory. By default it is set to
         :obj:`BASEDIR`.
     debug : :obj:`boolean`
-        Indicates if debugging information should be written to console
+        Indicates if debugging information should be written to console.
     program : :obj:`str`
         Path to the compiled model file. This is expected to be in
         ':obj:`basedir`/build', with the name :obj:`model_name`.model.
@@ -167,6 +165,7 @@ class ModelBCMD:
         the working directory, with coarse output files having the suffix
         '.out' and detailed output files having the suffix '.detail'.
     output_dict : :obj:`collections.defaultdict(:obj:`list`)`
+        Dictionary of output data.
 
     """
 
@@ -465,7 +464,7 @@ class ModelBCMD:
     def output_parse(self):
         """Parse the output files into a dictionary.
 
-        This allows the model output to be sent to JSON, is uding WeBCMD, or
+        This allows the model output to be sent to JSON, if using WeBCMD, or
         simply processed in a more pythonic fashion for any Bayesian (or
         similar) analysis.
         """

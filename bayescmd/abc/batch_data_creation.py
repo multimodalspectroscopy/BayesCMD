@@ -26,8 +26,6 @@ import numpy as np
 from functools import partial
 import math
 import csv
-import distutils.dir_util
-import argparse
 from subprocess import TimeoutExpired, CalledProcessError
 
 from bayescmd.bcmdModel import ModelBCMD
@@ -75,8 +73,153 @@ def returnConst(x):
 
 
 class Batch:
-    """
-    This class will run a batch process of a rejection algorithm.
+    """Run a batch process of the rejection algorithm.
+
+    The model will run a number of times, using configuration values specified
+    to the class, drawing parameters from prior distributions.
+
+    Parameters
+    ----------
+    model_name : :obj:`str`
+        Name of the model to simulate. Should match the modeldef file for model
+        being generated i.e. model_name of 'model`' should have a modeldef file
+        'model1.modeldef'.
+
+    prior_parameters : :obj:`dict`
+        Dictionary of prior parameters. These take the form
+        {"param"(:obj:`str`):["prior_name"(:obj:`str`), [*args]]} where the
+        args are prior specific.
+
+        Possible priors include:
+
+        - constant
+        - beta
+        - binomial
+        - chisquare
+        - dirichlet
+        - exponential
+        - f
+        - gamma
+        - geometric
+        - laplace
+        - lognormal
+        - neg_binomial
+        - normal
+        - poisson
+        - power
+        - rayleigh
+        - uniform
+
+        For information on the associated function and arguments, see
+        :obj:`_getDistribution`.
+
+    inputs : :obj:`list` of :obj:`str`
+        List of the driving inputs. These should match column headings in the
+        data file described by :obj:`data_0`.
+
+    targets : :obj:`list` of :obj:`str`
+        List of target simulation outputs.
+
+    limit : :obj:`int`
+        Number of times to run the model.
+
+    data_0 : :obj:`str`
+        Path to csv of original experimental data.
+
+    workdir : :obj:`str`
+        File path to the directory store all output data in. Output data will
+        consist of a 'parameters.csv' file and, if :obj:`store_simulations` is
+        :obj:`True`, then a numbered file containing each 1000 simulation
+        outputs.
+
+    store_simulations : :obj:`boolean`, optional
+        Boolean flag for whether to store simulation outputs in addition to
+        the parameters. Default is True.
+
+    burnin : :obj:`int` or :obj:`float`, optional.
+        Length of burn in period at start of the simulation. Default is 999.
+
+    sample_rate : :obj:`float` or :obj:`None`, optional
+        Sample rate of data collected. Used only if time not provided in
+        data_0. Default is :obj:`None`.
+
+    debug : :obj:`boolean`
+        Indicates if debugging information should be written to console.
+        Default is False.
+
+    Attributes
+    ----------
+    model_name : :obj:`str`
+        Name of the model to simulate. Should match the modeldef file for model
+        being generated i.e. model_name of 'model`' should have a modeldef file
+        'model1.modeldef'.
+
+    priors : :obj:`dict`
+        Dictionary of prior parameters. These take the form
+        {"param"(:obj:`str`):["prior_name"(:obj:`str`), [*args]]} where the
+        args are prior specific.
+
+        Possible priors include:
+
+        - constant
+        - beta
+        - binomial
+        - chisquare
+        - dirichlet
+        - exponential
+        - f
+        - gamma
+        - geometric
+        - laplace
+        - lognormal
+        - neg_binomial
+        - normal
+        - poisson
+        - power
+        - rayleigh
+        - uniform
+
+        For information on the associated function and arguments, see
+        :obj:`_getDistribution`.
+
+    priorGen : :obj:`dict`
+        Dictionary of functions that each sample from a prior distribution.
+
+    inputs : :obj:`list` of :obj:`str`
+        List of the driving inputs. These should match column headings in the
+        data file described by :obj:`data_0`.
+
+    targets : :obj:`list` of :obj:`str`
+        List of target simulation outputs.
+
+    limit : :obj:`int`
+        Number of times to run the model.
+
+    d0 : :obj:`dict`
+        Dictionary of actual data. Keys are column headers, values are lists
+        of data.
+
+    workdir : :obj:`str`
+        File path to the directory store all output data in. Output data will
+        consist of a 'parameters.csv' file and, if :obj:`store_simulations` is
+        :obj:`True`, then a numbered file containing each 1000 simulation
+        outputs.
+
+    store_simulations : :obj:`boolean`, optional
+        Boolean flag for whether to store simulation outputs in addition to
+        the parameters. Default is True.
+
+    burnin : :obj:`int` or :obj:`float`, optional.
+        Length of burn in period at start of the simulation. Default is 999.
+
+    sample_rate : :obj:`float` or :obj:`None`, optional
+        Sample rate of data collected. Used only if time not provided in
+        data_0. Default is :obj:`None`.
+
+    debug : :obj:`boolean`
+        Indicates if debugging information should be written to console.
+        Default is False.
+
     """
 
     def __init__(self,
@@ -91,29 +234,6 @@ class Batch:
                  burnin=999,
                  sample_rate=None,
                  debug=False):
-        """
-        Rejection will be used to run a simple ABC Rejection algorithm.
-
-        Args:
-            model_name (str): name of the model to simulate
-
-            prior_parameters (dict): Dictionary of prior parameters. These take
-            the form {"param":["prior_name", [*args]]}-args are prior specific
-
-            inputs (list): list of the driving inputs
-
-            targets (list): list of target simulation outputs
-
-            limit (int): Number of datasets to generate
-
-            data_0 (string): Path to csv of original experimental data
-
-            workdir (str): file path to store all output data in.
-
-            sample_rate (float): sample rate of data collected. Used only if time not provided in d0.
-
-            debug (bool): Whether to run this in debug mode.
-        """
         self.model_name = model_name
 
         self.priors = prior_parameters
@@ -138,13 +258,20 @@ class Batch:
 
     @staticmethod
     def __getDistribution(v):
-        """
-        Get distribution from class prior selection.
-        :param v: value from prior_parameters dict key:value pairing.
-        :type v: list
+        """Get distribution from class prior.
 
-        :return: Function that will generate a prior sample.
-        :rtype: function
+        Parameters
+        ----------
+        v : :obj:`list`
+            List of prior name and arguments. Prior name must be the first item
+            in the list whilst the second should be an iterable containing
+            the arguments for the distribution function.
+
+        Returns
+        -------
+        :obj:`functools.partial`
+        Function that will generate a prior sample.
+
         """
         priorDict = {
             "constant": returnConst,
@@ -172,6 +299,7 @@ class Batch:
 
         Creates a :obj:`dict` of functions that can be used to sample
         repeatedly from a prior distributions, with one for each parameter.
+
         Returns
         -------
         d : :obj:`dict`
@@ -186,6 +314,14 @@ class Batch:
         return d
 
     def generateOutput(self):
+        """Generate model output by drawing from a prior distribution.
+
+        Returns
+        -------
+        (:obj:`dict` of 'parameters':values, :obj:`dict`of model outputs)
+            Return a tuple of params, output.
+
+        """
         params = {k: v() for k, v in self.priorGen.items()}
         data_length = max([len(l) for l in self.d0.values()])
         if ('t' not in self.d0.keys()) and (self.sample_rate is not None):
@@ -237,6 +373,32 @@ class Batch:
         return params, output
 
     def batchCreation(self, zero_flag):
+        """Generate model outputs in a batch process.
+
+        Model outputs will be written to file every 1000 runs if
+        :obj:`store_simulations` is set to True, otherwise only parameters
+        are written to file. Parameters are written to the same file,
+        'parameters.csv' every 1000 runs.
+
+        Four distances - euclidean, manhattan, mean absolute error (MAE) and
+        mean squared error (MSE) - are written to parameters.csv also.
+
+        All files are written into the directory defined by :obj:`workdir`.
+
+        Parameters
+        ----------
+        zero_flag : :obj:`dict`
+            Dictionary of form target(:obj:`str`): bool, where bool indicates
+            whether to zero that target.
+
+            Note: zero_flag keys should match targets list.
+
+        Returns
+        -------
+        :obj:`None`
+            Outputs are writen to file.
+
+        """
         STORE_VALUE = 1000
         prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
@@ -363,84 +525,3 @@ class Batch:
                 sys.stdout.flush()
 
         return None
-
-
-if __name__ == '__main__':
-
-    ap = argparse.ArgumentParser('Choose model to batch run:')
-    ap.add_argument(
-        'model', choices=['lv', 'bsx', 'BS'], help='choice of model')
-    ap.add_argument(
-        'run_length',
-        metavar='RUN_LENGTH',
-        type=int,
-        help='number of times to run the model')
-    ap.add_argument(
-        '--debug',
-        action='store_true',
-        help='Whether to run this in debugging mode')
-    args = ap.parse_args()
-
-    if args.model == 'lv':
-        model_name = 'lotka-volterra'
-        inputs = None  # Input variables
-        priors = {
-            'a': ['uniform', [0.95, 1.05]],
-            #'b': ['uniform', [0.8, 1.2]],
-            #'c': ['uniform', [0.8, 1.2]],
-            'd': ['uniform', [0.95, 1.05]]
-            #'x': ['constant', [80]],
-            #'y': ['constant', [40]]
-        }
-        outputs = ['x', 'y']
-
-        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-        distutils.dir_util.mkpath(workdir)
-
-        d0 = os.path.join(BASEDIR, 'build', 'lv_data.csv')
-        burnin = 0
-    elif args.model == 'bsx':
-        model_name = 'bsx'
-        inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-        priors = {
-            't_u': ['uniform', [0.4, 0.7]],
-            'v_un': ['uniform', [0.7, 1.3]]
-        }
-        outputs = ['HbO2', 'HHb']
-
-        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-        distutils.dir_util.mkpath(workdir)
-
-        d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
-        burnin = 999
-    elif args.model == 'BS':
-        model_name = 'BS'
-        inputs = ['Pa_CO2', 'P_a', 'u']  # Input variables
-        priors = {
-            't_u': ['uniform', [0.4, 0.7]],
-            'v_un': ['uniform', [0.7, 1.3]]
-        }
-        outputs = ['HbO2', 'HHb']
-
-        workdir = os.path.join(BASEDIR, 'build', 'batch', model_name)
-        distutils.dir_util.mkpath(workdir)
-
-        d0 = os.path.join(BASEDIR, 'data', 'bsxPFC.csv')
-        burnin = 999
-    else:
-        print('Suitable test model not chosen')
-        sys.exit(2)
-
-    batchWriter = Batch(
-        model_name,
-        priors,
-        inputs,
-        outputs,
-        args.run_length,
-        d0,
-        workdir,
-        burnin=burnin,
-        debug=args.debug)
-
-    batchWriter.definePriors()
-    batchWriter.batchCreation()
