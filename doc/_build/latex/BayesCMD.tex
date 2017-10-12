@@ -55,7 +55,7 @@
 
 
 \title{BayesCMD Documentation}
-\date{Oct 09, 2017}
+\date{Oct 12, 2017}
 \release{}
 \author{Joshua Russell-Buckland}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -88,7 +88,7 @@ framework and the WeBCMD framework.
 
 
 \subsection{bcmd\_model}
-\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\label{\detokenize{bcmdModel:bcmd-model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}
+\label{\detokenize{bcmdModel:bcmd-model}}\label{\detokenize{bcmdModel:module-bayescmd.bcmdModel.bcmd_model}}\index{bayescmd.bcmdModel.bcmd\_model (module)}
 Configure and run a BCMD model.
 
 The BCMD Model class is used to configure and run a BCMD model. It is done by
@@ -181,11 +181,12 @@ is {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.TIMEOUT}]{\sph
 
 \item {} 
 \sphinxstyleliteralstrong{debug} (\sphinxcode{boolean}, optional) \textendash{} Indicates if debugging information should be written to console.
+Default is False.
 
 \item {} 
 \sphinxstyleliteralstrong{testing} (\sphinxcode{boolean}, optional) \textendash{} If True, appends ‘\_test’ to coarse and detailed model output. Useful
 if you wish to test settings and want to avoid test results becoming
-mixed in with real result files.
+mixed in with real result files. Default is False.
 
 \end{itemize}
 
@@ -332,7 +333,7 @@ is {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.TIMEOUT}]{\sph
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.debug}}\pysigline{\sphinxbfcode{debug}}
-\sphinxcode{boolean} \textendash{} Indicates if debugging information should be written to console
+\sphinxcode{boolean} \textendash{} Indicates if debugging information should be written to console.
 
 \end{fulllineitems}
 
@@ -359,7 +360,7 @@ the working directory, with coarse output files having the suffix
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.output_dict}}\pysigline{\sphinxbfcode{output\_dict}}
-\sphinxcode{collections.defaultdict(:obj:{}`list}){}`
+\sphinxcode{collections.defaultdict(:obj:{}`list}){}` \textendash{} Dictionary of output data.
 
 \end{fulllineitems}
 
@@ -375,8 +376,11 @@ Delete working directory.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.create_default_input}}\pysiglinewithargsret{\sphinxbfcode{create\_default\_input}}{}{}
-Method to create input file and write to string buffer for acces
-direct from memory.
+Create configured default input file and write to string buffer.
+
+Using this method allows the configured input file to be written to
+memory, thus reducing the number of operations involving writing to
+disk.
 
 \end{fulllineitems}
 
@@ -384,8 +388,14 @@ direct from memory.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.create_initialised_input}}\pysiglinewithargsret{\sphinxbfcode{create\_initialised\_input}}{}{}
-Method to create input file and write to string buffer for access
-direct from memory.
+Create a custom, initialised input and write to buffer.
+
+Create an input file using configuration values specified by
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.inputs}]{\sphinxcrossref{\sphinxcode{inputs}}}}, {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.times}]{\sphinxcrossref{\sphinxcode{times}}}}, {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.params}]{\sphinxcrossref{\sphinxcode{params}}}} and {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.outputs}]{\sphinxcrossref{\sphinxcode{outputs}}}}, and
+write it to the file specified by {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}.
+
+The configured input file will be written to memory, thus reducing the
+number of operations involving writing to disk.
 
 \end{fulllineitems}
 
@@ -401,7 +411,34 @@ Obtain default model configuration.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.output_parse}}\pysiglinewithargsret{\sphinxbfcode{output\_parse}}{}{}
-Function to parse the output files into a dictionary.
+Parse the output files into a dictionary.
+
+This allows the model output to be sent to JSON, if using WeBCMD, or
+simply processed in a more pythonic fashion for any Bayesian (or
+similar) analysis.
+
+\end{fulllineitems}
+
+\index{run\_from\_buffer() (bayescmd.bcmdModel.ModelBCMD method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.run_from_buffer}}\pysiglinewithargsret{\sphinxbfcode{run\_from\_buffer}}{}{}
+Run the model using an input file written to memory.
+
+The input file will need to have been created using
+\sphinxcode{create\_initialised\_input} or \sphinxcode{create\_default\_input}.
+
+\end{fulllineitems}
+
+\index{run\_from\_file() (bayescmd.bcmdModel.ModelBCMD method)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.run_from_file}}\pysiglinewithargsret{\sphinxbfcode{run\_from\_file}}{}{}
+Run model using an input file found at {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}.
+
+The model will be run using an already created input file that has been
+written manually or using the \sphinxcode{write\_default\_input} or
+\sphinxcode{write\_initialised\_input} methods.
 
 \end{fulllineitems}
 
@@ -409,10 +446,11 @@ Function to parse the output files into a dictionary.
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.write_default_input}}\pysiglinewithargsret{\sphinxbfcode{write\_default\_input}}{}{}
-Write a default input to file.
+Create and write a default input to file.
 
-Take a configured input file and write to the file specified by
-{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}.
+Create an input file using default configuration values and write it to
+the file specified by {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}. All inputs, outputs and
+parameters are set to default values and there is no burn in.
 
 \end{fulllineitems}
 
@@ -420,7 +458,11 @@ Take a configured input file and write to the file specified by
 
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{bcmdModel:bayescmd.bcmdModel.ModelBCMD.write_initialised_input}}\pysiglinewithargsret{\sphinxbfcode{write\_initialised\_input}}{}{}
-Function to write a default input to file.
+Create and write a custom, initialised input to file.
+
+Create an input file using configuration values specified by
+{\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.inputs}]{\sphinxcrossref{\sphinxcode{inputs}}}}, {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.times}]{\sphinxcrossref{\sphinxcode{times}}}}, {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.params}]{\sphinxcrossref{\sphinxcode{params}}}} and {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.outputs}]{\sphinxcrossref{\sphinxcode{outputs}}}}, and
+write it to the file specified by {\hyperref[\detokenize{bcmdModel:bayescmd.bcmdModel.bcmd_model.ModelBCMD.input_file}]{\sphinxcrossref{\sphinxcode{input\_file}}}}.
 
 \end{fulllineitems}
 
@@ -588,7 +630,7 @@ Write input file from buffer to file.
 
 
 \chapter{abc}
-\label{\detokenize{abc:abc}}\label{\detokenize{abc::doc}}
+\label{\detokenize{abc::doc}}\label{\detokenize{abc:abc}}
 The \sphinxtitleref{abc} subpackage is used to handle the Approximate Bayesian Computation
 (ABC) specific components of BayesCMD. This includes running the model multiple
 times in a batch process, calculating distances between datasets and generating
@@ -886,12 +928,127 @@ list
 
 
 \chapter{jsonParsing}
-\label{\detokenize{jsonParsing:jsonparsing}}\label{\detokenize{jsonParsing::doc}}
-..automodule:: bayescmd.jsonParsing.modelJSON
+\label{\detokenize{jsonParsing:module-bayescmd.jsonParsing.modelJSON}}\label{\detokenize{jsonParsing:jsonparsing}}\label{\detokenize{jsonParsing::doc}}\index{bayescmd.jsonParsing.modelJSON (module)}
+Convert model information to JSON for use with WeBCMD.
+\index{float\_or\_str() (in module bayescmd.jsonParsing.modelJSON)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.float_or_str}}\pysiglinewithargsret{\sphinxcode{bayescmd.jsonParsing.modelJSON.}\sphinxbfcode{float\_or\_str}}{\emph{n}}{}
+Determine if a string can be returned as a float.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{n} (\sphinxcode{str}) \textendash{} String to convert to float if possible
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{s} \textendash{} \sphinxtitleref{n} as \sphinxcode{float}, or \sphinxcode{str} if not a number.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{float}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{getDefaultFilePath() (in module bayescmd.jsonParsing.modelJSON)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.getDefaultFilePath}}\pysiglinewithargsret{\sphinxcode{bayescmd.jsonParsing.modelJSON.}\sphinxbfcode{getDefaultFilePath}}{\emph{model\_name}}{}
+Given a model name, return the default path to the modeldef file.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{model\_name} (\sphinxstyleliteralemphasis{str}) \textendash{} Name of model
+
+\item[{Returns}] \leavevmode
+\sphinxstylestrong{modelPath} \textendash{} Path to modeldef file
+
+\item[{Return type}] \leavevmode
+str
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{get\_model\_name() (in module bayescmd.jsonParsing.modelJSON)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.get_model_name}}\pysiglinewithargsret{\sphinxcode{bayescmd.jsonParsing.modelJSON.}\sphinxbfcode{get\_model\_name}}{\emph{fpath}}{}
+Return model name from file path.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{fpath} (\sphinxcode{str}) \textendash{} Path to model def file.
+
+\item[{Returns}] \leavevmode
+Name of model, as determined by modeldef file.
+
+\item[{Return type}] \leavevmode
+\sphinxcode{str}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{json\_writer() (in module bayescmd.jsonParsing.modelJSON)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.json_writer}}\pysiglinewithargsret{\sphinxcode{bayescmd.jsonParsing.modelJSON.}\sphinxbfcode{json\_writer}}{\emph{model\_name}, \emph{dictionary}}{}
+Write a python dictionary to JSON.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode\begin{itemize}
+\item {} 
+\sphinxstyleliteralstrong{model\_name} (\sphinxcode{str}) \textendash{} Name of BCMD model.
+
+\item {} 
+\sphinxstyleliteralstrong{dictionary} (\sphinxcode{dict}) \textendash{} Dictionary to write to file.
+
+\end{itemize}
+
+\item[{Returns}] \leavevmode
+Writes to JSON file in \sphinxcode{data/} dir with name \sphinxtitleref{model\_name}.json
+
+\item[{Return type}] \leavevmode
+None
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{modeldefParse() (in module bayescmd.jsonParsing.modelJSON)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.modeldefParse}}\pysiglinewithargsret{\sphinxcode{bayescmd.jsonParsing.modelJSON.}\sphinxbfcode{modeldefParse}}{\emph{fpath}}{}
+Process a modeldef file to extract information.
+
+Function reads a modeldef file and extracts default model inputs, outputs
+and parameters.
+\begin{quote}\begin{description}
+\item[{Parameters}] \leavevmode
+\sphinxstyleliteralstrong{fpath} (\sphinxcode{str}) \textendash{} Path to modeldef file.
+
+\item[{Returns}] \leavevmode
+
+\sphinxstylestrong{model\_data} \textendash{} Dictionary of model information with form:
+
+\{model\_name: name of model, obtained via {\hyperref[\detokenize{jsonParsing:bayescmd.jsonParsing.modelJSON.get_model_name}]{\sphinxcrossref{\sphinxcode{get\_model\_name()}}}},
+
+input: \sphinxcode{list} of \sphinxcode{str} for each model input,
+
+output: \sphinxcode{list} of \sphinxcode{str} for each model output,
+
+parameters: \sphinxcode{dict} of param\_name (\sphinxcode{str}):
+param\_value(\sphinxcode{str})\}
+
+
+\item[{Return type}] \leavevmode
+\sphinxcode{dict}
+
+\end{description}\end{quote}
+
+\end{fulllineitems}
+
 
 
 \chapter{Miscellaneous}
-\label{\detokenize{misc::doc}}\label{\detokenize{misc:miscellaneous}}
+\label{\detokenize{misc:miscellaneous}}\label{\detokenize{misc::doc}}
 Here you will find a number of useful functions that are used throughout
 the general BayesCMD package.
 
@@ -948,7 +1105,7 @@ float
 
 
 \section{Processing Results}
-\label{\detokenize{misc:processing-results}}\label{\detokenize{misc:module-bayescmd.results_handling}}\index{bayescmd.results\_handling (module)}
+\label{\detokenize{misc:module-bayescmd.results_handling}}\label{\detokenize{misc:processing-results}}\index{bayescmd.results\_handling (module)}
 Process results obtained using BayesCMD.
 
 Process the various results obtained using BayesCMD, such as the
@@ -1025,7 +1182,7 @@ None
 \index{diag\_kde\_plot() (in module bayescmd.results\_handling)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{misc:bayescmd.results_handling.diag_kde_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{diag\_kde\_plot}}{\emph{x}, \emph{**kws}}{}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.diag_kde_plot}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{diag\_kde\_plot}}{\emph{x}, \emph{medians}, \emph{**kws}}{}
 Plot univariate KDE and barplot with median of distribution marked on.
 
 Includes median of distribution as a line and as text.
@@ -1033,6 +1190,9 @@ Includes median of distribution as a line and as text.
 \item[{Parameters}] \leavevmode\begin{itemize}
 \item {} 
 \sphinxstyleliteralstrong{x} (\sphinxstyleliteralemphasis{array-like}) \textendash{} Array-like of data to plot.
+
+\item {} 
+\sphinxstyleliteralstrong{medians} (\sphinxcode{dict}) \textendash{} Dictionary of parameter, median pairings.
 
 \item {} 
 \sphinxstyleliteralstrong{kws} (\sphinxstyleliteralemphasis{key}\sphinxstyleliteralemphasis{, }\sphinxstyleliteralemphasis{value pairings.}) \textendash{} Other keyword arguments to pass to \sphinxcode{sns.distplot}.
@@ -1098,6 +1258,9 @@ investigated.
 \sphinxstyleliteralstrong{input\_data} (\sphinxcode{dict}) \textendash{} Dictionary of input data as generated by \sphinxcode{abc.inputParse}.
 
 \item {} 
+\sphinxstyleliteralstrong{d0} (\sphinxcode{dict}) \textendash{} Dictionary of real data, as generated by \sphinxcode{abc.import\_actual\_data}.
+
+\item {} 
 \sphinxstyleliteralstrong{targets} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model outputs against which the model is being optimised.
 
 \item {} 
@@ -1151,10 +1314,10 @@ Default is ‘euclidean’.
 \end{itemize}
 
 \item[{Returns}] \leavevmode
-AxesSubplotobject that contains histogram of distance values.
+Matplotlib figure with histogram on.
 
 \item[{Return type}] \leavevmode
-matplotlib.AxesSubplot
+matplotlib.figure
 
 \end{description}\end{quote}
 
@@ -1172,7 +1335,8 @@ Plot the model parameters pairwide as a KDE.
 {\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import()}}}}
 
 \item {} 
-\sphinxstyleliteralstrong{params} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model parameters to compare pairwise.
+\sphinxstyleliteralstrong{params} (\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{tuple}) \textendash{} Dict of model parameters to compare, with value tuple of the prior max
+and min.
 
 \item {} 
 \sphinxstyleliteralstrong{frac} (\sphinxcode{float}) \textendash{} Fraction of results to consider. Should be given as a percentage i.e.
@@ -1222,7 +1386,7 @@ Note: Should be given  as a raw string if latex is used i.e.
 \index{plot\_repeated\_outputs() (in module bayescmd.results\_handling)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{misc:bayescmd.results_handling.plot_repeated_outputs}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{plot\_repeated\_outputs}}{\emph{df}, \emph{model\_name}, \emph{parameters}, \emph{input\_path}, \emph{inputs}, \emph{openopt\_path}, \emph{targets}, \emph{n\_repeats}, \emph{frac}, \emph{distance='euclidean'}, \emph{zero\_flag=None}}{}
+\phantomsection\label{\detokenize{misc:bayescmd.results_handling.plot_repeated_outputs}}\pysiglinewithargsret{\sphinxcode{bayescmd.results\_handling.}\sphinxbfcode{plot\_repeated\_outputs}}{\emph{df}, \emph{model\_name}, \emph{parameters}, \emph{input\_path}, \emph{inputs}, \emph{targets}, \emph{n\_repeats}, \emph{frac}, \emph{zero\_flag}, \emph{openopt\_path=None}, \emph{distance='euclidean'}}{}
 Generate model output and distances multiple times.
 \begin{quote}\begin{description}
 \item[{Parameters}] \leavevmode\begin{itemize}
@@ -1232,7 +1396,8 @@ i.e. model\_name of ‘model{}`’ should have a modeldef file
 ‘model1.modeldef’.
 
 \item {} 
-\sphinxstyleliteralstrong{parameters} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of parameters for which posteriors are being investigated.
+\sphinxstyleliteralstrong{parameters} (\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{tuple}) \textendash{} Dict of model parameters to compare, with value tuple of the prior max
+and min.
 
 \item {} 
 \sphinxstyleliteralstrong{input\_path} (\sphinxcode{str}) \textendash{} Path to the true data file
@@ -1251,9 +1416,6 @@ i.e. model\_name of ‘model{}`’ should have a modeldef file
 1=1\%, 0.1=0.1\%
 
 \item {} 
-\sphinxstyleliteralstrong{distance} (\sphinxcode{str}) \textendash{} Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
-
-\item {} 
 \sphinxstyleliteralstrong{zero\_flag} (\sphinxstyleliteralemphasis{dict}) \textendash{} 
 Dictionary of form target(\sphinxcode{str}): bool, where bool indicates
 whether to zero that target.
@@ -1261,13 +1423,19 @@ whether to zero that target.
 Note: zero\_flag keys should match targets list.
 
 
+\item {} 
+\sphinxstyleliteralstrong{openopt\_path} (\sphinxcode{str} or \sphinxcode{None}) \textendash{} Path to the openopt data file if it exists. Default is None.
+
+\item {} 
+\sphinxstyleliteralstrong{distance} (\sphinxcode{str}, optional) \textendash{} Distance measure. One of ‘euclidean’, ‘manhattan’, ‘MAE’, ‘MSE’.
+
 \end{itemize}
 
 \item[{Returns}] \leavevmode
-
+\sphinxstylestrong{fig} \textendash{} Figure containing all axes.
 
 \item[{Return type}] \leavevmode
-None
+\sphinxcode{matplotlib.figure}
 
 \end{description}\end{quote}
 
@@ -1304,7 +1472,8 @@ Plot distribution of parameters as a scatter PairPlot.
 {\hyperref[\detokenize{misc:bayescmd.results_handling.data_import}]{\sphinxcrossref{\sphinxcode{data\_import()}}}}
 
 \item {} 
-\sphinxstyleliteralstrong{params} (\sphinxcode{list} of \sphinxcode{str}) \textendash{} List of model parameters to compare pairwise.
+\sphinxstyleliteralstrong{params} (\sphinxcode{dict} of \sphinxcode{str}: \sphinxcode{tuple}) \textendash{} Dict of model parameters to compare, with value tuple of the prior max
+and min.
 
 \item {} 
 \sphinxstyleliteralstrong{frac} (\sphinxcode{float}) \textendash{} Fraction of results to consider. Should be given as a percentage i.e.
@@ -1364,6 +1533,7 @@ Note: Should be given  as a raw string if latex is used i.e.
 \item {\sphinxstyleindexentry{bayescmd.abc.distances}}\sphinxstyleindexpageref{abc:\detokenize{module-bayescmd.abc.distances}}
 \item {\sphinxstyleindexentry{bayescmd.bcmdModel.bcmd\_model}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.bcmd_model}}
 \item {\sphinxstyleindexentry{bayescmd.bcmdModel.input\_creation}}\sphinxstyleindexpageref{bcmdModel:\detokenize{module-bayescmd.bcmdModel.input_creation}}
+\item {\sphinxstyleindexentry{bayescmd.jsonParsing.modelJSON}}\sphinxstyleindexpageref{jsonParsing:\detokenize{module-bayescmd.jsonParsing.modelJSON}}
 \item {\sphinxstyleindexentry{bayescmd.results\_handling}}\sphinxstyleindexpageref{misc:\detokenize{module-bayescmd.results_handling}}
 \item {\sphinxstyleindexentry{bayescmd.util}}\sphinxstyleindexpageref{misc:\detokenize{module-bayescmd.util}}
 \end{sphinxtheindex}

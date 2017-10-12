@@ -11,7 +11,10 @@ sys.path.append(
 from ..bcmdModel.bcmd_model import ModelBCMD  # noqa
 from ..util import findBaseDir  # noqa
 from io import StringIO  # noqa
-BASEDIR = findBaseDir(os.environ['BASEDIR'])
+try:
+    BASEDIR = findBaseDir(os.environ['BASEDIR'])
+except KeyError:
+    BASEDIR = findBaseDir('BayesCMD')
 
 
 def float_or_str(n):
@@ -19,13 +22,13 @@ def float_or_str(n):
 
     Parameters
     ----------
-    n : str
+    n : :obj:`str`
         String to convert to float if possible
 
     Returns
     -------
-    s: float
-        `n` as float, or str if not a number.
+    s: :obj:`float`
+        `n` as :obj:`float`, or :obj:`str` if not a number.
 
     """
     try:
@@ -40,12 +43,12 @@ def get_model_name(fpath):
 
     Parameters
     ----------
-    fpath: str
+    fpath : :obj:`str`
         Path to model def file.
 
     Returns
     -------
-    str
+    :obj:`str`
         Name of model, as determined by modeldef file.
 
     """
@@ -58,10 +61,10 @@ def json_writer(model_name, dictionary):
 
     Parameters
     ----------
-    model_name: str
+    model_name : :obj:`str`
         Name of BCMD model.
-    dictionary dict:
-        Dict to write to file.
+    dictionary : :obj:`dict`
+        Dictionary to write to file.
 
     Returns
     -------
@@ -85,20 +88,22 @@ def modeldefParse(fpath):
 
     Parameters
     ----------
-    fpath: str
+    fpath : :obj:`str`
         Path to modeldef file.
 
     Returns
     -------
-    model_data: dict
-        Dictionary of model information. Has form::
-        {
-            model_name: name of model, obtained via :func:`get_model_name`
-            input: :obj:`list` of :obj:`str` for each model input.
-            output: :obj:`list` of :obj:`str` for each model output.
-            parameters: :obj:`dict` of param_name (:obj:`str`):
-            param_value(:obj:`str`)
-        }
+    model_data : :obj:`dict`
+        Dictionary of model information with form:
+
+        {model_name: name of model, obtained via :func:`get_model_name`,
+
+        input: :obj:`list` of :obj:`str` for each model input,
+
+        output: :obj:`list` of :obj:`str` for each model output,
+
+        parameters: :obj:`dict` of param_name (:obj:`str`):
+        param_value(:obj:`str`)}
 
     """
     model_data = {'params': {}}

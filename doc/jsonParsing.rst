@@ -1,4 +1,5 @@
 jsonParsing
 ===========
 
-..automodule:: bayescmd.jsonParsing.modelJSON
+.. automodule:: bayescmd.jsonParsing.modelJSON
+    :members:
