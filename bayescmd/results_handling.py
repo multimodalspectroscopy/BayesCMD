@@ -21,6 +21,7 @@ import scipy.integrate
 import os
 import random
 import sys
+import pprint
 sys.path.append('..')
 from .util import findBaseDir  # noqa
 from .util import round_sig  # noqa
@@ -186,7 +187,7 @@ def scatter_dist_plot(df,
         1=1%, 0.1=0.1%
     n_ticks : :obj:`int`, optional
         Number of x-axis ticks. Useful when a large number of parameters are
-        bring compared, as the axes can become crowded if the number of ticks
+        being compared, as the axes can become crowded if the number of ticks
         is too high.
     d : :obj:`str`, optional
         Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
@@ -245,7 +246,7 @@ def scatter_dist_plot(df,
     return g
 
 
-def diag_kde_plot(x, medians, **kws):
+def diag_kde_plot(x, medians, true_medians, **kws):
     """Plot univariate KDE and barplot with median of distribution marked on.
 
     Includes median of distribution as a line and as text.
@@ -276,6 +277,14 @@ def diag_kde_plot(x, medians, **kws):
     x_median = x1[nearest_05]
     medians[x.name] = round_sig(x_median, 2)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
+    if true_medians is not None:
+        ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'r')
+    ax.text(
+        0.05,
+        1.1,
+        "Median: {:.2E}".format(x_median),
+        verticalalignment='center',
+        transform=ax.transAxes)
 
     return ax
 
@@ -283,11 +292,12 @@ def diag_kde_plot(x, medians, **kws):
 def kde_plot(df,
              params,
              frac,
+             true_medians=None,
              plot_param=1,
              n_ticks=6,
              d=r'euclidean',
              verbose=False):
-    """Plot the model parameters pairwide as a KDE.
+    """Plot the model parameters pairwise as a KDE.
 
     Parameters
     ----------
@@ -300,6 +310,8 @@ def kde_plot(df,
     frac : :obj:`float`
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
+    true_median : :obj:`dict` or :obj: `None`
+        Dictionary of true median values if known.
     plot_param : :obj:`int`
         Which group to plot:
 
@@ -336,44 +348,40 @@ def kde_plot(df,
     kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
     if verbose:
         print(kde_df['Accepted'].value_counts())
+    with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
+        g = sns.PairGrid(
+            kde_df,
+            vars=p_names,
+            hue='Accepted',
+            palette=color_pal,
+            diag_sharey=False)
+        medians = {}
+        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians)
+        for k, v in medians.items():
+            print("{}: {}".format(k, v))
+        g.map_lower(sns.kdeplot, lw=3)
+        for i, j in zip(*np.triu_indices_from(g.axes, 1)):
+            g.axes[i, j].set_visible(False)
 
-    g = sns.PairGrid(
-        kde_df,
-        vars=p_names,
-        hue='Accepted',
-        palette=color_pal,
-        diag_sharey=False)
-    medians = {}
-    g.map_diag(diag_kde_plot, medians=medians)
-    for k, v in medians.items():
-        print("{}: {}".format(k, v))
-    g.map_lower(sns.kdeplot, lw=3)
-    for i, j in zip(*np.triu_indices_from(g.axes, 1)):
-        g.axes[i, j].set_visible(False)
+        for ii, ax in enumerate(g.axes.flat):
+            for label in ax.get_xticklabels():
+                label.set_rotation(50)
+            ii_y = ii // len(p_names)
+            ii_x = ii % len(p_names)
+            ax.set_ylim(params[p_names[ii_y]])
+            ax.set_xlim(params[p_names[ii_x]])
+            xmax = params[p_names[ii_x]][1]
+            xmin = params[p_names[ii_x]][0]
+            xticks = np.arange(xmin, xmax,
+                               round_sig((xmax - xmin) / n_ticks, sig=1))
+            ax.set_xticks(xticks)
+        # plt.subplots_adjust(top=0.8)
+        title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
+        plt.suptitle("Parameter distributions - Top {} %"
+                     "based on {} {}".format(frac, d, title_dict[plot_param]))
 
-    for ii, ax in enumerate(g.axes.flat):
-        for label in ax.get_xticklabels():
-            label.set_rotation(50)
-        ii_y = ii // len(p_names)
-        ii_x = ii % len(p_names)
-        ax.set_ylim(params[p_names[ii_y]])
-        ax.set_xlim(params[p_names[ii_x]])
-        xmax = params[p_names[ii_x]][1]
-        xmin = params[p_names[ii_x]][0]
-        xticks = np.arange(xmin, xmax,
-                           round_sig((xmax - xmin) / n_ticks, sig=1))
-        ax.set_xticks(xticks)
-    plt.subplots_adjust(top=0.9)
-    title_dict = {
-        0: "Outside Posterior",
-        1: "Inside Posterior",
-        2: "Failed Run"
-    }
-    plt.suptitle("Parameter distributions - Top {}% based on {} ({})".format(
-        frac, d, title_dict[plot_param]))
-
-    g.fig.tight_layout()
-    g.fig.subplots_adjust(bottom=0.15)
+        g.fig.tight_layout()
+        g.fig.subplots_adjust(bottom=0.15, top=0.9)
     return g
 
 
@@ -555,7 +563,8 @@ def plot_repeated_outputs(df,
         d['Errors'][target] = np.nanmean([o[0][target] for o in outputs_list])
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
-    with sns.plotting_context("talk", rc={"figure.figsize": (24, 18)}):
+    with sns.plotting_context(
+            "talk", font_scale=1.6, rc={"figure.figsize": (24, 18)}):
         fig, ax = plt.subplots(len(targets))
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
@@ -581,14 +590,12 @@ def plot_repeated_outputs(df,
                 target, d['Errors'][target]))
             ax[ii].set_ylabel(r'{}'.format(target))
             ax[ii].set_xlabel('Time (sec)')
-            ax[ii].title.set_fontsize(19)
+            ax[ii].title.set_fontsize(25)
             for item in ([ax[0].xaxis.label, ax[0].yaxis.label] +
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
-                item.set_fontsize(17)
+                item.set_fontsize(22)
         ax[0].legend(
-            handles=paths,
-            prop={"size": 15},
-            bbox_to_anchor=(1.15, -0.5))
+            handles=paths, prop={"size": 22}, bbox_to_anchor=(1.15, -0.5))
         plt.tight_layout()
         fig.suptitle("Simulated output for {} repeats using top {}% of data".
                      format(n_repeats, frac))

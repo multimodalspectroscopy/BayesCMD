@@ -6,8 +6,7 @@ from bayescmd.results_handling import data_import
 from bayescmd.results_handling import plot_repeated_outputs
 from bayescmd.results_handling import histogram_plot
 from bayescmd.util import findBaseDir
-import numpy as np
-import matplotlib.pyplot as plt
+
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
 ap = argparse.ArgumentParser('Choose results to process:')
@@ -59,7 +58,14 @@ for f in [0.01, 0.1, 1.0]:
     # scatter_dist_plot(results, params, f, n_ticks=4)
     # plt.show()
     print("Generating KDE plot")
-    g = kde_plot(results, params, f, n_ticks=4)
+    g = kde_plot(
+        results,
+        params,
+        f,
+        true_medians={'r_t': 0.025,
+                      'r_0': 0.008,
+                      'r_m': 0.035},
+        n_ticks=4)
     g.fig.savefig(
         os.path.join(figPath, 'kde_{}_test.png'
                      .format(str(f).replace('.', '_'))),

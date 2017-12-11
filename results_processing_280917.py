@@ -7,7 +7,7 @@ from bayescmd.results_handling import plot_repeated_outputs
 from bayescmd.results_handling import histogram_plot
 from bayescmd.util import findBaseDir
 import numpy as np
-import matplotlib.pyplot as plt
+
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
 ap = argparse.ArgumentParser('Choose results to process:')
@@ -44,8 +44,10 @@ config = {
     "parameters": params,
     "openopt_path": openopt_path,
     "input_path": input_path,
-    "zero_flag": {"CCO": False,
-                  "Vmca": False}
+    "zero_flag": {
+        "CCO": False,
+        "Vmca": False
+    }
 }
 
 results = data_import(pfile)
