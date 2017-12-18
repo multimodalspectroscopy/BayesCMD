@@ -377,7 +377,7 @@ def kde_plot(df,
             ax.set_xticks(xticks)
         # plt.subplots_adjust(top=0.8)
         title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
-        plt.suptitle("Parameter distributions - Top {} %"
+        plt.suptitle("Parameter distributions - Top {}% "
                      "based on {} {}".format(frac, d, title_dict[plot_param]))
 
         g.fig.tight_layout()
