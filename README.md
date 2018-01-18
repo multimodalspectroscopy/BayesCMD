@@ -7,9 +7,3 @@ It has been rewritten to use Python 3.6, whilst the C and Fortran libraries and 
 The intention is to developed this new framework to use both the existing optimisation and sensitivity analysis approaches from BCMD, as well as a new Approximate Bayesian Computation (ABC) method for parameter inference.
 
 This is a working project and as such the code at present is not at a release stage. Those wishing to use BCMD are invited to use either the [original BCMD framework](https://github.com/bcmd/BCMD), if a GUI  is required, or [bcmd-docker](https://github.com/buck06191/bcmd-docker), which is currently a command line only version of BCMd, but one which provides much easier installation and better cross platform usability. 
-
-
-# TODO #
-* Add documentation
-* Reorganise 
-* Set up as a proper python package
