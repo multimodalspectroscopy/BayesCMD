@@ -314,18 +314,72 @@ R_Hi = r_buffi
 ## + Metabolism
 R_Hic = r_buffic
 
-
+## Capillary oxygen saturation.
+## ~ dimensionless
+## $S_{c,O_2}$
+## + Oxygen
 ScO2 = (SaO2sup + SvO2)/2.0
+
+## Venous oxygen saturation.
+## ~ dimensionless
+## $S_{v,O_2}$
+## + Oxygen
 SvO2 = XOv/Xtot
+
+## Total oxygenation index.
+## ~ dimensionless
+## $TOI$
+## + NIRS Measurement
 TOI = 100.0*((pow((r/r_n), 2.0)/(pow((r/r_n), 2.0) + (Vol_ven/Vol_artn)))*XOa+((Vol_ven/Vol_artn)/(pow((r/r_n), 2.0) + (Vol_ven/Vol_artn)))*XOv)/Xtot
+
+## Elastic tension in the blood vessel walls.
+## ~ mm Hg cm
+## $T_{e}$
+## + Autoregulation
 T_e = sigma_e*h
+
+## Muscular tension in the blood vessel walls.
+## ~ mm Hg cm
+## $T_{m}$
+## + Autoregulation
 T_m = T_max*exp(-pow(fabs((r-r_m)/(r_t-r_m)), n_m))
+
+## Maximal muscular tension in the blood vessel walls.
+## ~ mm Hg cm
+## $T_{max}$
+## + Autoregulation
 T_max = T_max0*(1.0+k_aut*mu)
+
+## Blood velocity in the middle cerebral artery.
+## ~ cm s$^{-1}$
+## $V_{mca}$
+## + NIRS_blood
 Vmca = CBF*CBFscale
+
+## Relative arterial blood volume.
+## ~ dimensionless
+## $V_{a}$
+## + NIRS
 Vol_art = Vol_artn*pow((r/r_n), 2.0)
+
+## Normalised total blood volume
+## ~ dimensionless
+## $V_{t}$
+## + NIRS
 Vol_tot = Vol_art + Vol_ven
+
+## Venous blood volume as a fraction of total blood volume
+## ~ dimensionless
+## $V_{v}$
+## + NIRS
 Vol_ven = Vol_venn+C_v*(P_v-P_vn)
+
+## Concentration of deoxyhaemoglobin in the veins
+## ~ mM
+## $[HHb_v]$
 Xv = Xtot-XOv
+
+
 ared = cytox_tot - a
 b = cytox_tot - bred
 eta = R_autp*(v_p/v_pn - 1.0) + R_auto*(v_o/v_on-1.0) + R_autu*(1.0-v_u/v_un) + R_autc*(1.0 - v_c/v_cn)
