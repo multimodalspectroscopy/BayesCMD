@@ -1,12 +1,10 @@
-"""
-Class to run model once
-"""
+"""Class to run model once."""
 
 # import sys and os
 import sys
 sys.path.append('.')
 import os
-os.environ['BASEDIR'] = 'BayesCMD'
+#os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
 import json
 import csv
@@ -21,6 +19,7 @@ from bayescmd.util import findBaseDir
 
 
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
+print(BASEDIR)
 
 
 class RunModel:
@@ -49,7 +48,8 @@ class RunModel:
 
                 burnin (int): Number of seconds to burn in for
 
-                sample_rate (float): sample rate of data collected. Used only if time not provided in d0.
+                sample_rate (float): sample rate of data collected. Used only
+                    if time not provided in d0.
 
                 debug (bool): Whether to run this in debug mode.
 
@@ -57,7 +57,6 @@ class RunModel:
 
             workdir (str): file path to store all output data in.
         """
-
         self.model_name = conf['model_name']
 
         self.params = conf['parameters']
@@ -78,7 +77,7 @@ class RunModel:
             self.sample_rate = conf['sample_rate']
         else:
             self.sample_rate = sample_rate
-        if 'debug' in conf.keys():
+        if 'debug' in conf.keys() and debug is False:
             self.debug = conf['debug']
         else:
             self.debug = debug
@@ -138,16 +137,25 @@ if __name__ == '__main__':
     ap.add_argument('input_file', metavar="INPUT_FILE",
                     help='CSV input file from experiment/simulation')
     ap.add_argument('conf', help='Configuration file: Should be JSON')
+    ap.add_argument('--workdir', help='Directory to store output (optional).',
+                    default=None)
+    ap.add_argument('--debug', help='Flag to show debug info (optional).',
+                    action='store_true')
     args = ap.parse_args()
     now = datetime.now().strftime('%d%m%yT%H%M')
 
     with open(args.conf, 'r') as conf_f:
         config = json.load(conf_f)
 
-    workdir = os.path.join(BASEDIR, 'build', 'batch',
-                           config['model_name'], now)
+    if args.workdir is None:
+        workdir = os.path.join(BASEDIR, 'build', 'batch',
+                               config['model_name'], now)
+    else:
+        workdir = os.path.join(args.workdir, config['model_name'], now)
+
     distutils.dir_util.mkpath(workdir)
 
-    model = RunModel(conf=config, data_0=args.input_file, workdir=workdir)
+    model = RunModel(conf=config, data_0=args.input_file, workdir=workdir,
+                     debug=args.debug)
     output = model.generateOutput()
     model.writeOutput()
