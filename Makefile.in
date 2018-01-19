@@ -16,7 +16,7 @@ ARFLAGS = crs
 
 # for the moment assume python is on the path
 # (maybe use configure for this later)
-PYTHON = python
+PYTHON = python3
 
 # similarly for GraphViz -- which is pretty much optional anyway, but...
 GV = dot
@@ -112,7 +112,7 @@ doc/manual.pdf: doc/manual.tex doc/bib/papers.bib
 # otherwise they may get rebuilt elsewhere
 $(PARSER)/parsetab.py: $(PARSER)/bcmd_yacc.py $(PARSER)/bcmd_lex.py
 	@echo '** rebuilding parse tables **'
-	- cd $(PARSER); rm parsetab.*; python bcmd.py --yacc /dev/null
+	- cd $(PARSER); rm parsetab.*; $(PYTHON) bcmd.py --yacc /dev/null
 
 # these targets are locally useful, and serve as examples, but should
 # not be considered the correct way to do things
