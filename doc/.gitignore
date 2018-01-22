@@ -1,3 +1,5 @@
 # don't necessarily want to ignore PDFs in general, but
 # in this specific case...
 manual.pdf
+
+_build/*
