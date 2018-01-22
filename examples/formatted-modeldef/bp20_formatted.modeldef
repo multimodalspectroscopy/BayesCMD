@@ -560,14 +560,59 @@ Pi_EPP = (1-df) * _P/EPP + df
 
 
 # Initial values of root variables
+
+## AMP concentration in cytoplasm
+## ~ mM
+## $[AMP]$
+## + Metabolism
 _AMP := _AMPn
+
+## Typical blood vessel radius.
+## ~ cm
+## $r$
+## + Autoregulation
 r := r_init
+
+## Concentration of oxidised cytochrome c oxidase.
+## ~ mM
+## $Cu_{A,o}$
+## + Metabolism
 a := a_init
+
+## Concentration of reduced cytochrome a$_3$.
+## ~ mM
+## $a_{3,r}$
+## + Metabolism
 bred := bred_init
+
+## Mitochondrial oxygen concentration.
+## ~ mM
+## $O_2$
+## + Metabolism
 O2 := O2_init
+
+## Venous concentration of oxygen bound to haemoglobin.
+## ~ mM
+## $HbO_{2,v}$
+## + Oxygen
 XOv := XOv_init
+
+## Capillary oxygen concentration.
+## ~ mM
+## $O_{2,c}$
+## + Oxygen
 O2c := O2c_init
+
+## Mitochondrial proton concentration.
+## ~ mM
+## $H^+$
+## + Metabolism
 H := H_init
+
+## Hydrogen ion concentraion in the cytoplasm
+## ~ mM
+## $[H^{+}]$
+## + Metabolism
 _Hy := _Hyn
 v_p := v_pn
 v_u := v_un
