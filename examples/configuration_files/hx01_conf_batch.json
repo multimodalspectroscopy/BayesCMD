@@ -1,0 +1,19 @@
+{
+    "model_name": "BS",
+    "inputs": ["Pa_CO2", "P_a", "SaO2sup"],
+    "priors": {
+        "defaults": {
+            "Vol_mit": 0.067,
+            "r_t": 0.018,
+            "r_m": 0.027,
+            "r_0": 0.0126,
+            "O2_n": 0.024,
+            "cytox_tot_tis": 0.0055,
+            "v_cn": 40,
+            "sigma_coll": 62.79
+        },
+        "variation": 0.25
+    },
+    "targets": ["Vmca", "CCO"],
+    "debug": false
+}
