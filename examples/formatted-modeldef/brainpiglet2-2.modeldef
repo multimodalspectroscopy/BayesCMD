@@ -379,39 +379,199 @@ Vol_ven = Vol_venn+C_v*(P_v-P_vn)
 ## $[HHb_v]$
 Xv = Xtot-XOv
 
-
+## Concentration of reduced Cu$_A$.
+## ~ mM
+## $Cu_{A,r}$
+## + Metabolism
 ared = cytox_tot - a
+
+## Concentration of oxidised cytochrome a$_3$.
+## ~ mM
+## $a_{3,o}$
+## + Metabolism
 b = cytox_tot - bred
+
+## Merged autoregulation stimulus.
+## ~ dimensionless
+## $\eta$
+## + Autoregulation
 eta = R_autp*(v_p/v_pn - 1.0) + R_auto*(v_o/v_on-1.0) + R_autu*(1.0-v_u/v_un) + R_autc*(1.0 - v_c/v_cn)
+
+## Reaction rate for the reduction of Cu$_A$.
+## ~ mM s$^{-1}$
+## $f_1$
+## + Metabolism
 f1 = k1*a-kn1*ared
+
+## Reaction rate for the reduction of a$_3$.
+## ~ mM s$^{-1}$
+## $f_2$
+## + Metabolism
 f2 = k2*ared*b-kn2*a*bred
+
+## Reaction rate for the reduction of O$_2$.
+## ~ mM s$^{-1}$
+## $f_3$
+## + Metabolism
 f3 = k3*O2*bred*exp(-c3*(Dp-Dp_30))/(1.0+exp(-c3*(Dp-Dp_30)))
+
+## (Normalised) phophorylation potential (or ADP/ATP ratio)
+## ~ dimensionless
+## $g_{p}$
+## + Metabolism
 gp = (_ADP*_P)/(_ATP*1000.0)
+
+## Thickness of the blood vessel walls.
+## ~ cm
+## $h$
+## + Autoregulation
 h = -r + sqrt(pow(r,2.0) + 2.0*r_0*h_0 + h_0*h_0)
+
+## Forward reaction rate for the reduction of Cu$_A$.
+## ~ s$^{-1}$
+## $k_1$
+## + Metabolism
 k1 = k10*exp(-ck1*(Dp-Dp_n))
+
+## Forward reaction rate for the reduction of Cu$_A$ at normal $\Delta p$.
+## ~ s$^{-1}$
+## $k_{1,0}$
+## + Metabolism
 k10 = k1_n*(NADpool/(1.0+NADNADHrat))/NADHn
+
+## Reaction rate for the reduction of a$_3$.
+## ~ mM s$^{-1}$
+## $f_2$
+## + Metabolism
 k2 = k2_n*exp(-ck2*(Dp-Dp_n))
+
+## Reverse reaction rate for the reduction of Cu$_A$.
+## ~ s$^{-1}$
+## $k_{-1}$
+## + Metabolism
 kn1 = k1/Keq1
+
+## Reverse reaction rate for the reduction of a$_3$.
+## ~ s$^{-1}$
+## $k_{-2}$
+## + Metabolism
 kn2 = k2/Keq2
+
+## Effective strength of the autoregulation reponse.
+## ~ dimensionless
+## $\mu$
+## + Autoregulation
 mu = (mu_min + mu_max*exp(eta))/(1.0 + exp(eta))
+
+## Mitochondrial pH.
+## ~ dimensionless
+## $pH_{m}$
+## + Metabolism
 pH_m = -log10(H/1000.0)
+
+## Extra-mitochondrial pH.
+## ~ dimensionless
+## $pH_{o}$
+## + Metabolism
 pH_o = -log10(_Hy/1000.0)
+
+## Buffering capacity for protons in mitochondria.
+## ~ dimensionless
+## $r_{buffi,m}$
+## + Metabolism
 r_buffi = C_buffi/C_0i
+
+## Buffering capacity for protons in cytoplasm.
+## ~ dimensionless
+## $r_{buffi,c}$
+## + Metabolism
 r_buffic = C_buffic/C_0ic
+
+## Elastic stress in blood vessel walls.
+## ~ mm Hg
+## $\sigma_e$
+## + Autoregulation
 sigma_e = sigma_e0*(exp(K_sigma*(r-r_0)/r_0) - 1.0) - sigma_coll
+
+## Driving force Complex V.
+## ~ dimensionless
+## $\theta$
+## + Metabolism
 theta = kCV*(Dp + Z/na*log10(gp/gp_n)-Dp_CV0)
+
+## Total conductance of the cerebral blood vessel walls
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_t$
+## + Autoregulation
 Gt = ((G*G0*G_v)/(G*G0+G*G_v+G_v*G0))
+
+## Pressure at the start of the cerebral artery compartment
+## ~ mmHg
+## $P_{a2}$
+## + Autoregulation
 P_a2 = ((G0*P_a+G*P_v)/(G+G0))
+
+## Vmax for glycolysis
+## ~ mMs$^{-1}$
+## $v_{glyc}$
+## + Metabolism
 Vmax_glucN = Vmax_glucNn*(Inh_glucN + 1.0)/(1.0 + Inh_glucN*(_ATP/_ATPn)*(_AMPn/_AMP))
+
+## Rate of the TCA cycle
+## ~ mMs$^{-1}$
+## $k_{TCA}$
+## + Metabolism
 k_TCA = v_TCA*_Py0*NAD/((Km_NAD + NAD)*(Km_Py+_Py0))
+
+## Concentration of NADH in the cytoplasm
+## ~ mM
+## $[NADH_{cyt}]$
+## + Metabolism
 NADHcyt= (NADcytn + NADHcytn) - NADcyt
+
+## Rate of forward reaction in the malate-aspartate shuttle
+## ~ mM$^{-1}$s$^{-1}$
+## $k_{MAshut}$
+## + Metabolism
 k_MAshut = ((CMRO2_n*NADHcyt)/3.0)/(NADn*_Hyn*NADHcyt - (1.0/Keq_MAshut)*NADcytn*H_n*NADH)
+
+## Rate of backward reaction in the malate-aspartate shuttle
+## ~ mM$^{-1}$s$^{-1}$
+## $k^{-}_{MAshut}$
+## + Metabolism
 k_nMAshut = ((k_MAshut*NADH/NADHcyt)/Keq_MAshut)
+
+## Rate of forward reaction in the pyruvate lactate equlibirum
+## ~ mM$^{-1}$s$^{-1}$
+## $k_{pl}$
+## + Metabolism
 k_PytoLac = ((2.0*CMRglucn-CMRO2_n/3.0)+k_nPytoLac*_L0n*NADcytn)/(_Py0n*_Hyn)*(NADHcyt/NADHcytn)
+
+## Vmax of ATP use
+## ~ mM$^{-1}$s$^{-1}$
+## $V_{max,ATP}$
+## + Metabolism
 v_ATP = (L_CVn*Vol_mit/na+2.0*CMRglucn)*(1.0+km)*u
+
+## Rate of ATP synthesis by Complex V
+## ~ mM$^{-1}$s$^{-1}$
+## $k_{ATP,C_{V}}$
+## + Metabolism
 kATP = L_CV*Vol_mit/na
+
+## Total exchangeable phosphate pool
+## ~ mM
+## $ EPP
+## + Metabolism
 EPP = _Pn + _PCrn + 2*_ATPn + _ADPn
+
+## The ratio of [ATP]/EPP
+## ~ dimensionless
+## $NTP/EPP$
+## + Metabolism
 NTP_EPP = _ATP/EPP
+
+
 k_Na = 1.0*(_Nan - _Na)
 i_NHE = ((Vmax_NHE*(_Nan -_Na))/(Km_NHE+(_Nan -_Na)) )* (1/(1+ exp(NapH*(pH_o - 6.7))))
 K_KATPA = _ATP/(Km_KATPA + _ATP)
