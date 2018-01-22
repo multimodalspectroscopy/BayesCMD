@@ -9,6 +9,7 @@
 *.dylib
 *.a
 *.out
+autom4te.cache/
 
 # Packages
 
@@ -47,6 +48,7 @@ pip-log.txt
 .tox
 nosetests.xml
 *.mo
+.idea/
 
 # R
 .Rhistory
@@ -88,3 +90,12 @@ nosetests.xml
 
 # Specific to BCMD
 *.cprof
+
+# Created during install
+Makefile
+aclocal.m4
+configure
+config.guess
+config.status
+config.sub
+install-sh
