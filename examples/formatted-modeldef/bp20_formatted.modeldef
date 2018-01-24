@@ -572,6 +572,7 @@ _AMP := _AMPn
 ## $r$
 ## + Autoregulation
 r := r_init
+r >= 0
 
 ## Concentration of oxidised cytochrome c oxidase.
 ## ~ mM
@@ -581,7 +582,7 @@ a := a_init
 
 ## Concentration of reduced cytochrome a$_3$.
 ## ~ mM
-## $a_{3,r}$
+## $[a_{3,r}]$
 ## + Metabolism
 bred := bred_init
 
@@ -596,99 +597,406 @@ O2 := O2_init
 ## $HbO_{2,v}$
 ## + Oxygen
 XOv := XOv_init
+XOv >= 0
 
 ## Capillary oxygen concentration.
 ## ~ mM
 ## $O_{2,c}$
 ## + Oxygen
 O2c := O2c_init
+O2c >= 0
 
 ## Mitochondrial proton concentration.
 ## ~ mM
-## $H^+$
+## $H^{+}_{m}$
 ## + Metabolism
 H := H_init
 
-## Hydrogen ion concentraion in the cytoplasm
+## Hydrogen ion concentration in the cytoplasm
 ## ~ mM
 ## $[H^{+}]$
 ## + Metabolism
 _Hy := _Hyn
+
+## Filtered arterial blood pressure.
+## ~ mmHg
+## $\nu_{P_a}$
+## + Autoregulation
 v_p := v_pn
+
+## Filtered demand.
+## ~ dimensionless
+## $\nu_{u}$
+## + Autoregulation
 v_u := v_un
+
+## Filtered carbon dioxide partial pressure.
+## ~ mmHg
+## $\nu_{CO_2}$
+## + Autoregulation
 v_c := v_cn
+
+## Filtered capillary oxygen concentration.
+## ~ mM
+## $\nu_{O_2}$
+## + Autoregulation
 v_o := v_on
+
+## Mitochondrial inner membrane potential.
+## Varies as charge (in the form of protons) is transferred across the membrane capacitance.
+## ~ mV
+## $\psi$
+## + Metabolism
 Dpsi := Dpsi_init
+
+## Concentration of NAD in the mitochondria
+## ~ mM
+## $$[NAD]
+## + Metabolism
 NAD := NADn
+
+## Concentration of pyruvate in the cytoplasm
+## ~ mM
+## $$ [Py]
+### + Metabolism
 _Py0 := _Py0n
+
+## Concentration of lactate in the cytoplasm
+## ~ mM
+## $[lac]$
+## + Metabolism
 _L0 := _L0n
+
+## Concentration of glucose in the cytoplasm
+## ~ mM
+## $[gluc]$
+## + Metabolism
 _gluc := _glucn
+
+## Concentration of NAD in the cytoplasm
+## ~ mM
+## $[NAD_{cyt}]$
+## + Metabolism
 NADcyt := NADcytn
+
+## Concentration of phosphocreatine in the cytoplasm
+## ~ mM
+## $[PCr]$
+## + Metabolism
 _PCr := _PCrn
+
+## Concentration of ADP in the cytoplasm
+## ~ mM
+## $[ADP]$
+## + Metabolism
 _ADP := _ADPn
+
+## Concentration of ATP in the cytoplasm
+## ~ mM
+## $[ATP]$
+## + Metabolism
 _ATP := _ATPn
+
+## Concentration of inorganic phosphate in the cytoplasm
+## ~ mM
+## $[P_{i}]$
+## + Metabolism
 _P := _Pn
+
+## Concentration of creatine in the cytoplasm
+## ~ mM
+## $[Cr]$
+## + Metabolism
 _Cr := _Crn
 
-# constraints
-XOv >= 0
-O2c >= 0
-r >= 0
-v_lac_trans > 0
+# Parameters
 
-# parameters
+# Parameters that may depend on input parameters
 
-#parameters that may depend on input parameters
+## Initial concentration of oxidised cytochrome c oxidase.
+## ~ mM
+## $Cu_{A,o,init}$
+## + Metabolism
 a_init = a_n
+
+## Normal concentration of AMP in the cytoplasm
+## ~ mM
+## $[AMP]_{n}$
+## + Metabolism
 _AMPn = k_ADPATP_eq*pow(_ADPn, 2.0)/_ATPn
+
+## Normal concentration of oxidised cytochrome-c-oxidase.
+## ~ mM
+## $Cu_{A,o,n}$
+## + Metabolism
 a_n = cytox_tot*a_frac_n
+
+## Normal concentration of reduced Cu$_A$.
+## ~ mM
+## $Cu_{A,r,n}$
+## + Metabolism
 ared_n = cytox_tot - a_n
+
+## Normal oxidised fraction of reduced cytochrome-c-oxidase
+## ~ dimensionless
+## $a3_{frac,n}$
+## + Metabolism
 b_frac_n = 1.0 - bred_n/cytox_tot
+
+## Initial concentration of reduced cytochrome-c-oxidase
+## ~ mM
+## $a3_{frac,init}$
+## + Metabolism
 b_init = b_n
+
+## Normal concentration of reduced cytochrome-c-oxidase
+## ~ mM
+## $a3_{frac,n}$
+## + Metabolism
 b_n = cytox_tot - bred_n
+
+## Initial concentration of reduced cytochrome a$_3$.
+## ~ mM
+## $[a_{3,r}]_{init}$
+## + Metabolism
 bred_init = bred_n
+
+## Normal concentration of reduced cytochrome a$_3$.
+## ~ mM
+## $[a_{3,r}]_{n}$
+## + Metabolism
 bred_n = f_n/k3/O2_n/(exp(-c3*(Dp_n-Dp_30))/(1.0+exp(-c3*(Dp_n-Dp_30))))
+
+## Normal value of $C_{NADH}$.
+## ~ mV
+## $C_{NADH,n}$
+## + Metabolism
 C_NADH_n = Z/2.0*log10(1.0/NADNADHratn)
+
+## Normal concentration of creatine in the cytoplasm
+## ~ mM
+## $[Cr]_{n}$
+## + Metabolism
 _Crn = (k_PCrATP_eq_ef*_ADPn*_PCrn)/_ATPn
+
+## Concentration of cytochrome c oxidase in mitochondria.
+## ~ mM
+## $CCO_{mit}$
+## + Metabolism
 cytox_tot = cytox_tot_tis/Vol_mit
-DG1_n = -4.0*(E_1n+Z*log10(a_n/ared_n)) + p1*Dp_n
-DG2_n = -4.0*(E_2+Z*(log10(ared_n/a_n)-log10(bred_n/b_n))) + p2*Dp_n
+
+## Normal value of Gibbs free energy of ATP hydrolysis
+## ~ J mol$^{-1}$
+## $\Delta{}G_{n}$
+## + Metabolism
 DGpn = Gp0 + Z*Fdy*log10(gp_n)
+
+## Diffusion rate for oxygen between capillaries and mitochondria.
+## ~ s$^{-1}$
+## $D_{O_{2}}$
+## + Link
 D_O2 = J_O2n/(O2c_n-O2_n)
+
+## Value of $\Delta p$ to which a$_3$ reduction reaction is maximally sensitive.
+## ~ mV
+## $\Delta p_{30}$
+## + Metabolism
 Dp_30 = Dp_n + Dp3_corr
+
+## Value of $\Delta p$ at which $L_{CV}$ is zero under normal demand.
+## ~ mV
+## $\Delta p_{CV,0}$
+## + Metabolism
 Dp_CV0 = -DGpn/(na*Fdy)
+
+## Normal pH difference across the mitochondrial inner membrane.
+## ~ dimensionless
+## $\Delta pH_n$
+## + Metabolism
 DpH_n = pH_mn - pH_on
+
+## Initial value of $\Delta p$
+## ~ mV
+## $\Delta p_{init}$
+## + Metabolism
 Dp_init = Dp_n
+
+## Normal value of $\Delta p$
+## ~ mV
+## $\Delta p_n$
+## + Metabolism
 Dp_n = Dpsi_n+Z*DpH_n
+
+## Initial mitochondrial inner membrane potential.
+## ~ mV
+## $\psi_{init}$
+## + Metabolism
 Dpsi_init = Dpsi_n
+
+## Normal mitochondrial inner membrane potential.
+## ~ mV
+## $\psi_n$
+## + Metabolism
+Dpsi_n := 145.0
+
+## Normal value of $E_{1,NADH}$.
+## ~ mV
+## $E_{1,NADH,n}$
+## + Metabolism
 E1NADH_n = (E_c0 - E_N0) + C_NADH_n
-E_1n = E1NADH_n
+
+## Normal value of $E_1$.
+## ~ mV
+## $E_{1,n}$
+## + Metabolism
+E_1n := E1NADH_n
+
+## Energy provided by the transfer of four electrons from Cu$_{A,r}$ to a$_{3,o}$.
+## ~ mV
+## $E_{2}$
+## + Metabolism
 E_2 = (E_a30 - E_c0)
+
+## Normal resting value of $f_1$ and $f_2$.
+## ~ mM s$^{-1}$
+## $f_{n}$
+## + Metabolism
 f_n = CMRO2_n/Vol_mit
+
+## Conductance of the supplying artery compartment
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_0$
+## + Autoregulation
 G0 = K_G0*r0*r0*r0*r0
+
+## Normal conductance of the supplying artery compartment
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_0$
+## + Autoregulation
 G0n = G0rat*Gn
+
+## Term in the expression for normal glycolysis rate related to [ADP]
+## ~ dimensionless
+## $glyc_{a,n}$
+## + Metabolism
 glyc_an = pow(_ADPn,2.0)/(pow(Km_glucNA,2.0)+pow(_ADPn, 2.0))
+
+## Term in the expression for normal glycolysis rate related to [gluc]
+## ~ dimensionless
+## $glyc_{g,n}$
+## + Metabolism
 glyc_gn = _glucn/(Km_glucNgl+_glucn)
+
+## Term in the expression for normal glycolysis rate related to [NAD]
+## ~ dimensionless
+## $glyc_{n,n}$
+## + Metabolism
 glyc_nn = pow(NADcytn,2.0)/(pow(Km_glucNN,2.0)+pow(NADcytn, 2.0))
+
+## Term in the expression for normal glycolysis rate related to [P]
+## ~ dimensionless
+## $glyc_{p,n}$
+## + Metabolism
 glyc_pn = pow(_Pn,2.0)/(pow(Km_glucNP,2.0)+pow(_Pn, 2.0))
+
+###  Normal blood vessel conductance.
+## ~ ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_n$
+## + Autoregulation
 Gn = CBFn/(P_an-P_vs)*(1.0+1.0/G0rat+1.0/G_VAratn)
+
+## Normal (normalised) phophorylation potential (or ADP/ATP ratio)
+## ~ dimensionless
+## $g_{p,n}$
+## + Metabolism
 gp_n = (_ADPn*_Pn)/(_ATPn*1000.0)
+
+## Normal value of the total conductance of all blood vessel compartments
+## ~  ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_{t,n}$
+## + Autoregulation
 Gtn = Gn*G0n*G_v/(Gn*G0n+Gn*G_v+G_v*G0n)
+
+## Conductance of the veins
+## ~  ml$_{blood}$ ml$_{brain}^{-1}$ mmHg$^{-1}$ s$^{-1}$
+## $G_v$
+## + Autoregulation
 G_v = G_VAratn*Gn
+
+## Normal oxygenated haemoglobin signal measured by NIRS
+## ~ $\mu$M
+## $HbO_{2,n}$
+## + NIRS Measurement
 HbO2n = (Vol_artn*XOa_n + Vol_venn*XOv_n)/4.0*blood_frac*1000.0
+
+## Normal total haemoglobin signal measured by NIRS
+## ~ $\mu$M
+## $HbT_n$
+## + NIRS Measurement
 HbTn = (Vol_artn+Vol_venn)*Xtot_n/4.0*blood_frac*1000.0
+
+# Normal deoxygenated haemoglobin signal measured by NIRS.
+## ~ uM
+## $HHb_{n}$
+## + NIRS
 HHbn = (Vol_artn*Xa_n + Vol_venn*Xv_n)/4.0*blood_frac*1000.0
+
+## Initial mitochondrial proton concentration.
+## ~ mM
+## $H^+_{m,init}$
+## + Metabolism
 H_init = H_n
+
+## Initial mitochondrial proton concentration.
+## ~ mM
+## $H^+_{m,n}$
+## + Metabolism
 H_n = pow(10.0, 3.0-pH_mn)
+
+## Normal wall  thickness of cerebral vessels
+## ~ cm
+## $h_{n}$
+## + Autoregulation
 h_n = -r_n + sqrt(pow(r_n,2.0) + 2.0*r_0*h_0 + h_0*h_0)
-H_on = pow(10.0, 3.0-pH_on)
+
+
+## Normal hydrogen ion concentration in the cytoplasm
+## ~ mM
+## $[H^{+}]_{n}$
+## + Metabolism
 _Hyn = 1000.0*pow(10.0,-pH_on)
+
+## Normal oxygen flux from blood to tissue.
+## ~ mM s$^{-1}$
+## $J_{O_{2,n}}$
+## + Link
 J_O2n = CMRO2_n
+
+## Forward reaction rate for the reduction of Cu$_A$ at normal $\Delta p$ and NADH.
+## ~ s$^{-1}$
+## $k_{1,n}$
+## + Metabolism
 k1_n = f_n/(a_n-1.0/Keq1_n*ared_n)
+
+## Normal forward reaction rate for the reduction of a$_3$.
+## ~ s$^{-1}$
+## $k_{2,n}$
+## + Metabolism
 k2_n = f_n/(ared_n*b_n-1.0/Keq2_n*a_n*bred_n)
+
+## Forward reaction rate for the reduction of O$_2$.
+## ~ s$^{-1}$
+## $k_3$
+## + Metabolism
 k3 = k30/(exp(-c3*(Dp_n-Dp_30))/(1.0+exp(-c3*(Dp_n-Dp_30))))
-kADP2 = L_CVn/na
+
+## Equilibrium constant for the conversion of ADP to ATP and AMP
+## ~ dimensionless
+## $Keq_{ADPATP}$
+## + Metabolism
 k_ADPATP_eq = k_ADPATP/k_nADPATP
+
+
 kCV = -1.0/(Dp_n-Dp_CV0)*log((1.0-L_CV0)/(1.0+r_CV*L_CV0))
 Keq1_n = pow(10.0, (-1.0/Z*(p1*Dp_n/4.0 - E_1n)))
 Keq2_n = pow(10.0, (-1.0/Z*(p2*Dp_n/4.0 - E_2)))
@@ -743,7 +1051,11 @@ v_cn = Pa_CO2n
 v_gluc_in = gluc_c / (k_gluc_trans+ gluc_c)
 v_gluc_trans = CMRglucn/(v_gluc_in - _glucn/(_glucn+k_gluc_trans))
 v_lac_in = lac_c/(k_lac_trans+lac_c)
+
+
 v_lac_trans = (2.0*CMRglucn-CMRO2_n/3.0)/((_L0n*_Hyn)/((_L0n+k_lac_trans)*(_Hyn+k_lac_h))-v_lac_in)
+v_lac_trans > 0
+
 Vmax_glucNn =  CMRglucn / (glyc_gn*glyc_pn*glyc_an*glyc_nn)
 Vol_artn = Vol_totn/(1.0+VArat_n)
 Vol_venn = Vol_totn*(VArat_n/(1.0+VArat_n))
@@ -790,7 +1102,7 @@ DHHb_offset := 0.0
 Dp3_corr := -25.0
 #Dp_CV0 := 90.0
 dpH := 0.001
-Dpsi_n := 145.0
+
 E_a30 := 350.0
 
 # changed to match Tracy's paper
