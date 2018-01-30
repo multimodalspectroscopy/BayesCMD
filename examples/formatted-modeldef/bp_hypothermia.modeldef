@@ -2102,11 +2102,15 @@ Z := 59.028
 
 # Equations modified to include temperature
 
+
+# Two alternative diffusion equation versions
+
 ## Diffusion rate for oxygen between capillaries and mitochondria.
 ## ~ s$^{-1}$
 ## $D_{O_{2}}$
 ## + Link
-D_O2 = (k_diff * J_O2n)/(O2c_n-O2_n)
+#D_O2 = (k_diff * J_O2n)/(O2c_n-O2_n)
+D_O2 = (Q_temp * J_O2n)/(O2c_n-O2_n)
 
 
 
