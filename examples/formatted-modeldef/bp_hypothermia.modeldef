@@ -23,7 +23,7 @@
 
 # adenkin2
 # aden1
-2.0 [_ADP] <-> [_ATP] + [_AMP] {MA:k_ADPATP, 2.0} {MA:k_nADPATP}
+2.0 [_ADP] <-> [_ATP] + [_AMP] {MA: Q_temp*k_ADPATP, 2.0} {MA: Q_temp*k_nADPATP}
 
 # funcact
 # a_red
@@ -40,15 +40,15 @@ p2/R_Hi [H] -> 4.0 [a] + 4.0 [bred] + p2/(R_Hic/Vol_mit) [_Hy] {f2}
 # glycol
 # glycol
 2.0 [_ADP] + 2.0 [_P] + [_gluc] + 2.0 [NADcyt] -> 2.0 [_ATP] + 2.0 [_Py0] + 4.0/R_Hic [_Hy]
-	{MM : Vmax_glucN, Km_glucNA, Km_glucNP, Km_glucNgl, Km_glucNN}
+	{MM : Vmax_glucN, Q_temp*Km_glucNA, Q_temp*Km_glucNP, Q_temp*Km_glucNgl, Q_temp*Km_glucNN}
 # PytoLac
-[_Py0] + 1.0/R_Hic [_Hy] <-> [_L0] + [NADcyt] {MA:k_PytoLac} {MA:k_nPytoLac}
+[_Py0] + 1.0/R_Hic [_Hy] <-> [_L0] + [NADcyt] {MA: Q_temp*k_PytoLac} {MA: Q_temp*k_nPytoLac}
 # TCA
 1.0/(1.0/Vol_mit) [_Py0] + 5.0 [NAD] + 1.0/(R_Hic/Vol_mit) [_Hy] -> 4.0/R_Hi [H] {k_TCA}
 # glucose_in
 -> [_gluc] {v_gluc_in*v_gluc_trans}
 # glucose_out
-[_gluc] -> {MM : v_gluc_trans, k_gluc_trans}
+[_gluc] -> {MM : v_gluc_trans, Q_temp*k_gluc_trans}
 # lactate_in
 -> [_L0] + 1.0/R_Hic [_Hy] {v_lac_in*v_lac_trans}
 # lactate_out
@@ -56,13 +56,13 @@ p2/R_Hi [H] -> 4.0 [a] + 4.0 [bred] + p2/(R_Hic/Vol_mit) [_Hy] {f2}
 	{v_lac_trans*_L0*_Hy/((k_lac_trans + _L0)*(k_lac_h + _Hy))}
 # MAshut
 1.0/R_Hic [_Hy] + 1.0/Vol_mit [NAD] <-> [NADcyt] + 1.0/(R_Hi*Vol_mit) [H]
-	{MA:k_MAshut} {MA:k_nMAshut}
+	{MA: Q_temp*k_MAshut} {MA: Q_temp*k_nMAshut}
 # PCrtoATP
-[_PCr] + [_ADP] + 1.0/R_Hic [_Hy] <-> [_ATP] + [_Cr] {MA:k_PCrATP} {MA:k_nPCrATP}
+[_PCr] + [_ADP] + 1.0/R_Hic [_Hy] <-> [_ATP] + [_Cr] {MA: Q_temp*k_PCrATP} {MA: Q_temp*k_nPCrATP}
 # ADPtoATP
 [_ADP] + [_P] -> [_ATP] {kATP}
 # ATPtoADP
-[_ATP] -> [_ADP] + [_P] {MM : v_ATP, kmATP}
+[_ATP] -> [_ADP] + [_P] {MM : v_ATP, Q_temp*kmATP}
 
 
 # Algorithmic relations
@@ -2111,8 +2111,6 @@ Z := 59.028
 ## + Link
 #D_O2 = (k_diff * J_O2n)/(O2c_n-O2_n)
 D_O2 = (Q_temp * J_O2n)/(O2c_n-O2_n)
-
-
 
 
 # Temperature related parameters
