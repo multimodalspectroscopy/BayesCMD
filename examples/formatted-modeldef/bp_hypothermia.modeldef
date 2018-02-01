@@ -2090,15 +2090,6 @@ Vol_totn := 1.0
 ## + Oxygen
 Xtot_n := 9.1
 
-## Proportionality constant in calculation of driving forces due to concentration differences.
-## Defined as $RT/F$, where $F$ is Faraday's constant, $R$ the ideal gas constant and $T$
-## the absolute temperature.
-## ~ mV
-## $Z$
-## + Metabolism
-Z := 59.028
-
-
 
 # Equations modified to include temperature
 
@@ -2143,15 +2134,21 @@ q_diff := 1
 q_diff > 0
 
 ## Body temperature
-## Parameter defining how much a change in temperature impacts diffusion rate parameter
 ## ~ $^{\circ}C$
 ## $T_{body}$
 ## + Hypothermia
 temp := 37
 
 ## Normal body temperature
-## Parameter defining how much a change in temperature impacts diffusion rate parameter
 ## ~ $^{\circ}C$
 ## $T_{body,n}$
 ## + Hypothermia
 temp_n := 37
+
+## Proportionality constant in calculation of driving forces due to concentration differences.
+## Defined as $2.303 \times RT/F$, where $F$ is Faraday's constant ($9.65 \times 10^4$), $R$
+## the ideal gas constant ($8314 mJ K^{-1} mol^{-1}$) and $T$ is the absolute temperature ($298K$)
+## ~ mV
+## $Z$
+## + Metabolism
+Z := 2.303*(8314/96500)*temp
