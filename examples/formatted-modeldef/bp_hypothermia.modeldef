@@ -1489,7 +1489,7 @@ CMRO2_n := 0.02
 ## Normalised compliance of the veins
 ## ~ mmHg$^{-1}$
 ## $C_v$
-+ Autoregulation
+## + Autoregulation
 C_v := 0.047
 
 ## Control parameter representing the action of Complex V inhibitors.
