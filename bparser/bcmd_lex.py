@@ -159,7 +159,7 @@ def t_WS(t):
 
 
 def t_error(t):
-    print >> sys.stderr, "Ignoring illegal character '%s'" % t.value[0]
+    print("Ignoring illegal character '%s'" % t.value[0], file=sys.stderr)
     t.lexer.skip(1)
 
 

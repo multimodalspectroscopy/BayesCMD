@@ -16,10 +16,10 @@ import bcmd_lex
 from bcmd_lex import tokens
 
 precedence = (
-        ('nonassoc', 'WEAKEST'),
-        ('right', 'END'),
-        ('right', 'COLON'),
-        ('right', 'EQ', 'NE', 'LT', 'LE', 'GT', 'GE'),
+    ('nonassoc', 'WEAKEST'),
+    ('right', 'END'),
+    ('right', 'COLON'),
+    ('right', 'EQ', 'NE', 'LT', 'LE', 'GT', 'GE'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('right', 'UMINUS'),
@@ -249,7 +249,7 @@ def p_mathterm_uminus(p):
     'mathterm : MINUS mathterm %prec UMINUS'
     # this may not be a reasonable way to do this, but we shall see
     p[0] = ('mathterm', ('arithmetic', '*',
-            ('mathterm', decimal.Decimal(-1)), p[2]))
+                         ('mathterm', decimal.Decimal(-1)), p[2]))
 
 
 def p_arglist_single(p):
@@ -281,7 +281,7 @@ def p_algeqn(p):
     else:
         # subtract LHS from RHS to make a term that equals 0
         p[0] = ('algeqn', p[1], ('mathterm',
-                ('arithmetic', '-', p[5], p[3])), p[6])
+                                 ('arithmetic', '-', p[5], p[3])), p[6])
 
 
 def p_diffeqn_noaux(p):
@@ -381,20 +381,22 @@ def p_error(p):
     global compilationInfo
     compilationInfo['errors'].append(p)
     if None == p:
-        print >> sys.stderr, 'Syntax error (unexpected EOF)'
+        print('Syntax error (unexpected EOF)', file=sys.stderr)
         compilationInfo['messages'].append('Syntax error: unexpected EOF')
         compilationInfo['lines'].append('END')
         compilationInfo['files'].append(currentFile)
     else:
-        print >> sys.stderr, 'Syntax error at token:', p
+        print('Syntax error at token: {}'.format(p), file=sys.stderr)
         compilationInfo['messages'].append(
             "Syntax error at token '%s' [%s]" % (p.value, p.type))
         compilationInfo['lines'].append(p.lineno)
         compilationInfo['files'].append(currentFile)
         while 1:
             tok = yacc.token()
-            if not tok or tok.type == 'END': break
+            if not tok or tok.type == 'END':
+                break
         yacc.restart()
+
 
 # module global variable for holding state information
 # should probably try to migrate this into something more encapsulated
@@ -406,6 +408,7 @@ def get_lexer_parser():
     lexer = lex.lex(module=bcmd_lex)
     parser = yacc.yacc()
     return (lexer, parser)
+
 
 # run this file directly to test parser
 if __name__ == '__main__':
@@ -424,7 +427,8 @@ if __name__ == '__main__':
 
     nErr = len(compilationInfo['errors'])
     if nErr == 1:
-        print >> sys.stderr, 'Compilation failed with 1 syntax error'
+        print('Compilation failed with 1 syntax error', file=sys.stderr)
     elif nErr > 1:
-        print >> sys.stderr, 'Compilation failed with %d syntax errors' % nErr
+        print('Compilation failed with %d syntax errors' % nErr,
+              file=sys.stderr)
     pprint.pprint(result)
