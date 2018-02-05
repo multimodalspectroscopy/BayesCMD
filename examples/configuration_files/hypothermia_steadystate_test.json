@@ -1,9 +1,9 @@
 {
 "model_name": "bp_hypothermia",
-"inputs": "P_a",
-"parameters": {},
-"targets": ["h"],
-"max_val": 150,
-"min_val": 25,
+"inputs": "Pa_CO2",
+"parameters": {"temp": 33.5},
+"targets": ["CBF"],
+"max_val": 80,
+"min_val": 8,
 "debug": false
 }
