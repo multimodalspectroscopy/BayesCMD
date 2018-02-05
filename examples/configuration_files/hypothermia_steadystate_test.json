@@ -1,0 +1,9 @@
+{
+"model_name": "bp_hypothermia",
+"inputs": "P_a",
+"parameters": {},
+"targets": ["CBF"],
+"max_val": 150,
+"min_val": 20,
+"debug": false
+}
