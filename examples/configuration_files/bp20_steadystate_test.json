@@ -1,5 +1,5 @@
 {
-"model_name": "bp_hypothermia",
+"model_name": "bp20",
 "inputs": "P_a",
 "parameters": {},
 "targets": ["h"],

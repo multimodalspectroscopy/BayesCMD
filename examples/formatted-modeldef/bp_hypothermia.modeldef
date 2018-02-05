@@ -10,11 +10,14 @@
 ## the effects of hypothermia
 ## @
 
-@input SaO2sup P_a u Pa_CO2
 # Return inputs to be plotted against
 @output SaO2sup P_a u Pa_CO2
 # NIRS measurements
-@output CMRO2 Vmca TOI HHb HbO2 HbT
+@output CMRO2 Vmca TOI DHHb DHbO2 DHbT CBF XOa
+# Hypothermia parameters
+@output Q_10 Z D_O2 Q_temp
+# Temp regulated reactions
+@output _gluc _ADP _P NADcyt _ATP _Py0 _Hy
 
 # Import insult submodel - remove for original behaviour
 @import bp20_insult
@@ -101,6 +104,7 @@ AVR = Vol_art/Vol_ven
 ## $CBF$
 ## + BloodFlow Oxygen
 CBF = G*(P_a2-P_v)
+CBF := CBFn
 
 ## Cytochrome c oxidase signal measured by NIRS.
 ## ~ $\mu$M
@@ -269,7 +273,7 @@ NADNADHrat = NAD/NADH
 ## ~ mm Hg
 ## $P_{1}$
 ## + Autoregulation
-P_1 = (P_a + P_v) / 2.0
+P_1 = (P_a2 + P_v) / 2.0
 P_1 := P_1n
 
 ## Venous blood pressure.
@@ -1779,7 +1783,7 @@ mu_max := 1
 ## ~ dimensionless
 ## $\mu_{min}$
 ## + Autoregulation
-mu_min := -10
+mu_min := -1
 
 ## Normal value for the transformed stimulus $\mu$.
 ## ~ dimensionless
@@ -2088,7 +2092,7 @@ Vol_totn := 1.0
 ## ~ mM
 ## $Hb_{tot,n}$
 ## + Oxygen
-Xtot_n := 9.1
+Xtot_n := 5.4
 
 
 # Equations modified to include temperature
@@ -2151,4 +2155,4 @@ temp_n := 37
 ## ~ mV
 ## $Z$
 ## + Metabolism
-Z := 2.303*(8314/96500)*temp
+Z := 2.303*(8314/96500) * (temp + 273.15)

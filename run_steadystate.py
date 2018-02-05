@@ -14,6 +14,9 @@ import distutils.dir_util
 from datetime import datetime
 import numpy as np
 import itertools
+
+import pandas as pd
+import matplotlib.pyplot as plt
 # import bayescmd
 from bayescmd.bcmdModel import ModelBCMD
 import bayescmd.abc as abc
@@ -219,6 +222,13 @@ class RunSteadyState:
 
         return True
 
+    def plot_output(self):
+        df = pd.DataFrame(self.parsed_output)
+        plot_out = [y for y in self.outputs if y != self.inputs]
+        print(plot_out)
+        df.plot(x=self.inputs, y=plot_out)
+        plt.show()
+
 
 if __name__ == '__main__':
 
@@ -252,4 +262,5 @@ if __name__ == '__main__':
     model = RunSteadyState(
         conf=config, workdir=workdir, debug=args.debug)
     output = model.run_steady_state()
-    model.write_output()
+    # model.write_output()
+    model.plot_output()
