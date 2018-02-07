@@ -47,7 +47,7 @@ p2/R_Hi [H] -> 4.0 [a] + 4.0 [bred] + p2/(R_Hic/Vol_mit) [_Hy] {f2}
 # PytoLac
 [_Py0] + 1.0/R_Hic [_Hy] <-> [_L0] + [NADcyt] {MA: Q_temp*k_PytoLac} {MA: Q_temp*k_nPytoLac}
 # TCA
-1.0/(1.0/Vol_mit) [_Py0] + 5.0 [NAD] + 1.0/(R_Hic/Vol_mit) [_Hy] -> 4.0/R_Hi [H] {k_TCA}
+1.0/(1.0/Vol_mit) [_Py0] + 5.0 [NAD] + 1.0/(R_Hic/Vol_mit) [_Hy] -> 4.0/R_Hi [H] {Q_temp*k_TCA}
 # glucose_in
 -> [_gluc] {v_gluc_in*v_gluc_trans}
 # glucose_out
@@ -408,35 +408,35 @@ gp = (_ADP*_P)/(_ATP*1000.0)
 ## + Autoregulation
 h = -r + sqrt(pow(r,2.0) + 2.0*r_0*h_0 + h_0*h_0)
 
-## Forward reaction rate for the reduction of Cu$_A$.
+## Forward reaction rate constant for the reduction of Cu$_A$.
 ## ~ s$^{-1}$
 ## $k_1$
 ## + Metabolism
-k1 = k10*exp(-ck1*(Dp-Dp_n))
+k1 = Q_temp * k10*exp(-ck1*(Dp-Dp_n))
 
-## Forward reaction rate for the reduction of Cu$_A$ at normal $\Delta p$.
+## Forward reaction rate constant for the reduction of Cu$_A$ at normal $\Delta p$.
 ## ~ s$^{-1}$
 ## $k_{1,0}$
 ## + Metabolism
-k10 = k1_n*(NADpool/(1.0+NADNADHrat))/NADHn
+k10 = Q_temp * k1_n*(NADpool/(1.0+NADNADHrat))/NADHn
 
-## Reaction rate for the reduction of a$_3$.
+## Reaction rate constant for the reduction of a$_3$.
 ## ~ mM s$^{-1}$
-## $f_2$
+## $k_2$
 ## + Metabolism
-k2 = k2_n*exp(-ck2*(Dp-Dp_n))
+k2 = Q_temp * k2_n*exp(-ck2*(Dp-Dp_n))
 
-## Reverse reaction rate for the reduction of Cu$_A$.
+## Reverse reaction rate constant for the reduction of Cu$_A$.
 ## ~ s$^{-1}$
 ## $k_{-1}$
 ## + Metabolism
-kn1 = k1/Keq1
+kn1 = Q_temp * k1/Keq1
 
-## Reverse reaction rate for the reduction of a$_3$.
+## Reverse reaction rate constant for the reduction of a$_3$.
 ## ~ s$^{-1}$
 ## $k_{-2}$
 ## + Metabolism
-kn2 = k2/Keq2
+kn2 = Q_temp * k2/Keq2
 
 ## Effective strength of the autoregulation reponse.
 ## ~ dimensionless
