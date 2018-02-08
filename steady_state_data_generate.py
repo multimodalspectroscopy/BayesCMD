@@ -5,6 +5,8 @@ import distutils
 import json
 import matplotlib.pyplot as plt
 import seaborn as sns
+from datetime import datetime
+
 
 # inputs = {"P_a": (20, 120), "Pa_CO2": (8, 80), "SaO2sup": (0.2, 1.0)}
 #
@@ -62,32 +64,34 @@ outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
 q10_range = [1, 1.5, 2, 2.5, 3, 3.5,  4, 4.5, 5]
 
 cbar = sns.color_palette("Set1", n_colors=len(q10_range))
+
+data = {}
+direction = "down"
+workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia',
+                       "q10")
+distutils.dir_util.mkpath(workdir)
+
+for q in q10_range:
+    print("Running Q10 {}".format(q))
+    config = {
+        "model_name": "bp_hypothermia",
+        "inputs": "temp",
+        "parameters": {"Q_10": q},
+        "targets": outputs,
+        "max_val": 37,
+        "min_val": 27,
+        "debug": False,
+        "direction": direction
+    }
+
+    model = RunSteadyState(conf=config, workdir=workdir)
+    output = model.run_steady_state()
+    data[q] = output
+now = datetime.now().strftime('%d%m%yT%H%M')
+with open(os.path.join(workdir, "{}.json".format(now)), 'w') as f:
+    json.dump(data, f)
+
 for o in outputs:
-    data = {}
-    direction = "down"
-    workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia',
-                           "q10")
-    distutils.dir_util.mkpath(workdir)
-    print("Running steady state - {}".format(o))
-    for q in q10_range:
-        print("Running Q10 {}".format(q))
-        config = {
-            "model_name": "bp_hypothermia",
-            "inputs": "temp",
-            "parameters": {"Q_10": q},
-            "targets": [o],
-            "max_val": 37,
-            "min_val": 27,
-            "debug": False,
-            "direction": direction
-        }
-
-        model = RunSteadyState(conf=config, workdir=workdir)
-        output = model.run_steady_state()
-        data[q] = output
-    with open(os.path.join(workdir, "{}.json".format(o)), 'w') as f:
-        json.dump(data, f)
-
     fig, ax = plt.subplots()
     for idx, q in enumerate(q10_range):
         # if direction == "both":
@@ -105,6 +109,7 @@ for o in outputs:
     ax.set_xlabel("Temp (C)")
     ax.legend()
 
-    fig.savefig("/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/"
-                "{}.png".format(o),
-                bbox_inches="tight")
+    path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/{}".format(now)
+    distutils.dir_util.mkpath(path)
+    fig.savefig(os.path.join(path, "{}.png".format(o)), bbox_inches="tight")
+    plt.close()
