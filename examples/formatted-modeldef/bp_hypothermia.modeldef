@@ -13,7 +13,7 @@
 # Return inputs to be plotted against
 @output SaO2sup P_a u Pa_CO2
 # NIRS measurements
-@output CMRO2 Vmca TOI DHHb DHbO2 DHbT CBF XOa
+@output CMRO2 Vmca TOI DHHb DHbO2 DHbT CBF XOa DHbdiff
 # Hypothermia parameters
 @output Q_10 Z D_O2 Q_temp
 # Temp regulated reactions
@@ -202,18 +202,21 @@ G = K_G*pow(r, 4.0)
 ## $HHb$
 ## + NIRS Measurement
 HHb = (Vol_art*Xa + Vol_ven*Xv)/4.0*blood_frac*1000.0
+HHb := HHbn
 
 ## Absolute oxyhaemoglobin signal as measured by NIRS
 ## ~ $\mu$M
 ## $HbO_2$
 ## + NIRS Measurement
 HbO2 = (Vol_art*XOa + Vol_ven*XOv)/4.0*blood_frac*1000.0
+HbO2 := HbO2n
 
 ## Absolute total haemoglobin signal as measured by NIRS
 ## ~ $\mu$M
 ## $HbT$
 ## + NIRS Measurement
 HbT = (Vol_art+Vol_ven)*Xtot/4.0*blood_frac*1000.0
+HbT := HbTn
 
 ## Rate at which oxygen is supplied to the mitochondria, minimum of diffusion rate and delivery rate
 ## ~ $mM s^{-1}$

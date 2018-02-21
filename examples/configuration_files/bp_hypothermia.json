@@ -1,0 +1,7 @@
+{
+"model_name": "bp_hypothermia",
+"inputs": ["SaO2sup", "P_a", "temp"],
+"parameters": {},
+"targets": ["DHbO2", "DHHb", "CCO", "DHbT", "DHbdiff", "CBF"],
+"debug": false
+}
