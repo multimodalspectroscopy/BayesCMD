@@ -31,7 +31,7 @@ job_mode: morris
 # param_select specifies which params to vary
 # may specify an explicit (comma-separated) list
 # or * to mean all params for which a distrib has been provided (the default)
-param_select: Q_10
+param_select: *
 
 # inputs, with perturbation distribs
 # (latter ignored unless the --perturb command-line switch is given)
@@ -52,11 +52,11 @@ alias: t, t
 
 
 # the number of distinct levels (potentially) tested per parameter
-divisions: 20
+divisions: 50
 
 # periodically save intermediate results after this many jobs (default 100)
 # set to 0 for no intermediate saves
-#save_interval: 0
+# save_interval: 0
 
 # the number of paths to run (only relevant for Morris sampling)
 npath: 10
@@ -73,4 +73,4 @@ beta: 10
 nbatch: 7
 
 # NaN substitute value
-substitute: 1000000
+# substitute: 1000000
