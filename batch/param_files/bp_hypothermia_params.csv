@@ -98,5 +98,4 @@ Vol_mit,uniform,0.0536,0.0804,0.067
 Vol_totn,uniform,0.8,1.2,1
 Xtot_n,uniform,3.5,8,5.4
 Q_10,uniform,1,3,2.4
-temp,uniform,30,40,37
 temp_n,uniform,30,40,37

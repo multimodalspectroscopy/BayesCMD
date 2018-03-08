@@ -2,7 +2,6 @@
 from bayescmd.abc import Batch
 from datetime import datetime
 import os
-# import sys
 import pprint
 import distutils.dir_util
 import argparse
@@ -27,7 +26,8 @@ BASEDIR = findBaseDir('BayesCMD')
 # outputs = ['Vmca', 'CCO']
 
 
-def process(conf, run_length, data_0, workdir, debug=False):
+def process(conf, run_length, data_0, workdir, batch_debug=False,
+            model_debug=False, offset=True):
     """
     Rejection will be used to run a simple ABC Rejection algorithm.
 
@@ -48,16 +48,23 @@ def process(conf, run_length, data_0, workdir, debug=False):
             sample_rate (float): sample rate of data collected. Used only
                 if time not provided in d0.
 
-            debug (bool): Whether to run this in debug mode.
+            batch_debug (bool): Whether to run this in batch debug mode.
+
+            model_debug (bool): Whether to run this in model debug mode.
 
         data_0 (string): Path to csv of original experimental data
 
         workdir (str): file path to store all output data in.
+
+        offset (bool): Whether to set target offsets to first value.
     """
     model_name = conf['model_name']
 
-    priors = priors_creator(conf['priors']['defaults'],
-                            conf['priors']['variation'])
+    if conf['create_params']:
+        priors = priors_creator(conf['priors']['defaults'],
+                                conf['priors']['variation'])
+    else:
+        priors = conf['priors']
 
     inputs = conf['inputs']
 
@@ -67,12 +74,17 @@ def process(conf, run_length, data_0, workdir, debug=False):
 
     workdir = workdir
 
-    if 'debug' in conf.keys() and debug is False:
-        debug = conf['debug']
+    if 'batch_debug' in conf.keys() and batch_debug is False:
+        batch_debug = conf['batch_debug']
     else:
-        debug = debug
+        batch_debug = batch_debug
 
-    if debug:
+    if 'model_debug' in conf.keys() and model_debug is False:
+        model_debug = conf['model_debug']
+    else:
+        model_debug = model_debug
+
+    if model_debug:
         print("##### PRIORS ####")
         pprint.pprint(priors)
 
@@ -85,7 +97,9 @@ def process(conf, run_length, data_0, workdir, debug=False):
         d0,
         workdir,
         store_simulations=True,
-        debug=debug)
+        offset=True,
+        batch_debug=batch_debug,
+        model_debug=model_debug)
 
     batchWriter.definePriors()
     batchWriter.batchCreation(zero_flag={k: False for k in targets})

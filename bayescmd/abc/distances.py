@@ -233,8 +233,9 @@ def check_for_key(dictionary, target):
     """
     try:
         data = dictionary[target]
-    except KeyError:
-        print('Actual data does not contain target value.')
+    except KeyError as e:
+        print('Actual data does not contain target value of  {}'.format(target))
+        raise e
     return data
 
 

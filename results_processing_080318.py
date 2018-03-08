@@ -1,58 +1,63 @@
-"""Process results from 280917."""
+"""Process results from 230218."""
 import os
 import argparse
 from bayescmd.results_handling import kde_plot
+from bayescmd.results_handling import scatter_dist_plot
 from bayescmd.results_handling import data_import
 from bayescmd.results_handling import plot_repeated_outputs
 from bayescmd.results_handling import histogram_plot
+from bayescmd.results_handling import data_merge
+from bayescmd.abc import import_actual_data
+from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
-import numpy as np
+import json
+from distutils import dir_util
 
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
 ap = argparse.ArgumentParser('Choose results to process:')
 ap.add_argument(
-    'input_file',
-    metavar="INPUT_FILE",
-    help='File containing parameters from multiple runs')
+    'parent_dir',
+    metavar="PARENT_DIR",
+    help='Parent directory holding model run folders')
+
+ap.add_argument(
+    'conf',
+    metavar="config_file",
+    help='Config file used to generate model runs')
 
 args = ap.parse_args()
 
-pfile = args.input_file  # 'concatenated_results_190917.csv'
-params = {
-    r'r_t': (0.0135, 0.0225),
-    r'r_0': (0.00945, 0.01575),
-    r'r_m': (0.02025, 0.03375),
-    r'cytox_tot_tis': (0.004125, 0.006875),
-    r'Vol_mit': (0.05025, 0.08375),
-    r'O2_n': (0.018, 0.03),
-    r'v_cn': (30.0, 50.0),
-    r'sigma_coll': (47.0925, 78.4875)
-}
+date = '080318'
+pfile = data_merge(date, args.parent_dir)
 
-input_path = os.path.join(BASEDIR, 'data', 'hx01.csv')
-openopt_path = os.path.join(BASEDIR, 'data', 'model_run_output.csv')
+with open(args.conf, 'r') as conf_f:
+    conf = json.load(conf_f)
+params = conf['priors']
 
-targets = ['Vmca', 'CCO']
-model_name = 'BS'
-inputs = ['Pa_CO2', 'P_a', 'SaO2sup']
+input_path = os.path.join(BASEDIR, 'data', 'SA_clean_short.csv')
+
+d0 = import_actual_data(input_path)
+
+targets = conf['targets']
+model_name = conf['model_name']
+inputs = conf['inputs']
 
 config = {
     "model_name": model_name,
     "targets": targets,
     "inputs": inputs,
     "parameters": params,
-    "openopt_path": openopt_path,
     "input_path": input_path,
-    "zero_flag": {
-        "CCO": False,
-        "Vmca": False
-    }
+    "zero_flag": {k: False for k in targets}
 }
 
 results = data_import(pfile)
+print(results.columns)
 
-figPath = "/home/buck06191/Dropbox/phd/BayesCMD/Figures/"
+figPath = "/home/buck06191/Dropbox/phd/hypothermia/Figures/Bayesian_fitting/{}".format(date)
+
+dir_util.mkpath(figPath)
 print("Plotting total histogram")
 hist1 = histogram_plot(results)
 hist1.savefig(
@@ -61,18 +66,21 @@ print("Plotting fraction histogram")
 hist2 = histogram_plot(results, fraction=0.01)
 hist2.savefig(
     os.path.join(figPath, 'fraction_histogram_real.png'), bbox_inches='tight')
-for f in [0.01, 0.1, 1.0]:
+for f in [10]:
     print("Considering lowest {}% of values".format(f))
     print("Generating scatter plot")
     scatter_dist_plot(results, params, f, n_ticks=4)
-    plt.show()
     print("Generating KDE plot")
-    g = kde_plot(results, params, f, n_ticks=4)
+    g = kde_plot(results, params, f, n_ticks=4,
+                 median_file=os.path.join(figPath, "medians.txt"))
     g.fig.savefig(
         os.path.join(figPath, 'kde_{}_real.png'
                      .format(str(f).replace('.', '_'))),
         bbox_inches='tight')
     print("Generating averaged time series plot")
+    config["offset"] = {}
+    for t in config["targets"]:
+        config["offset"]["{}_offset".format(t)] = d0[t][0]
     fig = plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
     fig.set_size_inches(18.5, 12.5)
     fig.savefig(
@@ -82,10 +90,3 @@ for f in [0.01, 0.1, 1.0]:
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.
-rt_range = np.linspace(0.01, 0.03, 100)
-rm_range = np.linspace(0.01, 0.04, 100)
-r0_range = np.linspace(0.007, 0.0175, 100)
-volmit_range = np.linspace(0.02, 0.12, 100)
-cytox_range = np.linspace(0.0025, 0.009, 100)
-
-ranges = [rt_range, rm_range, r0_range, volmit_range, cytox_range]

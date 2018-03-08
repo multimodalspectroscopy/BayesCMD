@@ -32,7 +32,7 @@ from . import abc  # noqa
 from .bcmdModel import ModelBCMD  # noqa
 
 
-def data_merge(parent_directory, verbose=True):
+def data_merge(date, parent_directory, verbose=True):
     """Merge a set of parameters.csv files into one.
 
     Parameters
@@ -49,7 +49,8 @@ def data_merge(parent_directory, verbose=True):
         Concatenated will be written to file in `parent_directory`
 
     """
-    dirs = os.listdir(parent_directory)
+    dirs = [os.path.abspath(os.path.join(parent_directory, f))
+            for f in os.listdir(parent_directory) if date in f]
     if verbose:
         print(dirs)
     dfs = []
@@ -61,14 +62,18 @@ def data_merge(parent_directory, verbose=True):
             continue
 
     for ii in range(len(dfs)):
-        dfs[ii]['idx'] = dfs[ii].index.values + (len(dfs[ii]) * ii)
+        if ii is not 0:
+            dfs[ii]['ix'] = dfs[ii].index.values + dfs[ii - 1]['ix'].values[-1]
+        else:
+            dfs[ii]['ix'] = dfs[ii].index.values
+        dfs[ii]['Start Time'] = dirs[ii][:4]
     df = pd.concat(dfs)
     df.index = range(len(df))
-    df.to_csv(
-        os.path.join(parent_directory, 'concatenated_results_150917.csv'),
-        index=False)
+    output_file = os.path.join(parent_directory,
+                               'concatenated_results_{}.csv'.format(date))
+    df.to_csv(output_file, index=False)
 
-    return None
+    return output_file
 
 
 def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
@@ -203,14 +208,13 @@ def scatter_dist_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
-    p_names = list(params.keys)
+    p_names = list(params.keys())
     sorted_df = df.sort_values(by=d)
 
     accepted_limit = frac_calculator(df, frac)
 
     sorted_df['Accepted'] = np.zeros(len(sorted_df))
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
-    sorted_df['Accepted'][sorted_df[d] == 100000] = 2
     sorted_df['Accepted'] = sorted_df['Accepted'].astype('category')
     if verbose:
         print(sorted_df['Accepted'].value_counts())
@@ -224,10 +228,10 @@ def scatter_dist_plot(df,
         for ii, ax in enumerate(g.axes.flat):
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]])
-            ax.set_xlim(params[p_names[ii_x]])
-            xmax = params[p_names[ii_x]][1]
-            xmin = params[p_names[ii_x]][0]
+            ax.set_ylim(params[p_names[ii_y]][1])
+            ax.set_xlim(params[p_names[ii_x]][1])
+            xmax = params[p_names[ii_x]][1][1]
+            xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
             ax.set_xticks(xticks)
             for label in ax.get_xticklabels():
@@ -235,9 +239,9 @@ def scatter_dist_plot(df,
         plt.subplots_adjust(top=0.9)
         plt.suptitle("Parameter distributions - Top {}% based on {} distance".
                      format(frac, d))
-        # new_labels = [r'Yes', r'No', r'Fail']
-        # for t, l in zip(g.fig.get_children()[-1].texts, new_labels):
-        #    t.set_text(l)
+        new_labels = [r'Yes', r'No']
+        for t, l in zip(g.fig.get_children()[-1].texts, new_labels):
+            t.set_text(l)
         lgd = g.fig.get_children()[-1]
         for i in range(2):
             lgd.legendHandles[i].set_sizes([50])
@@ -292,6 +296,7 @@ def diag_kde_plot(x, medians, true_medians, **kws):
 def kde_plot(df,
              params,
              frac,
+             median_file=None,
              true_medians=None,
              plot_param=1,
              n_ticks=6,
@@ -358,7 +363,11 @@ def kde_plot(df,
         medians = {}
         g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians)
         for k, v in medians.items():
-            print("{}: {}".format(k, v))
+            if median_file:
+                with open(median_file, 'a') as mf:
+                    print("{}: {}".format(k, v), file=mf)
+            else:
+                print("{}: {}".format(k, v))
         g.map_lower(sns.kdeplot, lw=3)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
@@ -368,10 +377,10 @@ def kde_plot(df,
                 label.set_rotation(50)
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]])
-            ax.set_xlim(params[p_names[ii_x]])
-            xmax = params[p_names[ii_x]][1]
-            xmin = params[p_names[ii_x]][0]
+            ax.set_ylim(params[p_names[ii_y]][1])
+            ax.set_xlim(params[p_names[ii_x]][1])
+            xmax = params[p_names[ii_x]][1][1]
+            xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax,
                                round_sig((xmax - xmin) / n_ticks, sig=1))
             ax.set_xticks(xticks)
@@ -473,6 +482,7 @@ def plot_repeated_outputs(df,
                           frac,
                           zero_flag,
                           openopt_path=None,
+                          offset=None,
                           distance='euclidean'):
     """Generate model output and distances multiple times.
 
@@ -503,6 +513,8 @@ def plot_repeated_outputs(df,
         Note: zero_flag keys should match targets list.
     openopt_path : :obj:`str` or :obj:`None`
         Path to the openopt data file if it exists. Default is None.
+    offset : :obj:`dict`
+        Dictionary of offset parameters if they are needed
     distance : :obj:`str`, optional
         Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
 
@@ -545,6 +557,8 @@ def plot_repeated_outputs(df,
     while len(outputs_list) < n_repeats:
         idx = rand_selection.pop()
         p = dict(zip(p_names, posteriors[idx]))
+        if offset:
+            p = {**p, **offset}
         output = get_output(
             model_name,
             p,

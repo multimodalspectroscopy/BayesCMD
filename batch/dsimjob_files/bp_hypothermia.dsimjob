@@ -59,7 +59,7 @@ divisions: 50
 # save_interval: 0
 
 # the number of paths to run (only relevant for Morris sampling)
-npath: 10
+npath: 20
 
 # where to start each trajectory:
 # random = a completely random point in the search sequence
@@ -67,10 +67,10 @@ npath: 10
 path_start: random
 
 # number of repeat trials to run for each param draw -- since we perturb the inputs the trials are non-deterministic
-beta: 10
+beta: 20
 
 # number of sims to run in parallel
 nbatch: 7
 
 # NaN substitute value
-# substitute: 1000000
+substitute: 1000000
