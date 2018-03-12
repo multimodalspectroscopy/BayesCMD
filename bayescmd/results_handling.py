@@ -50,26 +50,43 @@ def data_merge(date, parent_directory, verbose=True):
 
     """
     dirs = [os.path.abspath(os.path.join(parent_directory, f))
-            for f in os.listdir(parent_directory) if date in f]
+            for f in os.listdir(parent_directory) if (date in f) and
+            (os.path.splitext(f)[1] != ".csv")]
     if verbose:
         print(dirs)
     dfs = []
-    for d in dirs:
+    for ii, d in enumerate(dirs):
         try:
             dfs.append(pd.read_csv(os.path.join(d, 'parameters.csv')))
+            print(ii)
+            if ii is not 0:
+                dfs[ii]['ix'] = dfs[ii].index.values + \
+                    dfs[ii - 1]['ix'].values[-1]
+            else:
+                dfs[ii]['ix'] = dfs[ii].index.values
+            if os.path.split(d)[1][:4].isdigit():
+                print(os.path.split(d)[1][:4])
+                dfs[ii]['Start Time'] = os.path.split(d)[1][:4]
+            else:
+                continue
         except FileNotFoundError:
             print("No parameters file in {}".format(d))
             continue
-
-    for ii in range(len(dfs)):
-        if ii is not 0:
-            dfs[ii]['ix'] = dfs[ii].index.values + dfs[ii - 1]['ix'].values[-1]
-        else:
-            dfs[ii]['ix'] = dfs[ii].index.values
-        dfs[ii]['Start Time'] = dirs[ii][:4]
-    df = pd.concat(dfs)
-    df.index = range(len(df))
-    output_file = os.path.join(parent_directory,
+    if verbose:
+        print("{} dataframes  to be joined".format(len(dfs)))
+    # for ii in range(len(dfs)):
+        # if ii is not 0:
+        #     dfs[ii]['ix'] = dfs[ii].index.values + dfs[ii - 1]['ix'].values[-1]
+        # else:
+        #     dfs[ii]['ix'] = dfs[ii].index.values
+        # if os.path.split(dirs[ii])[1][:4].isdigit():
+        #     print(os.path.split(dirs[ii])[1][:4])
+        #     dfs[ii]['Start Time'] = os.path.split(dirs[ii])[1][:4]
+        # else:
+        #     continue
+    df=pd.concat(dfs)
+    df.index=range(len(df))
+    output_file=os.path.join(parent_directory,
                                'concatenated_results_{}.csv'.format(date))
     df.to_csv(output_file, index=False)
 
@@ -97,13 +114,13 @@ def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
         for nan_sub
 
     """
-    result = pd.DataFrame()
+    result=pd.DataFrame()
 
-    num_lines = sum(1 for line in open(pfile)) - 1
-    df = pd.read_csv(pfile, chunksize=chunk_size, index_col='idx')
+    num_lines=sum(1 for line in open(pfile)) - 1
+    df=pd.read_csv(pfile, chunksize=chunk_size, index_col='idx')
     for chunk in df:
         chunk.fillna(nan_sub, inplace=True)
-        result = result.append(chunk)
+        result=result.append(chunk)
     if verbose:
         print("Number of lines:\t{}".format(num_lines))
         print("Number of NaN values:\t{}".format(
@@ -159,9 +176,9 @@ def histogram_plot(df, distance='euclidean', fraction=1, n_bins=100):
         Matplotlib figure with histogram on.
 
     """
-    sorted_df = df.sort_values(by=distance)
-    fig = plt.figure()
-    ax = plt.subplot(
+    sorted_df=df.sort_values(by=distance)
+    fig=plt.figure()
+    ax=plt.subplot(
         111,
         xlabel='Error - {}'.format(distance),
         title='Distribution of '
@@ -208,41 +225,41 @@ def scatter_dist_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
-    p_names = list(params.keys())
-    sorted_df = df.sort_values(by=d)
+    p_names=list(params.keys())
+    sorted_df=df.sort_values(by=d)
 
-    accepted_limit = frac_calculator(df, frac)
+    accepted_limit=frac_calculator(df, frac)
 
-    sorted_df['Accepted'] = np.zeros(len(sorted_df))
-    sorted_df['Accepted'].iloc[:accepted_limit] = 1
-    sorted_df['Accepted'] = sorted_df['Accepted'].astype('category')
+    sorted_df['Accepted']=np.zeros(len(sorted_df))
+    sorted_df['Accepted'].iloc[:accepted_limit]=1
+    sorted_df['Accepted']=sorted_df['Accepted'].astype('category')
     if verbose:
         print(sorted_df['Accepted'].value_counts())
 
     with sns.plotting_context("talk", font_scale=1.2):
-        g = sns.PairGrid(
+        g=sns.PairGrid(
             sorted_df, vars=p_names, hue='Accepted', diag_sharey=False)
         g.map_diag(sns.kdeplot)
         g.map_offdiag(plt.scatter, s=1)
         g.add_legend()
         for ii, ax in enumerate(g.axes.flat):
-            ii_y = ii // len(p_names)
-            ii_x = ii % len(p_names)
+            ii_y=ii // len(p_names)
+            ii_x=ii % len(p_names)
             ax.set_ylim(params[p_names[ii_y]][1])
             ax.set_xlim(params[p_names[ii_x]][1])
-            xmax = params[p_names[ii_x]][1][1]
-            xmin = params[p_names[ii_x]][1][0]
-            xticks = np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
+            xmax=params[p_names[ii_x]][1][1]
+            xmin=params[p_names[ii_x]][1][0]
+            xticks=np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
             ax.set_xticks(xticks)
             for label in ax.get_xticklabels():
                 label.set_rotation(50)
         plt.subplots_adjust(top=0.9)
         plt.suptitle("Parameter distributions - Top {}% based on {} distance".
                      format(frac, d))
-        new_labels = [r'Yes', r'No']
+        new_labels=[r'Yes', r'No']
         for t, l in zip(g.fig.get_children()[-1].texts, new_labels):
             t.set_text(l)
-        lgd = g.fig.get_children()[-1]
+        lgd=g.fig.get_children()[-1]
         for i in range(2):
             lgd.legendHandles[i].set_sizes([50])
 
@@ -271,15 +288,15 @@ def diag_kde_plot(x, medians, true_medians, **kws):
         on as well as text.
 
     """
-    ax = plt.gca()
-    p = sns.distplot(x, ax=ax, hist_kws={"linewidth": 1})
-    x1, y1 = p.get_lines()[0].get_data()
+    ax=plt.gca()
+    p=sns.distplot(x, ax=ax, hist_kws={"linewidth": 1})
+    x1, y1=p.get_lines()[0].get_data()
     # care with the order, it is first y
     # initial fills a 0 so the result has same length than x
-    cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
-    nearest_05 = np.abs(cdf - 0.5).argmin()
-    x_median = x1[nearest_05]
-    medians[x.name] = round_sig(x_median, 2)
+    cdf=scipy.integrate.cumtrapz(y1, x1, initial=0)
+    nearest_05=np.abs(cdf - 0.5).argmin()
+    x_median=x1[nearest_05]
+    medians[x.name]=round_sig(x_median, 2)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
     if true_medians is not None:
         ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'r')
@@ -341,26 +358,26 @@ def kde_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
-    p_names = list(params.keys())
-    sorted_df = df.sort_values(by=d)
+    p_names=list(params.keys())
+    sorted_df=df.sort_values(by=d)
 
-    accepted_limit = frac_calculator(df, frac)
+    accepted_limit=frac_calculator(df, frac)
 
-    sorted_df['Accepted'] = np.zeros(len(sorted_df))
-    sorted_df['Accepted'].iloc[:accepted_limit] = 1
-    sorted_df['Accepted'][sorted_df[d] == 100000] = 2
-    color_pal = {0: 'b', 1: 'g', 2: 'r'}
-    kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
+    sorted_df['Accepted']=np.zeros(len(sorted_df))
+    sorted_df['Accepted'].iloc[:accepted_limit]=1
+    sorted_df['Accepted'][sorted_df[d] == 100000]=2
+    color_pal={0: 'b', 1: 'g', 2: 'r'}
+    kde_df=sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
     if verbose:
         print(kde_df['Accepted'].value_counts())
     with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
-        g = sns.PairGrid(
+        g=sns.PairGrid(
             kde_df,
             vars=p_names,
             hue='Accepted',
             palette=color_pal,
             diag_sharey=False)
-        medians = {}
+        medians={}
         g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians)
         for k, v in medians.items():
             if median_file:
@@ -375,17 +392,17 @@ def kde_plot(df,
         for ii, ax in enumerate(g.axes.flat):
             for label in ax.get_xticklabels():
                 label.set_rotation(50)
-            ii_y = ii // len(p_names)
-            ii_x = ii % len(p_names)
+            ii_y=ii // len(p_names)
+            ii_x=ii % len(p_names)
             ax.set_ylim(params[p_names[ii_y]][1])
             ax.set_xlim(params[p_names[ii_x]][1])
-            xmax = params[p_names[ii_x]][1][1]
-            xmin = params[p_names[ii_x]][1][0]
-            xticks = np.arange(xmin, xmax,
+            xmax=params[p_names[ii_x]][1][1]
+            xmin=params[p_names[ii_x]][1][0]
+            xticks=np.arange(xmin, xmax,
                                round_sig((xmax - xmin) / n_ticks, sig=1))
             ax.set_xticks(xticks)
         # plt.subplots_adjust(top=0.8)
-        title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
+        title_dict={0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
         plt.suptitle("Parameter distributions - Top {}% "
                      "based on {} {}".format(frac, d, title_dict[plot_param]))
 
@@ -410,7 +427,7 @@ def run_model(model):
     """
     model.create_initialised_input()
     model.run_from_buffer()
-    output = model.output_parse()
+    output=model.output_parse()
     return output
 
 
@@ -453,12 +470,12 @@ def get_output(model_name,
         A tuple of (p, model output data).
 
     """
-    model = ModelBCMD(
+    model=ModelBCMD(
         model_name, inputs=input_data, params=p, times=times, outputs=targets)
 
-    output = run_model(model)
+    output=run_model(model)
 
-    dist = abc.get_distance(
+    dist=abc.get_distance(
         d0,
         output,
         targets,
@@ -467,7 +484,7 @@ def get_output(model_name,
         normalise=False)
 
     for k, v in dist.items():
-        p[k] = v
+        p[k]=v
 
     return p, output
 
@@ -524,27 +541,27 @@ def plot_repeated_outputs(df,
         Figure containing all axes.
 
     """
-    p_names = list(parameters.keys())
-    sorted_df = df.sort_values(by=distance)
+    p_names=list(parameters.keys())
+    sorted_df=df.sort_values(by=distance)
 
-    outputs_list = []
-    posterior_size = frac_calculator(df, frac)
+    outputs_list=[]
+    posterior_size=frac_calculator(df, frac)
     if n_repeats > posterior_size:
         print(
             "Setting number of repeats to quarter of the posterior size\n",
             file=sys.stderr)
-        n_repeats = int(posterior_size / 4)
-    d0 = abc.import_actual_data(input_path)
-    input_data = abc.inputParse(d0, inputs)
+        n_repeats=int(posterior_size / 4)
+    d0=abc.import_actual_data(input_path)
+    input_data=abc.inputParse(d0, inputs)
 
-    true_data = pd.read_csv(input_path)
-    times = true_data['t'].as_matrix()
+    true_data=pd.read_csv(input_path)
+    times=true_data['t'].as_matrix()
 
     if openopt_path:
-        openopt_data = pd.read_csv(openopt_path)
+        openopt_data=pd.read_csv(openopt_path)
 
     try:
-        rand_selection = random.sample(range(posterior_size), n_repeats)
+        rand_selection=random.sample(range(posterior_size), n_repeats)
     except ValueError as e:
         print(
             "Number of requested model runs greater than posterior size:"
@@ -553,13 +570,13 @@ def plot_repeated_outputs(df,
             file=sys.stderr)
         raise e
 
-    posteriors = sorted_df.iloc[:posterior_size][p_names].as_matrix()
+    posteriors=sorted_df.iloc[:posterior_size][p_names].as_matrix()
     while len(outputs_list) < n_repeats:
-        idx = rand_selection.pop()
-        p = dict(zip(p_names, posteriors[idx]))
+        idx=rand_selection.pop()
+        p=dict(zip(p_names, posteriors[idx]))
         if offset:
-            p = {**p, **offset}
-        output = get_output(
+            p={**p, **offset}
+        output=get_output(
             model_name,
             p,
             times,
@@ -570,18 +587,18 @@ def plot_repeated_outputs(df,
             zero_flag=zero_flag)
         outputs_list.append(output)
 
-    d = {"Errors": {}, "Outputs": {}}
+    d={"Errors": {}, "Outputs": {}}
 
-    d['Errors']['Average'] = np.nanmean([o[0]['TOTAL'] for o in outputs_list])
+    d['Errors']['Average']=np.nanmean([o[0]['TOTAL'] for o in outputs_list])
     for target in targets:
-        d['Errors'][target] = np.nanmean([o[0][target] for o in outputs_list])
-        d['Outputs'][target] = [o[1][target] for o in outputs_list]
+        d['Errors'][target]=np.nanmean([o[0][target] for o in outputs_list])
+        d['Outputs'][target]=[o[1][target] for o in outputs_list]
 
     with sns.plotting_context(
             "talk", font_scale=1.6, rc={"figure.figsize": (24, 18)}):
-        fig, ax = plt.subplots(len(targets))
+        fig, ax=plt.subplots(len(targets))
         if type(ax) != np.ndarray:
-            ax = np.asarray([ax])
+            ax=np.asarray([ax])
         for ii, target in enumerate(targets):
             sns.tsplot(
                 data=d['Outputs'][target],
@@ -589,7 +606,7 @@ def plot_repeated_outputs(df,
                 estimator=np.median,
                 ci=95,
                 ax=ax[ii])
-            paths = []
+            paths=[]
             true_plot, = ax[ii].plot(
                 times, true_data[target], 'g', label='True')
             paths.append(true_plot)
@@ -597,7 +614,7 @@ def plot_repeated_outputs(df,
                 openopt_plot, = ax[ii].plot(
                     times, openopt_data[target], 'r', label='OpenOpt')
                 paths.append(openopt_plot)
-            bayes_line = mlines.Line2D(
+            bayes_line=mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
             paths.append(bayes_line)
             ax[ii].set_title("{}: Average Euclidean Distance of {:.4f}".format(

@@ -31,11 +31,11 @@ while getopts ':h:l:b:c:' option; do
 done
 shift $((OPTIND - 1))
 
-INPUT_FILE='data/SA_clean_short.csv'
+INPUT_FILE='data/SA_clean_cropped.csv'
 DATE=`date '+%d%m%yT%H:%M:%S'`
 LOG_FILE="data/output-$DATE.txt"
 
-if [ $BATCHES -eq 1]; then
+if [ $BATCHES -eq 1 ]; then
     python3 batch.py $RUN_LENGTH $INPUT_FILE $CONFIG | tee $LOG_FILE &
 else
     for ((i = 1; i <= $BATCHES; i++));

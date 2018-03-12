@@ -421,10 +421,13 @@ class Batch:
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
+        t_distances = ["{}_{}".format(t, dist) for t in self.targets
+                       for dist in distances]
         pf = os.path.join(self.workdir, "parameters.csv")
         header = [k for k in self.priors.keys()]
         header.insert(0, 'idx')
         header.extend(distances)
+        header.extend(t_distances)
         for ii in range(self.limit):
 
             # ----- Write to file every STORE_VALUE entries ----- #
@@ -513,6 +516,10 @@ class Batch:
                             distance=dist,
                             zero_flag=zero_flag)
                         params[dist] = cost['TOTAL']
+
+                        for t in self.targets:
+                            t_dist = "{}_{}".format(t, dist)
+                            params[t_dist] = cost[t]
                     except ValueError as error:
                         print("OUTPUT:\n", output)
                         raise error

@@ -28,14 +28,14 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-date = '080318'
+date = '090318'
 pfile = data_merge(date, args.parent_dir)
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
 params = conf['priors']
 
-input_path = os.path.join(BASEDIR, 'data', 'SA_clean_short.csv')
+input_path = os.path.join(BASEDIR, 'data', 'SA_clean_cropped.csv')
 
 d0 = import_actual_data(input_path)
 
