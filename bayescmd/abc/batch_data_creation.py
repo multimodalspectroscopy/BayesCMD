@@ -537,6 +537,8 @@ class Batch:
                 output['ii'] = [ii] * data_length
                 for t in self.targets:
                     output[t] = [np.nan] * data_length
+                for i in self.inputs:
+                    output[i] = [np.nan] * data_length
                 outputs.append(output)
                 # ----- Add distances to the params dictionary ----- #
                 for dist in distances:
