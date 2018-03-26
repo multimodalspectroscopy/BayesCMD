@@ -35,7 +35,8 @@ pfile = data_merge(date, args.parent_dir)
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
 
-params = priors_creator(conf['priors']['defaults'], conf['priors']['variation'])
+params = priors_creator(conf['priors']['defaults'],
+                        conf['priors']['variation'])
 
 input_path = os.path.join(BASEDIR, 'data', 'hx01.csv')
 openopt_path = os.path.join(BASEDIR, 'data', 'model_run_output.csv')
@@ -76,9 +77,18 @@ hist2.savefig(
 print("Considering lowest {} values".format(lim))
 #print("Generating scatter plot")
 #scatter_dist_plot(results, params, f, n_ticks=4)
-#plt.show()
+# plt.show()
 print("Generating KDE plot")
-g = kde_plot(results, params, limit=lim, n_ticks=4)
+openopt_medians = {"r_t": 0.016243,
+                   "sigma_coll": 78.000000,
+                   "cytox_tot_tis": 0.006449,
+                   "Vol_mit": 0.084000,
+                   "O2_n": 0.030000,
+                   "r_0": 0.011808,
+                   "v_cn": 30.000000,
+                   "r_m": 0.021274}
+g = kde_plot(results, params, limit=lim, n_ticks=4,
+             openopt_medians=openopt_medians)
 g.fig.savefig(
     os.path.join(figPath, 'kde_{}_real.png'
                  .format(str(lim).replace('.', '_'))),

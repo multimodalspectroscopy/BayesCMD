@@ -287,7 +287,7 @@ def scatter_dist_plot(df,
     return g
 
 
-def medians_kde_plot(x, y, medians, true_medians, **kws):
+def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
     """Plot bivariate KDE with median of distribution marked on.
 
 
@@ -324,12 +324,15 @@ def medians_kde_plot(x, y, medians, true_medians, **kws):
     y_median = y.median()
     ax.plot(x_median, y_median, 'kX')
     if true_medians is not None:
-        ax.plot(true_medians[x.name], true_medians[y.name], 'rX')
+        ax.plot(true_medians[x.name], true_medians[y.name], 'gX')
+
+    if openopt_medians is not None:
+        ax.plot(openopt_medians[x.name], openopt_medians[y.name], 'rX')
 
     return ax
 
 
-def diag_kde_plot(x, medians, true_medians, **kws):
+def diag_kde_plot(x, medians, true_medians, openopt_medians, **kws):
     """Plot univariate KDE and barplot with median of distribution marked on.
 
     Includes median of distribution as a line and as text.
@@ -362,7 +365,11 @@ def diag_kde_plot(x, medians, true_medians, **kws):
     x_median = np.median(x)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
     if true_medians is not None:
-        ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'r')
+        ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'g')
+
+    if openopt_medians is not None:
+        ax.vlines(openopt_medians[x.name], 0, ax.get_ylim()[1], 'r')
+
     ax.text(
         0.05,
         1.1,
@@ -379,6 +386,7 @@ def kde_plot(df,
              frac=None,
              median_file=None,
              true_medians=None,
+             openopt_medians=None,
              plot_param=1,
              n_ticks=6,
              d=r'euclidean',
@@ -442,7 +450,8 @@ def kde_plot(df,
     kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
     if verbose:
         print(kde_df['Accepted'].value_counts())
-    with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
+    with sns.plotting_context("talk",
+                              rc={"figure.figsize": (12, 9)}):
         g = sns.PairGrid(
             kde_df,
             vars=p_names,
@@ -450,7 +459,8 @@ def kde_plot(df,
             palette=color_pal,
             diag_sharey=False)
         medians = {}
-        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians)
+        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians,
+                   openopt_medians=openopt_medians)
         for k, v in medians.items():
             if median_file:
                 with open(median_file, 'a') as mf:
@@ -459,7 +469,7 @@ def kde_plot(df,
                 print("{}: {}".format(k, v))
         # g.map_lower(sns.kdeplot, lw=3)
         g.map_lower(medians_kde_plot, medians=medians,
-                    true_medians=true_medians)
+                    true_medians=true_medians, openopt_medians=openopt_medians)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
 
@@ -479,17 +489,23 @@ def kde_plot(df,
         title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
         if limit:
             plt.suptitle("Parameter distributions - Top {} points "
-                         "based on {} {}".format(limit, d, title_dict[plot_param]))
+                         "based on {} {}".format(limit, d, title_dict[plot_param]),
+                         fontsize=32)
         elif frac:
             plt.suptitle("Parameter distributions - Top {}% "
-                         "based on {} {}".format(frac, d, title_dict[plot_param]))
+                         "based on {} {}".format(frac, d, title_dict[plot_param]),
+                         fontsize=32)
 
+        lines = []
         if true_medians:
-            true_line = mlines.Line2D([], [], color='red', label='True')
-            sim_line = mlines.Line2D([], [], color='black', label='Simulated')
-            g.fig.legend(labels=['True', 'Simulated'],
-                         handles=[true_line, sim_line],
-                         bbox_to_anchor=(1.15, 0.7), loc=2)
+            lines.append(('True', mlines.Line2D([], [], color='green')))
+        if openopt_medians:
+            lines.append(('OpenOpt', mlines.Line2D([], [], color='red')))
+        lines.append(('Simulated', mlines.Line2D([], [], color='black')))
+
+        g.fig.legend(labels=[l[0] for l in lines],
+                     handles=[l[1] for l in lines],
+                     bbox_to_anchor=(0.7, 0.7), loc=2, prop={"size": 32})
 
         g.fig.tight_layout()
         g.fig.subplots_adjust(bottom=0.15, top=0.9)
@@ -687,7 +703,7 @@ def plot_repeated_outputs(df,
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
     with sns.plotting_context(
-            "talk", font_scale=1.6, rc={"figure.figsize": (24, 18)}):
+            "talk", font_scale=1.6, rc={"figure.figsize": (24, 12)}):
         fig, ax = plt.subplots(len(targets))
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
@@ -700,11 +716,11 @@ def plot_repeated_outputs(df,
                 ax=ax[ii])
             paths = []
             true_plot, = ax[ii].plot(
-                times, true_data[target], 'g', label='True')
+                times, true_data[target], 'r', label='True')
             paths.append(true_plot)
             if openopt_path:
                 openopt_plot, = ax[ii].plot(
-                    times, openopt_data[target], 'r', label='OpenOpt')
+                    times, openopt_data[target], 'g', label='OpenOpt')
                 paths.append(openopt_plot)
             bayes_line = mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
@@ -717,11 +733,12 @@ def plot_repeated_outputs(df,
             for item in ([ax[0].xaxis.label, ax[0].yaxis.label] +
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(22)
-        ax[0].legend(
-            handles=paths, prop={"size": 22}, bbox_to_anchor=(1.15, -0.5))
-        plt.tight_layout()
+        fig.legend(labels=['True', 'OpenOpt', 'Bayes'],
+                   handles=paths, prop={"size": 22},
+                   bbox_to_anchor=(1, 0.6))
+        plt.subplots_adjust(hspace=1)
         if limit:
-            fig.suptitle("Simulated output for {} repeats using top {} parameter combinations".
+            fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations".
                          format(n_repeats, limit))
         elif frac:
             fig.suptitle("Simulated output for {} repeats using top {}% of data".
