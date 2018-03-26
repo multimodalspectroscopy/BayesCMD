@@ -1,0 +1,22 @@
+{
+    "model_name": "bp_hypothermia",
+    "inputs": ["temp", "P_a", "SaO2sup"],
+    "create_params": false,
+    "priors": {
+        "a_frac_n": ["uniform", [0.5025, 0.8225]],
+        "_L0n": ["uniform", [2.25, 3.45]],
+        "sigma_coll": ["uniform", [47.1, 79.1]],
+        "cytox_tot_tis": ["uniform", [0.00165, 0.00255]],
+        "Q_10": ["uniform", [1.7, 3.1]],
+        "pH_on": ["uniform", [5.5, 8.2]],
+        "r_n": ["uniform", [0.017, 0.025]],
+        "pH_mn": ["uniform", [6, 9.5]],
+        "Xtot_n": ["uniform", [5, 8]],
+        "r_0": ["uniform", [0.008, 0.014]],
+        "blood_frac": ["uniform", [0.03, 0.05]],
+        "k_aut": ["uniform", [0.3, 1.0]],
+        "G_VAratn": ["uniform", [2.0, 4.5]]
+    },
+    "targets": ["CCO", "DHbT"],
+    "batch_debug": true
+}

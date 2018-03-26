@@ -233,7 +233,10 @@ class Batch:
                  store_simulations=True,
                  burnin=999,
                  sample_rate=None,
-                 debug=False):
+                 model_debug=False,
+                 batch_debug=False,
+                 autoParam=True,
+                 offset=True):
         self.model_name = model_name
 
         self.priors = prior_parameters
@@ -254,7 +257,11 @@ class Batch:
 
         self.sample_rate = sample_rate
 
-        self.debug = debug
+        self.offset = offset
+
+        self.model_debug = model_debug
+
+        self.batch_debug = batch_debug
 
     @staticmethod
     def __getDistribution(v):
@@ -322,6 +329,11 @@ class Batch:
             Return a tuple of params, output.
 
         """
+
+        if self.offset:
+            for t in self.targets:
+                self.priors["{}_offset".format(t)] = ["constant",
+                                                      self.d0[t][0]]
         params = {k: v() for k, v in self.priorGen.items()}
         data_length = max([len(l) for l in self.d0.values()])
         if ('t' not in self.d0.keys()) and (self.sample_rate is not None):
@@ -344,11 +356,11 @@ class Batch:
             times=times,
             outputs=self.targets,
             workdir=self.workdir,
-            debug=self.debug,
+            debug=self.model_debug,
             burn_in=self.burnin,
             suppress=True)
-        if abc_model.debug:
-            abc_model.write_initialised_input()
+        # if abc_model.debug:
+        #     abc_model.write_initialised_input()
         try:
             abc_model.create_initialised_input()
             abc_model.run_from_buffer()
@@ -359,16 +371,21 @@ class Batch:
             for t in self.targets:
                 try:
                     if np.isnan(np.array(output[t], dtype=np.float64)).any():
-                        print('\nError in {}'.format(t))
+                        if self.batch_debug:
+                            print('\nError in {}\n'.format(t))
                         raise ModelRunError
                 except TypeError as e:
                     print(type(output[t]))
                     raise e
         except TimeoutExpired as e:
-            print("TIMEOUT OCCURRED", end="\n")
+            if self.batch_debug:
+                print("TIMEOUT OCCURRED", end="\n")
             output = None
-        except (CalledProcessError, ModelRunError) as e:
-            print("\nIssue with model run", end="\n")
+        except ModelRunError as e:
+            output = None
+        except CalledProcessError as e:
+            if self.batch_debug:
+                print("Process failed to run correctly", end="\n")
             output = None
         return params, output
 
@@ -404,10 +421,13 @@ class Batch:
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
+        t_distances = ["{}_{}".format(t, dist) for t in self.targets
+                       for dist in distances]
         pf = os.path.join(self.workdir, "parameters.csv")
         header = [k for k in self.priors.keys()]
         header.insert(0, 'idx')
         header.extend(distances)
+        header.extend(t_distances)
         for ii in range(self.limit):
 
             # ----- Write to file every STORE_VALUE entries ----- #
@@ -496,6 +516,10 @@ class Batch:
                             distance=dist,
                             zero_flag=zero_flag)
                         params[dist] = cost['TOTAL']
+
+                        for t in self.targets:
+                            t_dist = "{}_{}".format(t, dist)
+                            params[t_dist] = cost[t]
                     except ValueError as error:
                         print("OUTPUT:\n", output)
                         raise error
@@ -503,7 +527,7 @@ class Batch:
                 parameters.append(params)
                 print(
                     "Number of distances: {0:4d}".format(len(parameters)),
-                    end="\r")
+                    end="\n")
 
                 sys.stdout.flush()
 
@@ -513,6 +537,8 @@ class Batch:
                 output['ii'] = [ii] * data_length
                 for t in self.targets:
                     output[t] = [np.nan] * data_length
+                for i in self.inputs:
+                    output[i] = [np.nan] * data_length
                 outputs.append(output)
                 # ----- Add distances to the params dictionary ----- #
                 for dist in distances:
@@ -520,7 +546,7 @@ class Batch:
                 parameters.append(params)
                 print(
                     "Number of distances: {0:4d}".format(len(parameters)),
-                    end="\r")
+                    end="\n")
 
                 sys.stdout.flush()
 

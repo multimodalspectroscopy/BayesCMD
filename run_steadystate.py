@@ -89,7 +89,9 @@ class RunSteadyState:
                           max_val,
                           min_val,
                           params={},
-                          direction='up'):
+                          direction='up',
+                          debug=False,
+                          workdir=None):
         """
         Create a model that will run a steady state simulation.
 
@@ -199,7 +201,8 @@ class RunSteadyState:
         outputs = self.outputs
 
         model = self.make_steady_model(modelName, inputs, outputs, max_val,
-                                       min_val, params, direction)
+                                       min_val, params, direction,
+                                       debug=self.debug, workdir=self.workdir)
 
         model.create_initialised_input()
         model.run_from_buffer()

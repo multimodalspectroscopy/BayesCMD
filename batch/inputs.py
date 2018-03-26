@@ -30,27 +30,27 @@ def float_or_str(s):
 # columns are lists, converted into floats where possible, otherwise left as strings
 def readCSV(filename, wrap_timeseries=True, default_dialect=csv.excel_tab):
     result = {}
-    
+
     with open(filename, 'rU') as f:
         try:
-            dialect = csv.Sniffer().sniff(f.read(1024), delimiters='\t,;')
+            dialect = csv.Sniffer().sniff(f.read(), delimiters='\t,;')
         except csv.Error as e:
-            #print e
+            print e
             dialect = default_dialect
-            
+
         f.seek(0)
-        
+
         dr = csv.DictReader(f, dialect=dialect)
-        
+
         for row in dr:
             for kk in row.keys():
                 val = float_or_str(row[kk])
-                
+
                 if kk in result:
                     result[kk].append(val)
                 else:
                     result[kk] = [val]
-    
+
     if wrap_timeseries:
         return {'timeseries': result}
     else:
@@ -67,25 +67,25 @@ def readBraincirc(filename, bcmd_comments=True):
     pvals = {}
     data = []
     timeseries = {}
-    
+
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip('\t\n\r ')
-            
+
             if not line or line.startswith('//') or (bcmd_comments and line.startswith('#')):
                 continue
-            
+
             if indata:
                 data.append([float(d) for d in line.split()])
-                
+
             elif line.startswith('******'):
                 indata = True
-            
+
             elif ':' in line:
                 div = line.split(':')
                 field = div[0].strip()
                 values = [s.strip() for s in div[1].split(',')]
-            
+
                 # NB: for consistency values list is wrapped in another list
                 # so that we can cope with multiple matching declarations
                 # (as in Tracy's ABC input format)
@@ -93,7 +93,7 @@ def readBraincirc(filename, bcmd_comments=True):
                     header[field].append(values)
                 else:
                     header[field] = [values]
-            
+
             else:
                 # try interpreting as a pvals file
                 div = line.split()
@@ -101,7 +101,7 @@ def readBraincirc(filename, bcmd_comments=True):
                     pvals[div[0]] = float(div[1])
                 except (ValueError, KeyError):
                     print >> sys.stderr, 'Unable to interpret line: "%s" (skipping)' % line
-    
+
     # for input files doing stepwise parameter assignments, attempt to transpose data
     # into a dictionary with a vector of values for each field, like the CSV input
     if data and 'chosen_param' in header:
@@ -112,16 +112,16 @@ def readBraincirc(filename, bcmd_comments=True):
         else:
             # time steps are being specified explicitly
             tsnames = [LOCAL_TIME] + header['chosen_param']
-        
+
         for name in tsnames: timeseries[name] = []
-        
+
         for row in data:
             for ii in range(len(tsnames)):
                 if ii > len(row):
                     timeseries[tsnames[ii]].append('NA')
                 else:
                     timeseries[tsnames[ii]].append(row[ii])
-    
+
     return { 'header': header, 'data':data, 'pvals':pvals, 'timeseries':timeseries }
 
 # despatch to relevant file reader based on file extension
@@ -131,7 +131,7 @@ def readFile(name, wrap_csv=True):
         return readBraincirc(name)
     if name.lower().endswith('.csv') or name.lower().endswith('.txt') or name.lower().endswith('.out'):
         return readCSV(name, wrap_csv)
-    
+
     # that's all we know about so far...
     return 'Unknown type for file: %s' % name
 
@@ -151,13 +151,13 @@ def readValues(name, float_only=True):
                 val = float_or_str(data['header'][name][0])
                 if isinstance(val, float) or not float_only:
                     result[name] = val
-                
+
         # pvals override header if both are present
         result.update(data['pvals'])
-    
+
     elif name.lower().endswith('.csv') or name.lower().endswith('.txt'):
         data = readCSV(name, wrap_timeseries=False)
-        
+
         # we're going to apply a thoroughly horrible heuristic here: if there are two columns,
         # then we have to check whether the data is row-oriented
         if len(data) == 2:
@@ -178,13 +178,13 @@ def readValues(name, float_only=True):
                 except ValueError:
                     # nope, so let's just drop through to the column-oriented case
                     pass
-            
+
             # transpose the rest of the column contents
             for ii in range(len(names)):
                 val = float_or_str(vals[ii])
                 if isinstance(val, float) or not float_only:
                     result[str(names[ii])] = val
-        
+
         if not result:
             # assume file is organised by column
             # data should already be in the right
@@ -195,11 +195,11 @@ def readValues(name, float_only=True):
                     result[name] = val
 
     return result
-    
+
 
 # testing, testing, 1, 2, 1, 2, 2, 2, 1, 2...
 if __name__ == '__main__':
     import pprint
-    
+
     for file in sys.argv[1:]:
         pprint.pprint(readFile(file))

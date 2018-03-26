@@ -1,4 +1,4 @@
-"""Process results from 280917."""
+"""Process results from 230218."""
 import os
 import argparse
 from bayescmd.results_handling import kde_plot
@@ -10,9 +10,8 @@ from bayescmd.results_handling import data_merge
 from bayescmd.abc import import_actual_data
 from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
-from distutils import dir_util
 import json
-import numpy as np
+from distutils import dir_util
 
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
@@ -29,16 +28,15 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-date = '280917'
+date = '080318'
 pfile = data_merge(date, args.parent_dir)
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
+params = conf['priors']
 
-params = priors_creator(conf['priors']['defaults'], conf['priors']['variation'])
+input_path = os.path.join(BASEDIR, 'data', 'SA_clean_short.csv')
 
-input_path = os.path.join(BASEDIR, 'data', 'hx01.csv')
-openopt_path = os.path.join(BASEDIR, 'data', 'model_run_output.csv')
 d0 = import_actual_data(input_path)
 
 targets = conf['targets']
@@ -51,42 +49,44 @@ config = {
     "inputs": inputs,
     "parameters": params,
     "input_path": input_path,
-    "openopt_path": openopt_path,
     "zero_flag": {k: False for k in targets}
 }
 
 results = data_import(pfile)
 print(results.columns)
 
+figPath = "/home/buck06191/Dropbox/phd/hypothermia/Figures/Bayesian_fitting/{}".format(date)
 
-d = 'euclidean'
-lim = 1000
-figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/"\
-    "Figures/{}".format(model_name, date, d)
 dir_util.mkpath(figPath)
 print("Plotting total histogram")
-hist1 = histogram_plot(results, frac=1)
+hist1 = histogram_plot(results)
 hist1.savefig(
     os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
 print("Plotting fraction histogram")
-hist2 = histogram_plot(results, limit=lim)
+hist2 = histogram_plot(results, fraction=0.01)
 hist2.savefig(
     os.path.join(figPath, 'fraction_histogram_real.png'), bbox_inches='tight')
+for f in [1.0]:
+    print("Considering lowest {}% of values".format(f))
+    print("Generating scatter plot")
+    scatter_dist_plot(results, params, f, n_ticks=4)
+    print("Generating KDE plot")
+    g = kde_plot(results, params, f, n_ticks=4,
+                 median_file=os.path.join(figPath, "medians.txt"))
+    g.fig.savefig(
+        os.path.join(figPath, 'kde_{}_real.png'
+                     .format(str(f).replace('.', '_'))),
+        bbox_inches='tight')
+    print("Generating averaged time series plot")
+    config["offset"] = {}
+    for t in config["targets"]:
+        config["offset"]["{}_offset".format(t)] = d0[t][0]
+    fig = plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
+    fig.set_size_inches(18.5, 12.5)
+    fig.savefig(
+        os.path.join(figPath, 'TS_{}_real.png'
+                     .format(str(f).replace('.', '_'))),
+        dpi=100)
 
-print("Considering lowest {} values".format(lim))
-#print("Generating scatter plot")
-#scatter_dist_plot(results, params, f, n_ticks=4)
-#plt.show()
-print("Generating KDE plot")
-g = kde_plot(results, params, limit=lim, n_ticks=4)
-g.fig.savefig(
-    os.path.join(figPath, 'kde_{}_real.png'
-                 .format(str(lim).replace('.', '_'))),
-    bbox_inches='tight')
-print("Generating averaged time series plot")
-fig = plot_repeated_outputs(results, n_repeats=25, limit=lim, **config)
-fig.set_size_inches(18.5, 12.5)
-fig.savefig(
-    os.path.join(figPath, 'TS_{}_real.png'
-                 .format(str(lim).replace('.', '_'))),
-    dpi=100)
+# TODO: Fix issue with plot formatting, cutting off axes etc
+# TODO: Fix issue with time series cutting short.

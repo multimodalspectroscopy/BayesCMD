@@ -32,7 +32,7 @@ from . import abc  # noqa
 from .bcmdModel import ModelBCMD  # noqa
 
 
-def data_merge(parent_directory, verbose=True):
+def data_merge(date, parent_directory, verbose=True):
     """Merge a set of parameters.csv files into one.
 
     Parameters
@@ -49,26 +49,48 @@ def data_merge(parent_directory, verbose=True):
         Concatenated will be written to file in `parent_directory`
 
     """
-    dirs = os.listdir(parent_directory)
+    dirs = [os.path.abspath(os.path.join(parent_directory, f))
+            for f in os.listdir(parent_directory) if (date in f) and
+            (os.path.splitext(f)[1] != ".csv")]
     if verbose:
         print(dirs)
     dfs = []
-    for d in dirs:
+    for ii, d in enumerate(dirs):
         try:
             dfs.append(pd.read_csv(os.path.join(d, 'parameters.csv')))
+            print(ii)
+            if ii is not 0:
+                dfs[ii]['ix'] = dfs[ii].index.values + \
+                    dfs[ii - 1]['ix'].values[-1]
+            else:
+                dfs[ii]['ix'] = dfs[ii].index.values
+            if os.path.split(d)[1][:4].isdigit():
+                print(os.path.split(d)[1][:4])
+                dfs[ii]['Start Time'] = os.path.split(d)[1][:4]
+            else:
+                continue
         except FileNotFoundError:
             print("No parameters file in {}".format(d))
             continue
-
-    for ii in range(len(dfs)):
-        dfs[ii]['idx'] = dfs[ii].index.values + (len(dfs[ii]) * ii)
+    if verbose:
+        print("{} dataframes  to be joined".format(len(dfs)))
+    # for ii in range(len(dfs)):
+        # if ii is not 0:
+        #     dfs[ii]['ix'] = dfs[ii].index.values + dfs[ii - 1]['ix'].values[-1]
+        # else:
+        #     dfs[ii]['ix'] = dfs[ii].index.values
+        # if os.path.split(dirs[ii])[1][:4].isdigit():
+        #     print(os.path.split(dirs[ii])[1][:4])
+        #     dfs[ii]['Start Time'] = os.path.split(dirs[ii])[1][:4]
+        # else:
+        #     continue
     df = pd.concat(dfs)
     df.index = range(len(df))
-    df.to_csv(
-        os.path.join(parent_directory, 'concatenated_results_150917.csv'),
-        index=False)
+    output_file = os.path.join(parent_directory,
+                               'concatenated_results_{}.csv'.format(date))
+    df.to_csv(output_file, index=False)
 
-    return None
+    return output_file
 
 
 def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
@@ -128,7 +150,7 @@ def frac_calculator(df, frac):
     return int(len(df) * frac / 100)
 
 
-def histogram_plot(df, distance='euclidean', fraction=1, n_bins=100):
+def histogram_plot(df, distance='euclidean', frac=None, limit=None, n_bins=100):
     """Plot histogram of distance values.
 
     Plot a histogram showing the distribution of distance values for a given
@@ -143,8 +165,12 @@ def histogram_plot(df, distance='euclidean', fraction=1, n_bins=100):
     distance : :obj:`str`, optional
         Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
         Default is 'euclidean'.
-    fraction : :obj:`float`, optional
-        Fraction of all distances to plot. Varies from 0 to 1. Default is 1.
+    limit : :obj:int`, optional
+        Integer value for the top N values to accept in rejection.
+    frac: :obj:`float`, optional
+        Fraction of results to consider. Should be given as a percentage i.e.
+        1=1%, 0.1=0.1%
+        If `limit` is given it takes precedence.
     n_bins : :obj:`int`, optional
         Number of histogram bins. Default is 100.
 
@@ -155,20 +181,28 @@ def histogram_plot(df, distance='euclidean', fraction=1, n_bins=100):
 
     """
     sorted_df = df.sort_values(by=distance)
+
+    if limit:
+        accepted_limit = limit
+    elif frac:
+        accepted_limit = frac_calculator(sorted_df, frac)
+    else:
+        raise ValueError('No limit or fraction given.')
+
     fig = plt.figure()
-    ax = plt.subplot(
-        111,
-        xlabel='Error - {}'.format(distance),
-        title='Distribution of '
-        '{} Error Values'.format(distance.capitalize()))
-    sorted_df[distance].head(int(len(sorted_df) * fraction)).plot(
+    ax = plt.subplot(111,
+                     xlabel='Error - {}'.format(distance),
+                     title='Distribution of '
+                     '{} Error Values'.format(distance.capitalize()))
+    sorted_df[distance].head(accepted_limit).plot(
         kind='hist', bins=n_bins, ax=ax)
     return fig
 
 
 def scatter_dist_plot(df,
                       params,
-                      frac,
+                      limit=None,
+                      frac=None,
                       n_ticks=6,
                       d=r'euclidean',
                       verbose=False):
@@ -182,9 +216,12 @@ def scatter_dist_plot(df,
     params : :obj:`dict` of :obj:`str`: :obj:`tuple`
         Dict of model parameters to compare, with value tuple of the prior max
         and min.
-    frac : :obj:`float`
+    limit : :obj:int`, optional
+        Integer value for the top N values to accept in rejection.
+    frac: :obj:`float`, optional
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
+        If `limit` is given it takes precedence.
     n_ticks : :obj:`int`, optional
         Number of x-axis ticks. Useful when a large number of parameters are
         being compared, as the axes can become crowded if the number of ticks
@@ -203,14 +240,18 @@ def scatter_dist_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
-    p_names = list(params.keys)
+    p_names = list(params.keys())
     sorted_df = df.sort_values(by=d)
 
-    accepted_limit = frac_calculator(df, frac)
+    if limit:
+        accepted_limit = limit
+    elif frac:
+        accepted_limit = frac_calculator(sorted_df, frac)
+    else:
+        raise ValueError('No limit or fraction given.')
 
     sorted_df['Accepted'] = np.zeros(len(sorted_df))
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
-    sorted_df['Accepted'][sorted_df[d] == 100000] = 2
     sorted_df['Accepted'] = sorted_df['Accepted'].astype('category')
     if verbose:
         print(sorted_df['Accepted'].value_counts())
@@ -224,10 +265,10 @@ def scatter_dist_plot(df,
         for ii, ax in enumerate(g.axes.flat):
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]])
-            ax.set_xlim(params[p_names[ii_x]])
-            xmax = params[p_names[ii_x]][1]
-            xmin = params[p_names[ii_x]][0]
+            ax.set_ylim(params[p_names[ii_y]][1])
+            ax.set_xlim(params[p_names[ii_x]][1])
+            xmax = params[p_names[ii_x]][1][1]
+            xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
             ax.set_xticks(xticks)
             for label in ax.get_xticklabels():
@@ -235,15 +276,57 @@ def scatter_dist_plot(df,
         plt.subplots_adjust(top=0.9)
         plt.suptitle("Parameter distributions - Top {}% based on {} distance".
                      format(frac, d))
-        # new_labels = [r'Yes', r'No', r'Fail']
-        # for t, l in zip(g.fig.get_children()[-1].texts, new_labels):
-        #    t.set_text(l)
+        new_labels = [r'Yes', r'No']
+        for t, l in zip(g.fig.get_children()[-1].texts, new_labels):
+            t.set_text(l)
         lgd = g.fig.get_children()[-1]
         for i in range(2):
             lgd.legendHandles[i].set_sizes([50])
 
         g.fig.tight_layout()
     return g
+
+
+def medians_kde_plot(x, y, medians, true_medians, **kws):
+    """Plot bivariate KDE with median of distribution marked on.
+
+
+    Parameters
+    ----------
+    x : array-like
+        Array-like of data to plot.
+    y : array-like
+        Array-like of data to plot.
+    medians : :obj:`dict`
+        Dictionary of parameter, median pairings.
+    kws : key, value pairings.
+        Other keyword arguments to pass to :obj:`sns.distplot`.
+
+    Returns
+    -------
+    ax : :obj:`matplotlib.AxesSubplot`
+        AxesSubplot object of univariate KDE and bar plot with median marked
+        on as well as text.
+
+    """
+    ax = plt.gca()
+    ax = sns.kdeplot(x, y, ax=ax)
+    # x1, y1 = p.get_lines()[0].get_data()
+    # # care with the order, it is first y
+    # # initial fills a 0 so the result has same length than x
+    # cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
+    # nearest_05 = np.abs(cdf - 0.5).argmin()
+    # x_median = x1[nearest_05]
+    # medians[x.name] = round_sig(x_median, 2)
+    # ax.vlines(x_median, 0, ax.get_ylim()[1])
+
+    x_median = x.median()
+    y_median = y.median()
+    ax.plot(x_median, y_median, 'kX')
+    if true_medians is not None:
+        ax.plot(true_medians[x.name], true_medians[y.name], 'rX')
+
+    return ax
 
 
 def diag_kde_plot(x, medians, true_medians, **kws):
@@ -272,10 +355,11 @@ def diag_kde_plot(x, medians, true_medians, **kws):
     x1, y1 = p.get_lines()[0].get_data()
     # care with the order, it is first y
     # initial fills a 0 so the result has same length than x
-    cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
-    nearest_05 = np.abs(cdf - 0.5).argmin()
-    x_median = x1[nearest_05]
-    medians[x.name] = round_sig(x_median, 2)
+    # cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
+    # nearest_05 = np.abs(cdf - 0.5).argmin()
+    # x_median = x1[nearest_05]
+    # medians[x.name] = round_sig(x_median, 2)
+    x_median = np.median(x)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
     if true_medians is not None:
         ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'r')
@@ -291,7 +375,9 @@ def diag_kde_plot(x, medians, true_medians, **kws):
 
 def kde_plot(df,
              params,
-             frac,
+             limit=None,
+             frac=None,
+             median_file=None,
              true_medians=None,
              plot_param=1,
              n_ticks=6,
@@ -307,9 +393,12 @@ def kde_plot(df,
     params : :obj:`dict` of :obj:`str`: :obj:`tuple`
         Dict of model parameters to compare, with value tuple of the prior max
         and min.
-    frac : :obj:`float`
+    limit : :obj:int`, optional
+        Integer value for the top N values to accept in rejection.
+    frac: :obj:`float`, optional
         Fraction of results to consider. Should be given as a percentage i.e.
         1=1%, 0.1=0.1%
+        If `limit` is given it takes precedence.
     true_median : :obj:`dict` or :obj: `None`
         Dictionary of true median values if known.
     plot_param : :obj:`int`
@@ -339,7 +428,12 @@ def kde_plot(df,
     p_names = list(params.keys())
     sorted_df = df.sort_values(by=d)
 
-    accepted_limit = frac_calculator(df, frac)
+    if limit:
+        accepted_limit = limit
+    elif frac:
+        accepted_limit = frac_calculator(sorted_df, frac)
+    else:
+        raise ValueError('No limit or fraction given.')
 
     sorted_df['Accepted'] = np.zeros(len(sorted_df))
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
@@ -358,8 +452,14 @@ def kde_plot(df,
         medians = {}
         g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians)
         for k, v in medians.items():
-            print("{}: {}".format(k, v))
-        g.map_lower(sns.kdeplot, lw=3)
+            if median_file:
+                with open(median_file, 'a') as mf:
+                    print("{}: {}".format(k, v), file=mf)
+            else:
+                print("{}: {}".format(k, v))
+        # g.map_lower(sns.kdeplot, lw=3)
+        g.map_lower(medians_kde_plot, medians=medians,
+                    true_medians=true_medians)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
 
@@ -368,17 +468,28 @@ def kde_plot(df,
                 label.set_rotation(50)
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]])
-            ax.set_xlim(params[p_names[ii_x]])
-            xmax = params[p_names[ii_x]][1]
-            xmin = params[p_names[ii_x]][0]
+            ax.set_ylim(params[p_names[ii_y]][1])
+            ax.set_xlim(params[p_names[ii_x]][1])
+            xmax = params[p_names[ii_x]][1][1]
+            xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax,
                                round_sig((xmax - xmin) / n_ticks, sig=1))
             ax.set_xticks(xticks)
         # plt.subplots_adjust(top=0.8)
         title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
-        plt.suptitle("Parameter distributions - Top {}% "
-                     "based on {} {}".format(frac, d, title_dict[plot_param]))
+        if limit:
+            plt.suptitle("Parameter distributions - Top {} points "
+                         "based on {} {}".format(limit, d, title_dict[plot_param]))
+        elif frac:
+            plt.suptitle("Parameter distributions - Top {}% "
+                         "based on {} {}".format(frac, d, title_dict[plot_param]))
+
+        if true_medians:
+            true_line = mlines.Line2D([], [], color='red', label='True')
+            sim_line = mlines.Line2D([], [], color='black', label='Simulated')
+            g.fig.legend(labels=['True', 'Simulated'],
+                         handles=[true_line, sim_line],
+                         bbox_to_anchor=(1.15, 0.7), loc=2)
 
         g.fig.tight_layout()
         g.fig.subplots_adjust(bottom=0.15, top=0.9)
@@ -470,9 +581,11 @@ def plot_repeated_outputs(df,
                           inputs,
                           targets,
                           n_repeats,
-                          frac,
                           zero_flag,
+                          limit=None,
+                          frac=None,
                           openopt_path=None,
+                          offset=None,
                           distance='euclidean'):
     """Generate model output and distances multiple times.
 
@@ -503,6 +616,8 @@ def plot_repeated_outputs(df,
         Note: zero_flag keys should match targets list.
     openopt_path : :obj:`str` or :obj:`None`
         Path to the openopt data file if it exists. Default is None.
+    offset : :obj:`dict`
+        Dictionary of offset parameters if they are needed
     distance : :obj:`str`, optional
         Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
 
@@ -515,13 +630,19 @@ def plot_repeated_outputs(df,
     p_names = list(parameters.keys())
     sorted_df = df.sort_values(by=distance)
 
+    if limit:
+        accepted_limit = limit
+    elif frac:
+        accepted_limit = frac_calculator(sorted_df, frac)
+    else:
+        raise ValueError('No limit or fraction given.')
+
     outputs_list = []
-    posterior_size = frac_calculator(df, frac)
-    if n_repeats > posterior_size:
+    if n_repeats > accepted_limit:
         print(
             "Setting number of repeats to quarter of the posterior size\n",
             file=sys.stderr)
-        n_repeats = int(posterior_size / 4)
+        n_repeats = int(accepted_limit / 4)
     d0 = abc.import_actual_data(input_path)
     input_data = abc.inputParse(d0, inputs)
 
@@ -532,19 +653,21 @@ def plot_repeated_outputs(df,
         openopt_data = pd.read_csv(openopt_path)
 
     try:
-        rand_selection = random.sample(range(posterior_size), n_repeats)
+        rand_selection = random.sample(range(accepted_limit), n_repeats)
     except ValueError as e:
         print(
             "Number of requested model runs greater than posterior size:"
             "\n\tPosterior Size: {}\n\tNumber of runs: {}".format(
-                posterior_size, n_repeats),
+                accepted_limit, n_repeats),
             file=sys.stderr)
         raise e
 
-    posteriors = sorted_df.iloc[:posterior_size][p_names].as_matrix()
+    posteriors = sorted_df.iloc[:accepted_limit][p_names].as_matrix()
     while len(outputs_list) < n_repeats:
         idx = rand_selection.pop()
         p = dict(zip(p_names, posteriors[idx]))
+        if offset:
+            p = {**p, **offset}
         output = get_output(
             model_name,
             p,
@@ -597,6 +720,10 @@ def plot_repeated_outputs(df,
         ax[0].legend(
             handles=paths, prop={"size": 22}, bbox_to_anchor=(1.15, -0.5))
         plt.tight_layout()
-        fig.suptitle("Simulated output for {} repeats using top {}% of data".
-                     format(n_repeats, frac))
+        if limit:
+            fig.suptitle("Simulated output for {} repeats using top {} parameter combinations".
+                         format(n_repeats, limit))
+        elif frac:
+            fig.suptitle("Simulated output for {} repeats using top {}% of data".
+                         format(n_repeats, frac))
     return fig
