@@ -29,8 +29,8 @@ ap.add_argument(
 args = ap.parse_args()
 
 date = '120318'
-pfile = data_merge(date, args.parent_dir)
-# pfile = os.path.join(args.parent_dir, 'total_distances_120318.csv')
+# pfile = data_merge(date, args.parent_dir)
+pfile = os.path.join(args.parent_dir, 'merged_results_120318.csv')
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -66,25 +66,25 @@ for d in ['Euclidean', 'CCO_Euclidean', 'DHbT_Euclidean',
         "Figures/{}".format(model_name, date, d)
 
     dir_util.mkpath(figPath)
-    # print("Plotting total histogram")
-    # hist1 = histogram_plot(results, distance=d)
-    # hist1.savefig(
-    #     os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
-    # print("Plotting fraction histogram")
-    # hist2 = histogram_plot(results, distance=d, limit=lim)
-    # hist2.savefig(
-    #     os.path.join(figPath, 'fraction_histogram_real.png'),
-    #     bbox_inches='tight')
-    # print("Considering lowest {} values".format(lim))
-    # # print("Generating scatter plot")
-    # # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
-    # print("Generating KDE plot")
-    # g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
-    #              median_file=os.path.join(figPath, "medians.txt"))
-    # g.fig.savefig(
-    #     os.path.join(figPath, 'kde_{}_real.png'
-    #                  .format(str(lim).replace('.', '_'))),
-    #     bbox_inches='tight')
+    print("Plotting total histogram")
+    hist1 = histogram_plot(results, distance=d, frac=1)
+    hist1.savefig(
+        os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
+    print("Plotting fraction histogram")
+    hist2 = histogram_plot(results, distance=d, limit=lim)
+    hist2.savefig(
+        os.path.join(figPath, 'fraction_histogram_real.png'),
+        bbox_inches='tight')
+    print("Considering lowest {} values".format(lim))
+    # print("Generating scatter plot")
+    # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
+    print("Generating KDE plot")
+    g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
+                 median_file=os.path.join(figPath, "medians.txt"))
+    g.fig.savefig(
+        os.path.join(figPath, 'kde_{}_real.png'
+                     .format(str(lim).replace('.', '_'))),
+        bbox_inches='tight')
     print("Generating averaged time series plot")
     config["offset"] = {}
     for t in config["targets"]:

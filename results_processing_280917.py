@@ -58,31 +58,35 @@ config = {
 results = data_import(pfile)
 print(results.columns)
 
-figPath = "/home/buck06191/Dropbox/phd/hypothermia/Figures/Bayesian_fitting/{}/{}".format(model_name, date)
+
+d = 'euclidean'
+lim = 1000
+figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/"\
+    "Figures/{}".format(model_name, date, d)
 dir_util.mkpath(figPath)
 print("Plotting total histogram")
-hist1 = histogram_plot(results)
+hist1 = histogram_plot(results, frac=1)
 hist1.savefig(
     os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
 print("Plotting fraction histogram")
-hist2 = histogram_plot(results, fraction=0.01)
+hist2 = histogram_plot(results, limit=lim)
 hist2.savefig(
     os.path.join(figPath, 'fraction_histogram_real.png'), bbox_inches='tight')
-for f in [0.01, 0.1, 1.0]:
-    print("Considering lowest {}% of values".format(f))
-    #print("Generating scatter plot")
-    #scatter_dist_plot(results, params, f, n_ticks=4)
-    #plt.show()
-    print("Generating KDE plot")
-    g = kde_plot(results, params, f, n_ticks=4)
-    g.fig.savefig(
-        os.path.join(figPath, 'kde_{}_real.png'
-                     .format(str(f).replace('.', '_'))),
-        bbox_inches='tight')
-    print("Generating averaged time series plot")
-    fig = plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
-    fig.set_size_inches(18.5, 12.5)
-    fig.savefig(
-        os.path.join(figPath, 'TS_{}_real.png'
-                     .format(str(f).replace('.', '_'))),
-        dpi=100)
+
+print("Considering lowest {} values".format(lim))
+#print("Generating scatter plot")
+#scatter_dist_plot(results, params, f, n_ticks=4)
+#plt.show()
+print("Generating KDE plot")
+g = kde_plot(results, params, limit=lim, n_ticks=4)
+g.fig.savefig(
+    os.path.join(figPath, 'kde_{}_real.png'
+                 .format(str(lim).replace('.', '_'))),
+    bbox_inches='tight')
+print("Generating averaged time series plot")
+fig = plot_repeated_outputs(results, n_repeats=25, limit=lim, **config)
+fig.set_size_inches(18.5, 12.5)
+fig.savefig(
+    os.path.join(figPath, 'TS_{}_real.png'
+                 .format(str(lim).replace('.', '_'))),
+    dpi=100)

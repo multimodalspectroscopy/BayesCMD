@@ -19,9 +19,9 @@ args = ap.parse_args()
 
 pfile = args.input_file  # 'concatenated_results_190917.csv'
 params = {
-    r'r_t': (0.009, 0.027),
-    r'r_0': (0.0063, 0.0189),
-    r'r_m': (0.0135, 0.0405)
+    r'r_t': ['uniform', (0.009, 0.027)],
+    r'r_0': ['uniform', (0.0063, 0.0189)],
+    r'r_m': ['uniform', (0.0135, 0.0405)]
 }
 
 input_path = os.path.join(BASEDIR, 'data', 'bayes-test-data.csv')
@@ -45,35 +45,36 @@ results = data_import(pfile)
 
 figPath = "/home/buck06191/Dropbox/phd/BayesCMD/Figures/"
 print("Plotting total histogram")
-hist1 = histogram_plot(results)
+hist1 = histogram_plot(results, frac=1)
 hist1.savefig(
     os.path.join(figPath, 'full_histogram_test.png'), bbox_inches='tight')
 print("Plotting fraction histogram")
-hist2 = histogram_plot(results, fraction=0.01)
+hist2 = histogram_plot(results, frac=0.01)
 hist2.savefig(
     os.path.join(figPath, 'fraction_histogram_test.png'), bbox_inches='tight')
-for f in [0.01, 0.1, 1.0]:
-    print("Considering lowest {}% of values".format(f))
-    # print("Generating scatter plot")
-    # scatter_dist_plot(results, params, f, n_ticks=4)
-    # plt.show()
-    print("Generating KDE plot")
-    g = kde_plot(
-        results,
-        params,
-        f,
-        true_medians={'r_t': 0.025,
-                      'r_0': 0.008,
-                      'r_m': 0.035},
-        n_ticks=4)
-    g.fig.savefig(
-        os.path.join(figPath, 'kde_{}_test.png'
-                     .format(str(f).replace('.', '_'))),
-        bbox_inches='tight')
-    print("Generating averaged time series plot")
-    fig = plot_repeated_outputs(results, n_repeats=25, frac=f, **config)
-    fig.set_size_inches(18.5, 12.5)
-    fig.savefig(
-        os.path.join(figPath, 'TS_{}_test.png'
-                     .format(str(f).replace('.', '_'))),
-        dpi=100)
+# for f in [0.01, 0.1, 1.0]:
+limit = 1000
+print("Considering lowest {} values".format(limit))
+# print("Generating scatter plot")
+# scatter_dist_plot(results["uniform", [0.5025, 0.8225]], params, f, n_ticks=4)
+# plt.show()
+print("Generating KDE plot")
+g = kde_plot(
+    results,
+    params,
+    limit=1000,
+    true_medians={'r_t': 0.025,
+                  'r_0': 0.008,
+                  'r_m': 0.035},
+    n_ticks=4)
+g.fig.savefig(
+    os.path.join(figPath, 'kde_{}_test.png'
+                 .format(str(1000).replace('.', '_'))),
+    bbox_inches='tight')
+print("Generating averaged time series plot")
+fig = plot_repeated_outputs(results, n_repeats=25, limit=limit, **config)
+fig.set_size_inches(18.5, 12.5)
+fig.savefig(
+    os.path.join(figPath, 'TS_{}_test.png'
+                 .format(str(1000).replace('.', '_'))),
+    dpi=100)
