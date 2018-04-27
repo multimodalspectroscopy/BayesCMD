@@ -14,102 +14,104 @@ temperatures = [37, 35, 33.5]
 
 cbar = sns.color_palette("muted", n_colors=4)
 
-for direction in ["up", "down"]:
-    for i, r in inputs.items():
-        data = {}
-        workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia')
-        distutils.dir_util.mkpath(workdir)
-        print("Running steady state - {}".format(i))
-        for t in temperatures:
-            print("Running temperature {}C".format(t))
-            config = {
-                "model_name": "bp_hypothermia",
-                "inputs": i,
-                "parameters": {
-                    "temp": t
-                },
-                "targets": ["CBF"],
-                "max_val": r[1],
-                "min_val": r[0],
-                "debug": True,
-                "direction": direction
-            }
-
-            model = RunSteadyState(conf=config, workdir=workdir)
-            output = model.run_steady_state()
-            data[t] = output
-            with open(os.path.join(workdir,
-                                   "{}_{}.json".format(i, direction)), 'w') as f:
-                json.dump(data, f)
-
-        fig, ax = plt.subplots()
-        for idx, t in enumerate(temperatures):
-            ax.plot(data[t][i], data[t]['CBF'], label=t, color=cbar[idx])
-
-        ax.set_title("Steady state for varying {} - {}".format(i, direction))
-        ax.set_ylabel("CBF")
-        ax.set_xlabel(i)
-        legend = ax.legend(loc='upper center')
-
-        fig.savefig("/home/buck06191/Dropbox/phd/hypothermia/Figures/{}_{}"
-                    ".png".format(i, direction),
-                    bbox_inches="tight")
+# for direction in ["up", "down"]:
+#     for i, r in inputs.items():
+#         data = {}
+#         workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia')
+#         distutils.dir_util.mkpath(workdir)
+#         print("Running steady state - {}".format(i))
+#         for t in temperatures:
+#             print("Running temperature {}C".format(t))
+#             config = {
+#                 "model_name": "bp_hypothermia",
+#                 "inputs": i,
+#                 "parameters": {
+#                     "temp": t
+#                 },
+#                 "targets": ["CBF"],
+#                 "max_val": r[1],
+#                 "min_val": r[0],
+#                 "debug": True,
+#                 "direction": direction
+#             }
+#
+#             model = RunSteadyState(conf=config, workdir=workdir)
+#             output = model.run_steady_state()
+#             data[t] = output
+#             with open(os.path.join(workdir,
+#                                    "{}_{}.json".format(i, direction)), 'w') as f:
+#                 json.dump(data, f)
+#
+#         fig, ax = plt.subplots()
+#         for idx, t in enumerate(temperatures):
+#             ax.plot(data[t][i], data[t]['CBF'], label=t, color=cbar[idx])
+#
+#         ax.set_title("Steady state for varying {} - {}".format(i, direction))
+#         ax.set_ylabel("CBF")
+#         ax.set_xlabel(i)
+#         legend = ax.legend(loc='upper center')
+#
+#         fig.savefig("/home/buck06191/Dropbox/phd/hypothermia/Figures/{}_{}"
+#                     ".png".format(i, direction),
+#                     bbox_inches="tight")
 
 outputs = ["CMRO2", "CCO", "DHbT", "CBF", "DHbdiff",
            "TOI", "Vmca", "DHbO2", "DHHb", "HHb", "HbO2"]
 
 # For debugging
-outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
+# outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
 
-q10_range = [1, 1.5, 2, 2.5, 3, 3.5,  4, 4.5, 5]
-
-cbar = sns.color_palette("Set1", n_colors=len(q10_range))
+# q10_range = [1, 1.5, 2, 2.5, 3, 3.5,  4, 4.5, 5]
+pa_range = [30, 40, 50, 60, 70]
+sao2_range = [0.8, 0.9, 1.0]
+cbar = sns.color_palette("Set1", n_colors=len(pa_range))
 
 data = {}
-direction = "both"
+direction = "down"
 workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia',
-                       "q10")
+                       "P_an")
 distutils.dir_util.mkpath(workdir)
 
-for q in q10_range:
-    print("Running Q10 {}".format(q))
+for p in pa_range:
+    print("Running P_an {}".format(p))
     config = {
         "model_name": "bp_hypothermia",
         "inputs": "temp",
         "parameters": {
-            "Q_10": q
+            "P_an": p
         },
         "targets": outputs,
-        "max_val": 37,
-        "min_val": 31,
+        "max_val": 38,
+        "min_val": 32,
         "debug": False,
         "direction": direction
     }
 
     model = RunSteadyState(conf=config, workdir=workdir)
     output = model.run_steady_state()
-    data[q] = output
+    data[p] = output
 now = datetime.now().strftime('%d%m%yT%H%M')
 with open(os.path.join(workdir, "{}.json".format(now)), 'w') as f:
     json.dump(data, f)
 
 for o in outputs:
     if direction == "both":
-        q = 2.5
-        fig, ax = plt.subplots()
-        ax.plot(data[q]["temp"][:len(data[q][o]) // 2 + 1],
-                data[q][o][:len(data[q][o]) // 2 + 1],
-                label="Up")
-        ax.plot(data[q]["temp"][len(data[q][o]) // 2:],
-                data[q][o][len(data[q][o]) // 2:],
-                label="Down")
+        fig, ax = plt.subplots(nrows=1, ncols=len(pa_range))
+        for idx, q in enumerate(sao2_range):
+            ax[idx].plot(data[q]["temp"][:len(data[q][o]) // 2 + 1],
+                         data[q][o][:len(data[q][o]) // 2 + 1],
+                         label="Up")
+            ax[idx].plot(data[q]["temp"][len(data[q][o]) // 2:],
+                         data[q][o][len(data[q][o]) // 2:],
+                         label="Down")
 
-        ax.set_title("Steady state for {}".format(o))
-        ax.set_ylabel(o)
-        ax.set_xlabel("Temp (C)")
-        ax.legend()
+            ax[idx].set_title("P_a: {}".format(q))
+            ax[idx].set_ylabel(o)
+            ax[idx].set_xlabel("Temp (C)")
+        ax[idx].legend()
+        plt.tight_layout()
 
-        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/{}".format(
+        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_P_an/{}".format(
             now)
         distutils.dir_util.mkpath(path)
         fig.savefig(os.path.join(path, "{}_both.png".format(o)),
@@ -118,7 +120,7 @@ for o in outputs:
 
     else:
         fig, ax = plt.subplots()
-        for idx, q in enumerate(q10_range):
+        for idx, q in enumerate(pa_range):
             # if direction == "both":
             #     ax.plot(output["temp"][:len(output[o]) // 2 + 1],
             #             output[o][:len(output[o]) // 2 + 1],
@@ -129,12 +131,13 @@ for o in outputs:
             # else:
             ax.plot(data[q]["temp"],
                     data[q][o], label=q, color=cbar[idx])
-        ax.set_title("{} response to temperature".format(o))
+        ax.set_title(
+            "{} response to Temperature for varying Arterial Blood Pressure".format(o))
         ax.set_ylabel(o)
         ax.set_xlabel("Temp (C)")
         ax.legend()
 
-        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/{}".format(
+        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_P_an/{}".format(
             now)
         distutils.dir_util.mkpath(path)
         fig.savefig(os.path.join(path, "{}.png".format(o)),

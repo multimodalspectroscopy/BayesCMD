@@ -81,6 +81,10 @@ class RunModel:
             self.debug = conf['debug']
         else:
             self.debug = debug
+        if 'outf' in conf.keys():
+            self.outf = conf['outf']
+        else:
+            self.outf = None
 
     def generateOutput(self):
         data_length = max([len(l) for l in self.d0.values()])
@@ -122,7 +126,13 @@ class RunModel:
         return output
 
     def writeOutput(self):
-        outf = os.path.join(self.workdir, "model_run_output.csv".format(now))
+        if self.outf:
+            outf = os.path.join(self.workdir,
+                                "model_run_output_{}.csv".format(self.outf))
+        else:
+            now = datetime.now().strftime("%d%m%yT%H%M")
+            outf = os.path.join(self.workdir,
+                                "model_run_output_{}.csv".format(now))
 
         with open(outf, 'w') as out_file:
             writer = csv.writer(out_file)
