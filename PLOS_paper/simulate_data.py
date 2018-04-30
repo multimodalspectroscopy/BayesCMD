@@ -15,8 +15,11 @@ step = {"kind": "tophat", "hi": 5}
 N = 2000
 
 # wv = sg.generate(n=N, timescale=1, specs=[sine, square, noise, walk],
-#                   lo=75, hi=105)
-wv = sg.generate(n=N, timescale=1, specs=[step, noise], lo=75, hi=105)
+#                  lo=75, hi=105)
+# wv = sg.generate(n=N, timescale=1, specs=[step, noise], lo=75, hi=105)
+
+wv = sg.generate(n=N, timescale=1, specs=[sine, noise, walk],
+                 lo=75, hi=105)
 
 plt.plot(wv['t'], wv['signal'])
 plt.show()
@@ -24,7 +27,8 @@ plt.show()
 
 save_data = str(input("Do you want to save the data: y/N?") or "N")
 fname = 'simulated_ABP.csv'
-basedir = os.path.dirname(__file__)
+basedir = os.path.dirname(os.path.abspath(__file__))
+print(basedir)
 if save_data == "y":
     fname = str(input("filename: (Default: %s)\n%s/" % (fname, basedir))
                 or fname)
