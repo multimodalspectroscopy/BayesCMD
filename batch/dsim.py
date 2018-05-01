@@ -643,6 +643,7 @@ def process_SA(jobs, collated, config):
         collated[var]['distances'] = np.array(collated[var]['distances'])
 
         if config['job_mode']=='morris':
+            print 'Calculating sensitivities'
             collated[var]['sensitivities'] = SALib.analyze.morris.analyze(config['problem'],
                                                                           jobs,
                                                                           collated[var]['distances'],
