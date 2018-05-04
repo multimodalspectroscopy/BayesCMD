@@ -8,7 +8,8 @@ DISTANCES : dict
 
 """
 import numpy as np
-from numpy import AxisError
+## Comment this line out as it appears to be deprecated.
+# from numpy import AxisError
 from scipy.stats import zscore
 
 # All functions here can expect to handle the output from BCMD Model i.e.
@@ -61,7 +62,7 @@ def euclidean_dist(data1, data2):
         raise e
     try:
         d = np.sum(np.sqrt(np.sum((data1 - data2) * (data1 - data2), axis=1)))
-    except AxisError as e:
+    except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)

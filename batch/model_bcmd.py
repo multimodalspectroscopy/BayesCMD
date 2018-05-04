@@ -16,7 +16,7 @@ import abortable
 from multiprocessing import Process, Queue
 
 # default timeout, in seconds
-TIMEOUT = 30
+TIMEOUT = 15
 
 # translate prior specs into the (abcsmc) expected numeric triplets
 

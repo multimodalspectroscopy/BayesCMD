@@ -1,0 +1,24 @@
+{
+    "model_name": "BS",
+    "inputs": ["P_a"],
+    "priors": {
+        "defaults": {
+            "v_cn": 40.0,
+            "R_autc": 2.2,
+            "r_t": 0.018000000000000002,
+            "sigma_coll": 62.79,
+            "a_n": 0.0656716417910448,
+            "Vol_mit": 0.067,
+            "cytox_tot_tis": 0.0055,
+            "p_tot": 20.0,
+            "r_0": 0.0126,
+            "n_m": 1.83,
+            "NADHn": 0.3,
+            "r_m": 0.027000000000000003,
+            "C_im": 0.00675
+        },
+        "variation": 0.2
+    },
+    "targets": ["Vmca", "CCO", "TOI", "CBF"],
+    "debug": false
+}

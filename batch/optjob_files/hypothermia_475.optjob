@@ -1,0 +1,29 @@
+# optimisation for hypothermia investigation. Uses hx01 dataprint
+model: bp_hypothermia
+
+# demand is the only model input in this case
+# we don't have systemic data, and challenge is only visual
+
+input: P_a, uniform, 10, 120, 100
+input: SaO2sup, uniform, 0.9, 1, 0.96
+input: temp, uniform, 37,39,37.8
+
+var: CCO, constant, 0
+post: CCO, zero
+
+
+# take time from data file
+alias: t, t
+param_file: scratch/pdists_hypothermia.csv
+
+# parameter details
+param_select: Q_10, a_frac_n, cytox_tot_tis, _L0n, sigma_coll, df ,Inh_glucN, pH_on, pH_mn, PCrn
+
+
+# job details
+job_mode: GLP
+solver: pswarm
+max_iter: 1000
+distance: euclidean
+
+steady: 1000
