@@ -278,7 +278,8 @@ def process_inputs(config):
     # list of chosen params, or '*' for all known
     param_select = job['header'].get('param_select', [[PARAM_SELECT]])
     param_select = [x for line in param_select for x in line]
-    if PARAM_SELECT in param_select: param_select = PARAM_SELECT
+    if PARAM_SELECT in param_select:
+        param_select = PARAM_SELECT
 
     aliaslist = job['header'].get('alias', [])
     aliases = {}
