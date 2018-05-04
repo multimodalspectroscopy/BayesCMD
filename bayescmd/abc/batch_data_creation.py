@@ -525,11 +525,12 @@ class Batch:
                         raise error
 
                 parameters.append(params)
-                print(
-                    "Number of distances: {0:4d}".format(len(parameters)),
-                    end="\n")
+                if self.batch_debug:
+                    print(
+                        "Number of distances: {0:4d}".format(len(parameters)),
+                        end="\n")
 
-                sys.stdout.flush()
+                    sys.stdout.flush()
 
             else:
                 data_length = max([len(l) for l in self.d0.values()])
@@ -544,10 +545,11 @@ class Batch:
                 for dist in distances:
                     params[dist] = np.nan
                 parameters.append(params)
-                print(
-                    "Number of distances: {0:4d}".format(len(parameters)),
-                    end="\n")
+                if self.batch_debug:
+                    print(
+                        "Number of distances: {0:4d}".format(len(parameters)),
+                        end="\n")
 
-                sys.stdout.flush()
+                    sys.stdout.flush()
 
         return None

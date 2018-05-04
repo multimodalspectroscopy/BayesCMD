@@ -1,4 +1,7 @@
 """Run a simple hypercapnia batch using the BS model."""
+# import sys and os
+import sys
+sys.path.append('..')
 from bayescmd.abc import Batch
 from datetime import datetime
 import os

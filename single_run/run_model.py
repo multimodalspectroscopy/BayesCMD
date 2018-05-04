@@ -2,7 +2,7 @@
 
 # import sys and os
 import sys
-sys.path.append('.')
+sys.path.append('..')
 import os
 #os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
