@@ -21,6 +21,6 @@
         "variation": 0.2
     },
     "targets": ["Vmca", "CCO", "TOI", "CBF"],
-    "batch_debug": false,
+    "batch_debug": true,
     "model_debug": false
 }
