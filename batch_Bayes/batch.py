@@ -1,10 +1,13 @@
 """Run a simple hypercapnia batch using the BS model."""
 # import sys and os
 import sys
-sys.path.append('..')
+import os
+from pathlib import Path
+sys.path.append(Path(__file__).parents[1])
+print(sys.path)
+sys.path.append(os.environ['HOME']+'/BayesCMD')
 from bayescmd.abc import Batch
 from datetime import datetime
-import os
 import pprint
 import distutils.dir_util
 import argparse
