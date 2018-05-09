@@ -3,7 +3,7 @@
 import sys
 import os
 from pathlib import Path
-sys.path.append(Path(__file__).parents[1])
+sys.path.append(str(Path(os.path.abspath(__file__)).parents[1]))
 print(sys.path)
 sys.path.append(os.environ['HOME']+'/BayesCMD')
 from bayescmd.abc import Batch
