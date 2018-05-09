@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #$ -l h_rt=0:20:00
-#$ -N impaired_sim
+#$ -N just_kaut_impaired
 #$ -wd /home/ucbpjru/Scratch
 # Set up the job array.  In this instance we have requested 1000 tasks
 # numbered 1 to 1000.
@@ -11,7 +11,7 @@ cd $TMPDIR
 export BASEDIR="$HOME/BayesCMD"
 
 DATAFILE="$BASEDIR/PLOS_paper/data/simulated_smooth_combined_impaired_ABP.csv"
-CONFIGFILE="$BASEDIR/examples/configuration_files/simulated_parameter_config.json"
+CONFIGFILE="$BASEDIR/examples/configuration_files/just_kaut.json"
 
 start=`date +%s`
 python3 $BASEDIR/batch_Bayes/batch.py 1000 $DATAFILE $CONFIGFILE --workdir $TMPDIR
