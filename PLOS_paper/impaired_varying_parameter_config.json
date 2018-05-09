@@ -1,0 +1,1 @@
+{"model_name": "BS", "inputs": ["P_a"], "create_params": true, "priors": {"defaults": {"v_cn": 40.0, "R_autc": 2.2, "a_n": 0.0656716417910448, "Vol_mit": 0.067, "cytox_tot_tis": 0.0055, "r_t": 0.018000000000000002, "p_tot": 20.0, "v_on": 0.0643896344275297}, "variation": 0.2}, "targets": ["Vmca", "CCO", "TOI", "CBF"], "debug": false}
