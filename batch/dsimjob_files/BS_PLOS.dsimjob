@@ -17,7 +17,7 @@ job_mode: morris
 # or * to mean all params for which a distrib has been provided (the default)
 param_select: *
 
-param: k_aut, uniform, 0.699, 0.701
+# param: k_aut, uniform, 0.699, 0.701
 
 # inputs, with perturbation distribs
 # (latter ignored unless the --perturb command-line switch is given)

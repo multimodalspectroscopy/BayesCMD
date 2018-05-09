@@ -1,12 +1,14 @@
 """Process results from 230218."""
 import os
 import argparse
+import sys
+sys.path.append('..')
 from bayescmd.results_handling import kde_plot
 from bayescmd.results_handling import scatter_dist_plot
 from bayescmd.results_handling import data_import
 from bayescmd.results_handling import plot_repeated_outputs
 from bayescmd.results_handling import histogram_plot
-from bayescmd.results_handling import data_merge_by_date
+from bayescmd.results_handling import data_merge_by_batch
 from bayescmd.abc import import_actual_data
 from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
@@ -28,15 +30,18 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-date = '120318'
-# pfile = data_merge(date, args.parent_dir)
-pfile = os.path.join(args.parent_dir, 'merged_results_120318.csv')
+# pfile = data_merge_by_batch(args.parent_dir)
+pfile = os.path.abspath(os.path.join(args.parent_dir, 'all_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
-params = conf['priors']
+params = priors_creator(conf['priors']['defaults'],
+                        conf['priors']['variation'])
 
-input_path = os.path.join(BASEDIR, 'data', 'SA_clean_cropped.csv')
+input_path = os.path.join(BASEDIR,
+                          'PLOS_paper',
+                          'data',
+                          'simulated_smooth_combined_ABP.csv')
 
 d0 = import_actual_data(input_path)
 
@@ -59,11 +64,12 @@ print(results.columns)
 
 # Set accepted limit, lim
 lim = 1000
-for d in ['Euclidean', 'CCO_Euclidean', 'DHbT_Euclidean',
-          'total_distance', 'CCO_distance', 'DHbT_distance']:
+distances = ['{}_euclidean'.format(t) for t in config['targets']]
+distances.append('euclidean')
+for d in distances:
     print("Working on {}".format(d.upper()))
-    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/"\
-        "Figures/{}".format(model_name, date, d)
+    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/"\
+        "Figures/{}".format(model_name, 'PLOS_paper', 'Healthy', d)
 
     dir_util.mkpath(figPath)
     print("Plotting total histogram")

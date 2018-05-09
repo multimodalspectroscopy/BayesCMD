@@ -6,7 +6,7 @@ from bayescmd.results_handling import scatter_dist_plot
 from bayescmd.results_handling import data_import
 from bayescmd.results_handling import plot_repeated_outputs
 from bayescmd.results_handling import histogram_plot
-from bayescmd.results_handling import data_merge
+from bayescmd.results_handling import data_merge_by_date
 from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
 import json
@@ -27,7 +27,7 @@ ap.add_argument(
 args = ap.parse_args()
 
 
-pfile = data_merge('230218', args.parent_dir)
+pfile = data_merge_by_date('230218', args.parent_dir)
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
