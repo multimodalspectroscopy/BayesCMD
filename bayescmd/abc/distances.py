@@ -435,7 +435,7 @@ def get_distance(actual_data,
             d2 = zero_array(check_for_key(sim_data, k), zero_flag[k])
             d2 = np.array(d2).reshape(1, len(d2))
 
-        distances[k] = DISTANCES[distance](d2, d1)
+            distances[k] = DISTANCES[distance](d2, d1)
     else:
         zarray_err = """Targets doesn't match zero_flag dictionary.
         Targets: [{}]

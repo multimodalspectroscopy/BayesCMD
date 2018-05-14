@@ -912,9 +912,10 @@ def plot_repeated_outputs(df,
             input_data,
             d0,
             targets,
-            distance='euclidean',
+            distance=distance,
             zero_flag=zero_flag)
         outputs_list.append(output)
+    print(outputs_list)
 
     d = {"Errors": {}, "Outputs": {}}
 
