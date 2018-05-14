@@ -593,6 +593,146 @@ def kde_plot(df,
         g.fig.subplots_adjust(bottom=0.15, top=0.9)
     return g
 
+def single_kde_plot(df,
+             params,
+             limit=None,
+             frac=None,
+             median_file=None,
+             true_medians=None,
+             openopt_medians=None,
+             plot_param=1,
+             n_ticks=6,
+             d=r'euclidean',
+             verbose=False):
+    """Plot the model parameters pairwise as a KDE.
+
+    Parameters
+    ----------
+    df: :obj:`pandas.DataFrame`
+        Dataframe of distances and parameters, generated using
+        :func:`data_import`
+    params : :obj:`dict` of :obj:`str`: :obj:`tuple`
+        Dict of model parameters to compare, with value tuple of the prior max
+        and min - should only be a single parameter.
+    limit : :obj:int`, optional
+        Integer value for the top N values to accept in rejection.
+    frac: :obj:`float`, optional
+        Fraction of results to consider. Should be given as a percentage i.e.
+        1=1%, 0.1=0.1%
+        If `limit` is given it takes precedence.
+    true_median : :obj:`dict` or :obj: `None`
+        Dictionary of true median values if known.
+    plot_param : :obj:`int`
+        Which group to plot:
+
+            0: Outside posterior
+            1: Inside posterior
+            2: Failed run
+    n_ticks : :obj:`int`, optional
+        Number of x-axis ticks. Useful when a large number of parameters are
+        bring compared, as the axes can become crowded if the number of ticks
+        is too high.
+    d : :obj:`str`, optional
+        Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
+
+            Note: Should be given  as a raw string if latex is used i.e.
+            `r'MAE'`.
+    verbose : :obj:`boolean`, optional
+        Boolean to indicate verbosity. Default is False.
+
+    Returns
+    -------
+    g : :obj:`seaborn.PairGrid`
+        Seaborn pairgrid object is returned in case of further formatting.
+
+    """
+    p_names = list(params.keys())
+
+    if len(p_names)!=1:
+        raise ValueError("Number of parameters is {}. Should be 1.".format(len(p_names)))
+    sorted_df = df.sort_values(by=d)
+
+    if limit:
+        accepted_limit = limit
+    elif frac:
+        accepted_limit = frac_calculator(sorted_df, frac)
+    else:
+        raise ValueError('No limit or fraction given.')
+
+    sorted_df['Accepted'] = np.zeros(len(sorted_df))
+    sorted_df['Accepted'].iloc[:accepted_limit] = 1
+    sorted_df['Accepted'][sorted_df[d] == 100000] = 2
+    color_pal = {0: 'b', 1: 'g', 2: 'r'}
+    kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
+    if verbose:
+        print(kde_df['Accepted'].value_counts())
+    with sns.plotting_context("talk",
+                              rc={"figure.figsize": (12, 9)}):
+
+        fig, ax = plt.subplots(1)
+        xx = kde_df[p_names[0]].values
+        ax = sns.kdeplot(xx, shade=True, ax=ax)
+        medians = {p_names[0]: np.median(xx)}
+
+        ax.vlines(np.median(xx), 0, ax.get_ylim()[1])
+
+        if true_medians is not None:
+            ax.vlines(true_medians[p_names[0]], 0, ax.get_ylim()[1], 'g')
+
+        if openopt_medians is not None:
+            ax.vlines(openopt_medians[p_names[0]], 0, ax.get_ylim()[1], 'r')
+
+        ax.text(
+            0.05,
+            0.8,
+            "Median: {:.2E}".format(np.median(xx)),
+            verticalalignment='center',
+            transform=ax.transAxes)
+
+        for k, v in medians.items():
+            if median_file:
+                with open(median_file, 'a') as mf:
+                    print("{}: {}".format(k, v), file=mf)
+            else:
+                print("{}: {}".format(k, v))
+
+        for label in ax.get_xticklabels():
+            label.set_rotation(50)
+
+        #ax.set_ylim(params[p_names[0]][1])
+        ax.set_xlim(params[p_names[0]][1])
+        xmax = params[p_names[0]][1][1]
+        xmin = params[p_names[0]][1][0]
+        xticks = np.arange(xmin, xmax,
+                           round_sig((xmax - xmin) / n_ticks, sig=1))
+        ax.set_xticks(xticks)
+        title_dict = {0: "(Outside Posterior)", 1: "", 2: "(Failed Run)"}
+        if limit:
+            ax.set_title("Posterior distribution for {} -\n Top {} points "
+                         "based on {} {}".format(
+                             p_names[0], limit, d, title_dict[plot_param]),
+                         fontsize=20)
+        elif frac:
+            ax.set_title("Posterior distribution for {} -\n Top {}% "
+                         "based on {} {}".format(
+                             p_names[0], frac, d, title_dict[plot_param]),
+                         fontsize=20)
+
+        lines = []
+        if true_medians:
+            lines.append(('True', mlines.Line2D([], [], color='green')))
+        if openopt_medians:
+            lines.append(('OpenOpt', mlines.Line2D([], [], color='red')))
+        lines.append(('Inferred', mlines.Line2D([], [], color='black')))
+
+        fig.legend(labels=[l[0] for l in lines],
+                     handles=[l[1] for l in lines],
+                     bbox_to_anchor=(0.87, 0.7), loc=2, prop={"size": 14})
+
+        plt.tight_layout()
+        fig.subplots_adjust(bottom=0.15, top=0.8, right=0.9)
+    return fig
+
 
 def run_model(model):
     """Run a BCMD Model.
@@ -663,8 +803,7 @@ def get_output(model_name,
         output,
         targets,
         distance=distance,
-        zero_flag=zero_flag,
-        normalise=False)
+        zero_flag=zero_flag)
 
     for k, v in dist.items():
         p[k] = v
@@ -785,7 +924,7 @@ def plot_repeated_outputs(df,
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
     with sns.plotting_context(
-            "talk", font_scale=1.6, rc={"figure.figsize": (24, 12)}):
+            "talk", font_scale=1.6, rc={"figure.figsize": (26, 12)}):
         fig, ax = plt.subplots(len(targets))
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
@@ -815,14 +954,19 @@ def plot_repeated_outputs(df,
             for item in ([ax[0].xaxis.label, ax[0].yaxis.label] +
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(22)
-        fig.legend(labels=['True Data', 'OpenOpt', 'Posterior Predictive'],
-                   handles=paths, prop={"size": 22},
-                   bbox_to_anchor=(1.2, 0.6))
-        plt.subplots_adjust(hspace=1)
+        if openopt_path:
+            fig.legend(labels=['True\nData', 'OpenOpt', 'Posterior\nPredictive'],
+                       handles=paths, prop={"size": 20},
+                       bbox_to_anchor=(1.0, 0.6))
+        else:
+            fig.legend(labels=['True\nData', 'Posterior\nPredictive'],
+                       handles=paths, prop={"size": 20},
+                       bbox_to_anchor=(1.0, 0.6))
+        plt.subplots_adjust(hspace=1, right=0.8)
         if limit:
-            fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations".
+            fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
                          format(n_repeats, limit))
         elif frac:
-            fig.suptitle("Simulated output for {} repeats using top {}% of data".
+            fig.suptitle("Simulated output for {} repeats using top {}% of data\n".
                          format(n_repeats, frac))
     return fig

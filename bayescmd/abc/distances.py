@@ -8,9 +8,8 @@ DISTANCES : dict
 
 """
 import numpy as np
-## Comment this line out as it appears to be deprecated.
+# Comment this line out as it appears to be deprecated.
 # from numpy import AxisError
-from scipy.stats import zscore
 
 # All functions here can expect to handle the output from BCMD Model i.e.
 # a dict.
@@ -105,7 +104,7 @@ def manhattan_dist(data1, data2):
 
     try:
         d = np.sum(np.abs(data1 - data2))
-    except AxisError as e:
+    except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
@@ -151,7 +150,104 @@ def mean_square_error_dist(data1, data2):
     n = data1.shape[1]
     try:
         d = np.sum(1 / n * np.sum((data1 - data2) * (data1 - data2), axis=1))
-    except AxisError as e:
+    except ValueError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    return d
+
+
+def root_mean_square_error_dist(data1, data2):
+    """Get the Root Mean Square Error distance between two numpy arrays.
+
+    Parameters
+    ----------
+    data1 : np.ndarray
+        First data array.
+
+        The shape should match that of data2 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    data2 : np.ndarray
+        Second data array.
+
+        The shape should match that of data1 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    Returns
+    -------
+    d : float
+        Root Mean Square Error distance measure
+
+    """
+    try:
+        assert (data1.shape == data2.shape), 'Arrays not of equal size'
+    except AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    assert (data1.shape == data2.shape), 'Arrays not of equal size'
+
+    # Get number of time points to average over.
+    n = data1.shape[1]
+    try:
+        d = np.sum(np.sqrt(1 / n * np.sum((data1 - data2) * (data1 - data2),
+                                          axis=1)))
+    except ValueError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    return d
+
+
+def normalised_root_mean_square_error_dist(data1, data2):
+    """Get the Normalised Root Mean Square Error distance between two numpy
+    arrays.
+
+    Parameters
+    ----------
+    data1 : np.ndarray
+        First data array.
+
+        The shape should match that of data2 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    data2 : np.ndarray
+        Second data array.
+
+        The shape should match that of data1 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows. Should generally be the measured data i.e. d0.
+
+    Returns
+    -------
+    d : float
+        Root Mean Square Error distance measure
+
+    """
+    try:
+        assert (data1.shape == data2.shape), 'Arrays not of equal size'
+    except AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    assert (data1.shape == data2.shape), 'Arrays not of equal size'
+
+    # Get number of time points to average over.
+    n = data2.shape[1]
+
+    rng = np.max(data2, axis=1) - np.min(data2, axis=1)
+    try:
+        d = np.sum(np.sqrt(1 / n * np.sum((data1 - data2) * (data1 - data2),
+                                          axis=1))/rng)
+    except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
@@ -198,7 +294,7 @@ def mean_absolute_error_dist(data1, data2):
 
     try:
         d = 1 / n * np.sum(np.abs(data1 - data2))
-    except AxisError as e:
+    except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
@@ -210,6 +306,8 @@ DISTANCES = {
     'euclidean': euclidean_dist,
     'manhattan': manhattan_dist,
     'MSE': mean_square_error_dist,
+    'RMSE': root_mean_square_error_dist,
+    'NRMSE': normalised_root_mean_square_error_dist,
     'MAE': mean_absolute_error_dist
 }
 
@@ -267,8 +365,7 @@ def get_distance(actual_data,
                  sim_data,
                  targets,
                  zero_flag,
-                 distance='euclidean',
-                 normalise=False):
+                 distance='euclidean'):
     """Obtain  distance between two sets of data.
 
     Get a distance as defined by `distance` between two sets of data as well
@@ -296,11 +393,6 @@ def get_distance(actual_data,
     distance : str, optional
         Name of distance measure to use. One of ['euclidean', 'manhattan',
         'MAE', 'MSE'], where default is 'euclidean'.
-
-    normalise : bool, optional
-        Boolean flag to indicate whether the signals need normalising, default
-        is False. Current normalisation is done using z-score but that is
-        likely to change with time.
 
     Returns
     -------
@@ -333,16 +425,7 @@ def get_distance(actual_data,
         d0 = np.array(d0)
         d_star = np.array(d_star)
 
-        if normalise:
-            try:
-                norm_d0 = zscore(d0, axis=1)
-                norm_d_star = zscore(d_star, axis=1)
-            except TypeError as e:
-                print(d_star)
-                raise e
-            distances = {"TOTAL": DISTANCES[distance](norm_d0, norm_d_star)}
-        else:
-            distances = {"TOTAL": DISTANCES[distance](d0, d_star)}
+        distances = {"TOTAL": DISTANCES[distance](d_star, d0)}
 
         # Get distances for each individual signal
         for k in targets:
@@ -352,19 +435,7 @@ def get_distance(actual_data,
             d2 = zero_array(check_for_key(sim_data, k), zero_flag[k])
             d2 = np.array(d2).reshape(1, len(d2))
 
-            if normalise:
-                try:
-                    d1 = zscore(d1, axis=1)
-                except TypeError as e:
-                    print(d1)
-                    raise e
-                try:
-                    d2 = zscore(d2, axis=1)
-                except TypeError as e:
-                    print(d2)
-                    raise e
-
-            distances[k] = DISTANCES[distance](d1, d2)
+        distances[k] = DISTANCES[distance](d2, d1)
     else:
         zarray_err = """Targets doesn't match zero_flag dictionary.
         Targets: [{}]
