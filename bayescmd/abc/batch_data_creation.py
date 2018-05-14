@@ -397,8 +397,10 @@ class Batch:
         are written to file. Parameters are written to the same file,
         'parameters.csv' every 1000 runs.
 
-        Four distances - euclidean, manhattan, mean absolute error (MAE) and
-        mean squared error (MSE) - are written to parameters.csv also.
+        Six distances - euclidean, manhattan, mean absolute error (MAE),
+        mean squared error (MSE), root mean squared error (RMSE) and
+        normalised root mean squared error (NRMSE) - are written to
+        parameters.csv also.
 
         All files are written into the directory defined by :obj:`workdir`.
 
@@ -420,7 +422,7 @@ class Batch:
         prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
         outputs = []
-        distances = ['euclidean', 'manhattan', 'MSE', 'MAE']
+        distances = ['euclidean', 'manhattan', 'MSE', 'RMSE', 'NRMSE', 'MAE']
         t_distances = ["{}_{}".format(t, dist) for t in self.targets
                        for dist in distances]
         pf = os.path.join(self.workdir, "parameters.csv")
