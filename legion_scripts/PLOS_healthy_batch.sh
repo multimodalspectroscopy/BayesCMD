@@ -11,7 +11,7 @@ cd $TMPDIR
 export BASEDIR="$HOME/BayesCMD"
 
 DATAFILE="$BASEDIR/PLOS_paper/data/simulated_smooth_combined_ABP.csv"
-CONFIGFILE="$BASEDIR/examples/configuration_files/simulated_parameter_config.json"
+CONFIGFILE="$BASEDIR/examples/configuration_files/healthy_varying_parameter_config.json"
 
 start=`date +%s`
 python3 $BASEDIR/batch_Bayes/batch.py 1000 $DATAFILE $CONFIGFILE --workdir $TMPDIR
