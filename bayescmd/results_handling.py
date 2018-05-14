@@ -802,7 +802,7 @@ def get_output(model_name,
         d0,
         output,
         targets,
-        distance=distance,
+        distance=distance.split("_")[-1],
         zero_flag=zero_flag)
 
     for k, v in dist.items():
@@ -915,7 +915,6 @@ def plot_repeated_outputs(df,
             distance=distance,
             zero_flag=zero_flag)
         outputs_list.append(output)
-    print(outputs_list)
 
     d = {"Errors": {}, "Outputs": {}}
 
@@ -947,8 +946,8 @@ def plot_repeated_outputs(df,
             bayes_line = mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
             paths.append(bayes_line)
-            ax[ii].set_title("{}: Average Euclidean Distance of {:.4f}".format(
-                target, d['Errors'][target]))
+            ax[ii].set_title("{}: Average {} Distance of {:.4f}".format(
+                target, distance, d['Errors'][target]))
             ax[ii].set_ylabel(r'{}'.format(target))
             ax[ii].set_xlabel('Time (sec)')
             ax[ii].title.set_fontsize(25)
