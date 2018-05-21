@@ -97,8 +97,8 @@ for d in distances:
                                 distance=d, **config)
     fig.set_size_inches(18.5, 12.5)
     fig.savefig(
-        os.path.join(figPath, 'TS_{}_real.png'
-                     .format(str(lim).replace('.', '_'))),
+        os.path.join(figPath, 'PLOS_impaired_{}_{}.png'
+                     .format(str(lim).replace('.', '_'), d)),
         dpi=100)
 
 # TODO: Fix issue with plot formatting, cutting off axes etc

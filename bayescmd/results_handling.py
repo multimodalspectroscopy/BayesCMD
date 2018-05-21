@@ -135,7 +135,7 @@ def data_merge_by_batch(parent_directory, verbose=True):
     for d in dirs:
         try:
             dfs.append(pd.read_csv(os.path.join(d, 'parameters.csv')))
-            ii = len(dfs)-1
+            ii = len(dfs) - 1
             print("Processing parameter file {}".format(ii))
             if ii is not 0:
                 dfs[ii]['ix'] = dfs[ii].index.values + \
@@ -367,9 +367,19 @@ def scatter_dist_plot(df,
     return g
 
 
+def infer_from_cmap(color):
+    if color == 'Blues':
+        return (0., 0., 1.)
+    elif color == 'Greens':
+        return (0., 0.5, 0.)
+    elif color == 'Reds':
+        return (1., 0., 0.)
+    elif color == 'Purples':
+        return (0.75, 0., 0.75)
+
+
 def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
     """Plot bivariate KDE with median of distribution marked on.
-
 
     Parameters
     ----------
@@ -390,72 +400,17 @@ def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
 
     """
     ax = plt.gca()
-    ax = sns.kdeplot(x, y, ax=ax)
-    # x1, y1 = p.get_lines()[0].get_data()
-    # # care with the order, it is first y
-    # # initial fills a 0 so the result has same length than x
-    # cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
-    # nearest_05 = np.abs(cdf - 0.5).argmin()
-    # x_median = x1[nearest_05]
-    # medians[x.name] = round_sig(x_median, 2)
-    # ax.vlines(x_median, 0, ax.get_ylim()[1])
-
+    ax = sns.kdeplot(x, y, ax=ax, **kws)
+    color = infer_from_cmap(kws['cmap'])
     x_median = x.median()
     y_median = y.median()
-    ax.plot(x_median, y_median, 'kX')
+    ax.plot(x_median, y_median, 'X', markerfacecolor=color,
+            markeredgecolor='k', markeredgewidth=1.0)
     if true_medians is not None:
         ax.plot(true_medians[x.name], true_medians[y.name], 'gX')
 
     if openopt_medians is not None:
-        ax.plot(openopt_medians[x.name], openopt_medians[y.name], 'rX')
-
-    return ax
-
-
-def diag_kde_plot(x, medians, true_medians, openopt_medians, **kws):
-    """Plot univariate KDE and barplot with median of distribution marked on.
-
-    Includes median of distribution as a line and as text.
-
-    Parameters
-    ----------
-    x : array-like
-        Array-like of data to plot.
-    medians : :obj:`dict`
-        Dictionary of parameter, median pairings.
-    kws : key, value pairings.
-        Other keyword arguments to pass to :obj:`sns.distplot`.
-
-    Returns
-    -------
-    ax : :obj:`matplotlib.AxesSubplot`
-        AxesSubplot object of univariate KDE and bar plot with median marked
-        on as well as text.
-
-    """
-    ax = plt.gca()
-    p = sns.distplot(x, ax=ax, hist_kws={"linewidth": 1})
-    x1, y1 = p.get_lines()[0].get_data()
-    # care with the order, it is first y
-    # initial fills a 0 so the result has same length than x
-    # cdf = scipy.integrate.cumtrapz(y1, x1, initial=0)
-    # nearest_05 = np.abs(cdf - 0.5).argmin()
-    # x_median = x1[nearest_05]
-    # medians[x.name] = round_sig(x_median, 2)
-    x_median = np.median(x)
-    ax.vlines(x_median, 0, ax.get_ylim()[1])
-    if true_medians is not None:
-        ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'g')
-
-    if openopt_medians is not None:
-        ax.vlines(openopt_medians[x.name], 0, ax.get_ylim()[1], 'r')
-
-    ax.text(
-        0.05,
-        1.1,
-        "Median: {:.2E}".format(x_median),
-        verticalalignment='center',
-        transform=ax.transAxes)
+        ax.plot(openopt_medians[x.name], openopt_medians[y.name], color='mX')
 
     return ax
 
@@ -465,8 +420,6 @@ def kde_plot(df,
              limit=None,
              frac=None,
              median_file=None,
-             true_medians=None,
-             openopt_medians=None,
              plot_param=1,
              n_ticks=6,
              d=r'euclidean',
@@ -539,8 +492,7 @@ def kde_plot(df,
             palette=color_pal,
             diag_sharey=False)
         medians = {}
-        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians,
-                   openopt_medians=openopt_medians)
+        g.map_diag(diag_kde_plot, medians=medians)
         for k, v in medians.items():
             if median_file:
                 with open(median_file, 'a') as mf:
@@ -548,8 +500,7 @@ def kde_plot(df,
             else:
                 print("{}: {}".format(k, v))
         # g.map_lower(sns.kdeplot, lw=3)
-        g.map_lower(medians_kde_plot, medians=medians,
-                    true_medians=true_medians, openopt_medians=openopt_medians)
+        g.map_lower(medians_kde_plot, medians=medians)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
 
@@ -579,6 +530,198 @@ def kde_plot(df,
                          fontsize=32)
 
         lines = []
+        lines.append(('Inferred', mlines.Line2D([], [], color='black')))
+
+        g.fig.legend(labels=[l[0] for l in lines],
+                     handles=[l[1] for l in lines],
+                     bbox_to_anchor=(0.7, 0.7), loc=2, prop={"size": 32})
+
+        g.fig.tight_layout()
+        g.fig.subplots_adjust(bottom=0.15, top=0.9)
+    return g
+
+
+def diag_kde_plot(x, medians, true_medians, openopt_medians, **kws):
+    """Plot univariate KDE and barplot with median of distribution marked on.
+pandas convert column type
+    Includes median of distribution as a line and as text.
+
+    Parameters
+    ----------
+    x : array-like
+        Array-like of data to plot.
+    medians : :obj:`dict`
+        Dictionary of parameter, median pairings.
+    kws : key, value pairings.
+        Other keyword arguments to pass to :obj:`sns.distplot`.
+
+    Returns
+    -------
+    ax : :obj:`matplotlib.AxesSubplot`
+        AxesSubplot object of univariate KDE and bar plot with median marked
+        on as well as text.
+
+    """
+    ax = plt.gca()
+    p = sns.distplot(x, ax=ax, hist_kws={"linewidth": 1})
+    x1, y1 = p.get_lines()[0].get_data()
+    x_median = np.median(x)
+    ax.vlines(x_median, 0, ax.get_ylim()[1])
+    if true_medians is not None:
+        ax.vlines(true_medians[x.name], 0, ax.get_ylim()[1], 'g')
+
+    if openopt_medians is not None:
+        ax.vlines(openopt_medians[x.name], 0, ax.get_ylim()[1], 'r')
+
+    ax.text(
+        0.05,
+        1.1,
+        "Median: {:.2E}".format(x_median),
+        verticalalignment='center',
+        transform=ax.transAxes)
+
+    return ax
+
+
+def comparison_kde_plot(df_list,
+                        params,
+                        group_names=None,
+                        limit=None,
+                        frac=None,
+                        median_file=None,
+                        true_medians=None,
+                        openopt_medians=None,
+                        acceptance_param=1,
+                        n_ticks=6,
+                        d=r'euclidean',
+                        verbose=False):
+    """Plot the model parameters pairwise as a KDE.
+
+    Parameters
+    ----------
+    df_list: :obj:`list` of :obj:`pandas.DataFrame`
+        List of dataframe of distances and parameters, generated using
+        :func:`data_import`
+    params : :obj:`dict` of :obj:`str`: :obj:`tuple`
+        Dict of model parameters to compare, with value tuple of the prior max
+        and min.
+    limit : :obj:int`, optional
+        Integer value for the top N values to accept in rejection.
+    frac: :obj:`float`, optional
+        Fraction of results to consider. Should be given as a percentage i.e.
+        1=1%, 0.1=0.1%
+        If `limit` is given it takes precedence.
+    true_median : :obj:`dict` or :obj: `None`
+        Dictionary of true median values if known.
+    acceptance_param : :obj:`int`
+        Which group to plot:
+
+            0: Outside posterior
+            1: Inside posterior
+            2: Failed run
+    n_ticks : :obj:`int`, optional
+        Number of x-axis ticks. Useful when a large number of parameters are
+        bring compared, as the axes can become crowded if the number of ticks
+        is too high.
+    d : :obj:`str`, optional
+        Distance measure. One of 'euclidean', 'manhattan', 'MAE', 'MSE'.
+
+            Note: Should be given  as a raw string if latex is used i.e.
+            `r'MAE'`.
+    verbose : :obj:`boolean`, optional
+        Boolean to indicate verbosity. Default is False.
+
+    Returns
+    -------
+    g : :obj:`seaborn.PairGrid`
+        Seaborn pairgrid object is returned in case of further formatting.
+
+    """
+    p_names = list(params.keys())
+
+    kde_dfs = []
+    for ii, df in enumerate(df_list):
+        sorted_df = df.sort_values(by=d)
+
+        if limit:
+            accepted_limit = limit
+        elif frac:
+            accepted_limit = frac_calculator(sorted_df, frac)
+        else:
+            raise ValueError('No limit or fraction given.')
+
+        sorted_df['Accepted'] = np.zeros(len(sorted_df))
+        sorted_df['Accepted'].iloc[:accepted_limit] = 1
+        sorted_df.loc[:, 'Accepted'][sorted_df[d] == 100000] = 2
+
+        kde_dfs.append(
+            sorted_df.loc[(sorted_df['Accepted'] == acceptance_param), :])
+        kde_dfs[ii]['Group'] = [ii] * accepted_limit
+
+    kde_df = pd.concat(kde_dfs)
+
+    if group_names:
+        kde_df['Group'] = kde_df['Group'].map(
+            lambda x: "{}".format(group_names[x]))
+    else:
+        kde_df['Group'] = kde_df['Group'].map(str)
+
+    groups = kde_df['Group'].unique()
+    colors = sns.color_palette("hls", len(groups))
+    color_pal = dict(zip(groups, colors))
+    print(color_pal)
+    list_of_cmaps = ['Blues', 'Reds', 'Greens', 'Purples']
+    select_list_cmaps = [list_of_cmaps[i] for i in range(len(groups))]
+    print(select_list_cmaps)
+    if verbose:
+        print(kde_df['Accepted'].value_counts())
+
+    with sns.plotting_context("talk", rc={"figure.figsize": (12, 9)}):
+        g = sns.PairGrid(
+            kde_df,
+            vars=p_names,
+            hue="Group",
+            palette=color_pal,
+            hue_kws={"cmap": select_list_cmaps},
+            diag_sharey=False)
+        medians = {}
+        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians,
+                   openopt_medians=openopt_medians)
+        for k, v in medians.items():
+            if median_file:
+                with open(median_file, 'a') as mf:
+                    print("{}: {}".format(k, v), file=mf)
+            else:
+                print("{}: {}".format(k, v))
+        g.map_lower(medians_kde_plot, medians=medians,
+                    true_medians=true_medians, openopt_medians=openopt_medians)
+        for i, j in zip(*np.triu_indices_from(g.axes, 1)):
+            g.axes[i, j].set_visible(False)
+
+        for ii, ax in enumerate(g.axes.flat):
+            for label in ax.get_xticklabels():
+                label.set_rotation(50)
+            ii_y = ii // len(p_names)
+            ii_x = ii % len(p_names)
+            ax.set_ylim(params[p_names[ii_y]][1])
+            ax.set_xlim(params[p_names[ii_x]][1])
+            xmax = params[p_names[ii_x]][1][1]
+            xmin = params[p_names[ii_x]][1][0]
+            xticks = np.arange(xmin, xmax,
+                               round_sig((xmax - xmin) / n_ticks, sig=1))
+            ax.set_xticks(xticks)
+        # plt.subplots_adjust(top=
+        if limit:
+            plt.suptitle("Parameter distributions - Top {} points "
+                         "based on {}".format(
+                             limit, d),
+                         fontsize=32)
+        elif frac:
+            plt.suptitle("Parameter distributions - Top {}% "
+                         "based on {}".format(
+                             frac, d), fontsize=32)
+
+        lines = []
         if true_medians:
             lines.append(('True', mlines.Line2D([], [], color='green')))
         if openopt_medians:
@@ -593,17 +736,18 @@ def kde_plot(df,
         g.fig.subplots_adjust(bottom=0.15, top=0.9)
     return g
 
+
 def single_kde_plot(df,
-             params,
-             limit=None,
-             frac=None,
-             median_file=None,
-             true_medians=None,
-             openopt_medians=None,
-             plot_param=1,
-             n_ticks=6,
-             d=r'euclidean',
-             verbose=False):
+                    params,
+                    limit=None,
+                    frac=None,
+                    median_file=None,
+                    true_medians=None,
+                    openopt_medians=None,
+                    plot_param=1,
+                    n_ticks=6,
+                    d=r'euclidean',
+                    verbose=False):
     """Plot the model parameters pairwise as a KDE.
 
     Parameters
@@ -648,8 +792,9 @@ def single_kde_plot(df,
     """
     p_names = list(params.keys())
 
-    if len(p_names)!=1:
-        raise ValueError("Number of parameters is {}. Should be 1.".format(len(p_names)))
+    if len(p_names) != 1:
+        raise ValueError(
+            "Number of parameters is {}. Should be 1.".format(len(p_names)))
     sorted_df = df.sort_values(by=d)
 
     if limit:
@@ -699,7 +844,7 @@ def single_kde_plot(df,
         for label in ax.get_xticklabels():
             label.set_rotation(50)
 
-        #ax.set_ylim(params[p_names[0]][1])
+        # ax.set_ylim(params[p_names[0]][1])
         ax.set_xlim(params[p_names[0]][1])
         xmax = params[p_names[0]][1][1]
         xmin = params[p_names[0]][1][0]
@@ -726,8 +871,8 @@ def single_kde_plot(df,
         lines.append(('Inferred', mlines.Line2D([], [], color='black')))
 
         fig.legend(labels=[l[0] for l in lines],
-                     handles=[l[1] for l in lines],
-                     bbox_to_anchor=(0.87, 0.7), loc=2, prop={"size": 14})
+                   handles=[l[1] for l in lines],
+                   bbox_to_anchor=(0.87, 0.7), loc=2, prop={"size": 14})
 
         plt.tight_layout()
         fig.subplots_adjust(bottom=0.15, top=0.8, right=0.9)
