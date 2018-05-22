@@ -32,12 +32,13 @@ args = ap.parse_args()
 
 # pfile = data_merge_by_batch(args.parent_dir)
 pfile = os.path.abspath(os.path.join(
-    args.parent_dir, 'all_parameters_plus.csv'))
+    args.parent_dir, 'all_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
-params = priors_creator(conf['priors']['defaults'],
-                        conf['priors']['variation'])
+# params = priors_creator(conf['priors']['defaults'],
+#                         conf['priors']['variation'])
+params = conf['priors']
 
 input_path = os.path.join(BASEDIR,
                           'PLOS_paper',
@@ -69,8 +70,9 @@ distances = ['{}_NRMSE'.format(t) for t in config['targets']]
 distances.append('NRMSE')
 for d in distances:
     print("Working on {}".format(d.upper()))
-    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/"\
-        "Figures/{}".format(model_name, 'PLOS_paper', 'impaired', d)
+    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/"\
+        "Figures/{}".format(model_name, 'PLOS_paper',
+                            'impaired', 'fitting_kaut', d)
 
     dir_util.mkpath(figPath)
     print("Plotting total histogram")
@@ -89,8 +91,8 @@ for d in distances:
     g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
                  median_file=os.path.join(figPath, "medians.txt"))
     g.fig.savefig(
-        os.path.join(figPath, 'kde_{}_real.png'
-                     .format(str(lim).replace('.', '_'))),
+        os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
+                     .format(str(lim).replace('.', '_'), d)),
         bbox_inches='tight')
     print("Generating averaged time series plot")
     fig = plot_repeated_outputs(results, n_repeats=25, limit=lim,

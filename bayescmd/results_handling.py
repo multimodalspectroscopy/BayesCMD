@@ -378,8 +378,55 @@ def infer_from_cmap(color):
         return (0.75, 0., 0.75)
 
 
+def infer_cmap(color):
+    if color == (0., 0., 1.):
+        return 'Blues'
+    elif color == (0., 0.5, 0.):
+        return 'Greens'
+    elif color == (1., 0., 0.):
+        return 'Reds'
+    elif color == (0.75, 0., 0.75):
+        return 'Purples'
+
+
 def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
     """Plot bivariate KDE with median of distribution marked on.
+
+    Parameters
+    ----------
+    x : array-like
+        Array-like of data to plot.
+    y : array-like
+        Array-like of data to plot.
+    medians : :obj:`dict`
+        Dictionary of parameter, median pairings.
+    kws : key, value pairings.
+        Other keyword arguments to pass to :obj:`sns.distplot`.
+
+    Returns
+    -------
+    ax : :obj:`matplotlib.AxesSubplot`
+        AxesSubplot object of univariate KDE and bar plot with median marked
+        on as well as text.
+
+    """
+    ax = plt.gca()
+    ax = sns.kdeplot(x, y, ax=ax, **kws)
+    x_median = x.median()
+    y_median = y.median()
+    ax.plot(x_median, y_median, 'kX')
+    if true_medians is not None:
+        ax.plot(true_medians[x.name], true_medians[y.name], 'gX')
+
+    if openopt_medians is not None:
+        ax.plot(openopt_medians[x.name], openopt_medians[y.name], color='mX')
+
+    return ax
+
+
+def medians_comparison_kde_plot(x, y, medians, **kws):
+    """Plot bivariate KDE with median of distribution marked on,
+    comparing between groups.
 
     Parameters
     ----------
@@ -405,13 +452,7 @@ def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
     x_median = x.median()
     y_median = y.median()
     ax.plot(x_median, y_median, 'X', markerfacecolor=color,
-            markeredgecolor='k', markeredgewidth=1.0)
-    if true_medians is not None:
-        ax.plot(true_medians[x.name], true_medians[y.name], 'gX')
-
-    if openopt_medians is not None:
-        ax.plot(openopt_medians[x.name], openopt_medians[y.name], color='mX')
-
+            markeredgecolor='k', markeredgewidth=1.5)
     return ax
 
 
@@ -420,6 +461,8 @@ def kde_plot(df,
              limit=None,
              frac=None,
              median_file=None,
+             true_medians=None,
+             openopt_medians=None,
              plot_param=1,
              n_ticks=6,
              d=r'euclidean',
@@ -480,6 +523,7 @@ def kde_plot(df,
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
     sorted_df['Accepted'][sorted_df[d] == 100000] = 2
     color_pal = {0: 'b', 1: 'g', 2: 'r'}
+    list_of_cmaps = ['Blues', 'Greens', 'Reds', 'Purples']
     kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
     if verbose:
         print(kde_df['Accepted'].value_counts())
@@ -490,9 +534,11 @@ def kde_plot(df,
             vars=p_names,
             hue='Accepted',
             palette=color_pal,
+            hue_kws={"cmap": list_of_cmaps},
             diag_sharey=False)
         medians = {}
-        g.map_diag(diag_kde_plot, medians=medians)
+        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians,
+                   openopt_medians=openopt_medians)
         for k, v in medians.items():
             if median_file:
                 with open(median_file, 'a') as mf:
@@ -500,7 +546,8 @@ def kde_plot(df,
             else:
                 print("{}: {}".format(k, v))
         # g.map_lower(sns.kdeplot, lw=3)
-        g.map_lower(medians_kde_plot, medians=medians)
+        g.map_lower(medians_kde_plot, medians=medians,
+                    true_medians=true_medians, openopt_medians=openopt_medians)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
 
@@ -583,19 +630,49 @@ pandas convert column type
     return ax
 
 
+def diag_comparison_kde_plot(x, medians, **kws):
+    """Plot univariate KDE and barplot with median of distribution marked on.
+pandas convert column type
+    Includes median of distribution as a line and as text.
+
+    Parameters
+    ----------
+    x : array-like
+        Array-like of data to plot.
+    medians : :obj:`dict`
+        Dictionary of parameter, median pairings.
+    kws : key, value pairings.
+        Other keyword arguments to pass to :obj:`sns.distplot`.
+
+    Returns
+    -------
+    ax : :obj:`matplotlib.AxesSubplot`
+        AxesSubplot object of univariate KDE and bar plot with median marked
+        on as well as text.
+
+    """
+    ax = plt.gca()
+    # cmap = infer_cmap(kws['color'])
+    p = sns.distplot(x, ax=ax, hist_kws={"linewidth": 1}, **kws)
+    x1, y1 = p.get_lines()[0].get_data()
+    x_median = np.median(x)
+    ax.vlines(x_median, 0, ax.get_ylim()[1], color=kws['color'])
+    return ax
+
+
 def comparison_kde_plot(df_list,
                         params,
                         group_names=None,
                         limit=None,
                         frac=None,
                         median_file=None,
-                        true_medians=None,
-                        openopt_medians=None,
                         acceptance_param=1,
                         n_ticks=6,
                         d=r'euclidean',
                         verbose=False):
-    """Plot the model parameters pairwise as a KDE.
+    """Plot the model parameters pairwise as a KDE comparing between groups.
+
+    Max number of groups is currently capped at 4.
 
     Parameters
     ----------
@@ -667,8 +744,11 @@ def comparison_kde_plot(df_list,
         kde_df['Group'] = kde_df['Group'].map(str)
 
     groups = kde_df['Group'].unique()
-    colors = sns.color_palette("hls", len(groups))
-    color_pal = dict(zip(groups, colors))
+    if len(groups) > 4:
+        raise ValueError("Number of groups exceeds current maximum of 4.")
+    colors = ['b', 'r', 'g', 'm']
+    select_list_colors = [colors[i] for i in range(len(groups))]
+    color_pal = dict(zip(groups, select_list_colors))
     print(color_pal)
     list_of_cmaps = ['Blues', 'Reds', 'Greens', 'Purples']
     select_list_cmaps = [list_of_cmaps[i] for i in range(len(groups))]
@@ -685,16 +765,14 @@ def comparison_kde_plot(df_list,
             hue_kws={"cmap": select_list_cmaps},
             diag_sharey=False)
         medians = {}
-        g.map_diag(diag_kde_plot, medians=medians, true_medians=true_medians,
-                   openopt_medians=openopt_medians)
+        g.map_diag(diag_comparison_kde_plot, medians=medians)
         for k, v in medians.items():
             if median_file:
                 with open(median_file, 'a') as mf:
                     print("{}: {}".format(k, v), file=mf)
             else:
                 print("{}: {}".format(k, v))
-        g.map_lower(medians_kde_plot, medians=medians,
-                    true_medians=true_medians, openopt_medians=openopt_medians)
+        g.map_lower(medians_comparison_kde_plot, medians=medians)
         for i, j in zip(*np.triu_indices_from(g.axes, 1)):
             g.axes[i, j].set_visible(False)
 
@@ -722,11 +800,8 @@ def comparison_kde_plot(df_list,
                              frac, d), fontsize=32)
 
         lines = []
-        if true_medians:
-            lines.append(('True', mlines.Line2D([], [], color='green')))
-        if openopt_medians:
-            lines.append(('OpenOpt', mlines.Line2D([], [], color='red')))
-        lines.append(('Inferred', mlines.Line2D([], [], color='black')))
+        for grp, color in color_pal.items():
+            lines.append((grp, mlines.Line2D([], [], color=color)))
 
         g.fig.legend(labels=[l[0] for l in lines],
                      handles=[l[1] for l in lines],
