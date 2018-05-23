@@ -17,17 +17,18 @@ chosen_params = ['v_cn', 'R_autc', 'a_n', 'Vol_mit',
 
 
 prior_dict = priors_creator(param_df.loc[chosen_params, 'Default'].to_dict(),
-                            0.2)
-prior_dict['k_aut'] = ["uniform", [0.3, 1.1]]
+                            0.5)
+prior_dict['k_aut'] = ["uniform", [0.3, 1.0]]
 
 
 config_dict = {"model_name": "BS",
                "inputs": ["P_a"],
                "create_params": False,
                "priors": prior_dict,
-               "targets": ["Vmca", "CCO", "TOI", "CBF"],
+               "targets": ["Vmca", "CCO", "TOI"],
                "debug": False
                }
 
-with open('impaired_varying_parameter_config.json', 'w') as f:
+with open('../examples/configuration_files/varying_parameter_wide_config.json',
+          'w') as f:
     json.dump(config_dict, f)
