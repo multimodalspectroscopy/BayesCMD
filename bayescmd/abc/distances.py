@@ -4,7 +4,7 @@
 Attributes
 ----------
 DISTANCES : dict
-    Dictionary contianing the distance aliases, mapping to the functions.
+    Dictionary containing the distance aliases, mapping to the functions.
 
 """
 import numpy as np

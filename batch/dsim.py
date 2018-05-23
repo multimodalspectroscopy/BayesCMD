@@ -627,6 +627,7 @@ def postproc(jobs, results, config):
                 name = config['vars'][species]['name']
                 cv = collated[name]
                 dist = config['distance'](cv['target'], results[job, rep, :, species])
+                print(dist)
                 cv['distances'].append(dist)
                 sumdist += dist * config['weights'].get(name, 1)
             summed.append(sumdist)
