@@ -28,7 +28,7 @@ input: P_a, normal, 88, 0.5
 alias: t, t
 
 # Set distance measure
-distance: nrmse
+distance: euclidean
 
 # the number of distinct levels (potentially) tested per parameter
 divisions: 20

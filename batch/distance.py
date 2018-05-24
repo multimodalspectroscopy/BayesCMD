@@ -153,9 +153,6 @@ def nrmse(data1, data2):
     n = len(data1)
     rng = numpy.max(data1) - numpy.min(data1)
 
-    print("RANGE: ", rng)
-
     d = numpy.sqrt(1.0 / n * numpy.sum((data1 - data2) * (data1 - data2))) / rng
 
-    print("DIST: ", d)
     return substitute(d)
