@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #$ -l h_rt=0:12:00
-#$ -N healthy_sim_wide
+#$ -N healthy_sim_wide_NRMSE
 #$ -wd /home/ucbpjru/Scratch
 # Set up the job array.  In this instance we have requested 1000 tasks
 # numbered 1 to 1000.
