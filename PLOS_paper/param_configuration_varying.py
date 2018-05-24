@@ -6,7 +6,7 @@ import sys
 sys.path.append('..')
 from bayescmd.abc import priors_creator
 
-param_df = pd.read_csv('../batch/scratch/pdists_BS_PLOS_Wide.csv',
+param_df = pd.read_csv('../batch/scratch/pdists_BS_PLOS_wide.csv',
                        header=None,
                        names=['Parameter', 'Dist. Type',
                               'Min', 'Max', 'Default'],
