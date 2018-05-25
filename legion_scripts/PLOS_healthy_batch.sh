@@ -1,10 +1,10 @@
 #!/bin/bash -l
-#$ -l h_rt=0:12:00
-#$ -N healthy_sim_wide_NRMSE
+#$ -l h_rt=0:25:00
+#$ -N healthy_sim_wide_NRMSE_extra
 #$ -wd /home/ucbpjru/Scratch
 # Set up the job array.  In this instance we have requested 1000 tasks
 # numbered 1 to 1000.
-#$ -t 1-1000
+#$ -t 1-27
 
 module load python3/recommended
 cd $TMPDIR
