@@ -65,13 +65,16 @@ results = data_import(pfile)
 
 # Set accepted limit, lim
 lim = 1000
-distances = ['{}_NRMSE'.format(t) for t in config['targets']]
-distances.append('NRMSE')
+distances = []
+for dist_measure in ['euclidean', 'NRMSE', 'RMSE']:
+    distances.extend(['{}_{}'.format(t, dist_measure)
+                      for t in config['targets']])
+    distances.append(dist_measure)
 for d in distances:
     print("Working on {}".format(d.upper()))
     figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/"\
         "Figures/{}".format(model_name, 'PLOS_paper',
-                            'Healthy', 'fitting_kaut', d)
+                            'Healthy', 'wide_range_second', d)
 
     dir_util.mkpath(figPath)
     print("Plotting total histogram")
