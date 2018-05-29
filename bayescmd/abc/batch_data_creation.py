@@ -432,6 +432,57 @@ class Batch:
         header.extend(t_distances)
         for ii in range(self.limit):
 
+            params, output = self.generateOutput()
+
+            if output is not None:
+                output['ii'] = [ii] * len(output['t'])
+                outputs.append(output)
+                # ----- Add distances to the params dictionary ----- #
+                for dist in distances:
+                    try:
+                        cost = get_distance(
+                            self.d0,
+                            output,
+                            self.targets,
+                            distance=dist,
+                            zero_flag=zero_flag)
+                        params[dist] = cost['TOTAL']
+
+                        for t in self.targets:
+                            t_dist = "{}_{}".format(t, dist)
+                            params[t_dist] = cost[t]
+                    except ValueError as error:
+                        print("OUTPUT:\n", output)
+                        raise error
+
+                parameters.append(params)
+                if self.batch_debug:
+                    print(
+                        "Number of distances: {0:4d}".format(len(parameters)),
+                        end="\n")
+
+                    sys.stdout.flush()
+
+            else:
+                data_length = max([len(l) for l in self.d0.values()])
+                output = {}
+                output['ii'] = [ii] * data_length
+                for t in self.targets:
+                    output[t] = [np.nan] * data_length
+                for i in self.inputs:
+                    output[i] = [np.nan] * data_length
+                outputs.append(output)
+                # ----- Add distances to the params dictionary ----- #
+                for dist in distances:
+                    params[dist] = np.nan
+                parameters.append(params)
+                if self.batch_debug:
+                    print(
+                        "Number of distances: {0:4d}".format(len(parameters)),
+                        end="\n")
+
+                    sys.stdout.flush()
+
             # ----- Write to file every STORE_VALUE entries ----- #
             if (ii % STORE_VALUE == 0) and (ii != 0):
                 f_idx = str(int(ii / STORE_VALUE)).zfill(prec_zero)
@@ -502,56 +553,5 @@ class Batch:
                             writer.writerows(zip(*output.values()))
                 outputs = []
                 parameters = []
-
-            params, output = self.generateOutput()
-
-            if output is not None:
-                output['ii'] = [ii] * len(output['t'])
-                outputs.append(output)
-                # ----- Add distances to the params dictionary ----- #
-                for dist in distances:
-                    try:
-                        cost = get_distance(
-                            self.d0,
-                            output,
-                            self.targets,
-                            distance=dist,
-                            zero_flag=zero_flag)
-                        params[dist] = cost['TOTAL']
-
-                        for t in self.targets:
-                            t_dist = "{}_{}".format(t, dist)
-                            params[t_dist] = cost[t]
-                    except ValueError as error:
-                        print("OUTPUT:\n", output)
-                        raise error
-
-                parameters.append(params)
-                if self.batch_debug:
-                    print(
-                        "Number of distances: {0:4d}".format(len(parameters)),
-                        end="\n")
-
-                    sys.stdout.flush()
-
-            else:
-                data_length = max([len(l) for l in self.d0.values()])
-                output = {}
-                output['ii'] = [ii] * data_length
-                for t in self.targets:
-                    output[t] = [np.nan] * data_length
-                for i in self.inputs:
-                    output[i] = [np.nan] * data_length
-                outputs.append(output)
-                # ----- Add distances to the params dictionary ----- #
-                for dist in distances:
-                    params[dist] = np.nan
-                parameters.append(params)
-                if self.batch_debug:
-                    print(
-                        "Number of distances: {0:4d}".format(len(parameters)),
-                        end="\n")
-
-                    sys.stdout.flush()
 
         return None
