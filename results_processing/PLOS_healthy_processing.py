@@ -66,7 +66,7 @@ results = data_import(pfile)
 # Set accepted limit, lim
 lim = 1000
 distances = []
-for dist_measure in ['euclidean', 'NRMSE', 'RMSE']:
+for dist_measure in ['NRMSE']:
     distances.extend(['{}_{}'.format(t, dist_measure)
                       for t in config['targets']])
     distances.append(dist_measure)

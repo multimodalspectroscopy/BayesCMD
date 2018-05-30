@@ -228,7 +228,27 @@ def normalised_root_mean_square_error_dist(data1, data2):
     Returns
     -------
     d : float
-        Root Mean Square Error distance measure
+    xcept AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    assert (data1.shape == data2.shape), 'Arrays not of equal size'
+
+    # Get number of time points to average over.
+    n = data2.shape[1]
+
+    rng = np.max(data2, axis=1) - np.min(data2, axis=1)
+    try:
+        d = np.sum(np.sqrt(1 / n * np.sum((data1 - data2) * (data1 - data2),
+                                          axis=1))/rng)
+    except ValueError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    return d
+    Root Mean Square Error distance measure
 
     """
     try:
@@ -246,7 +266,7 @@ def normalised_root_mean_square_error_dist(data1, data2):
     rng = np.max(data2, axis=1) - np.min(data2, axis=1)
     try:
         d = np.sum(np.sqrt(1 / n * np.sum((data1 - data2) * (data1 - data2),
-                                          axis=1))/rng)
+                                          axis=1)) / rng)
     except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
@@ -392,7 +412,8 @@ def get_distance(actual_data,
 
     distance : str, optional
         Name of distance measure to use. One of ['euclidean', 'manhattan',
-        'MAE', 'MSE'], where default is 'euclidean'.
+        'MAE', 'MSE', 'NRMSE_range', 'NMRSE_mean'], where default is
+        'euclidean'.
 
     Returns
     -------

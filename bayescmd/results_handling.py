@@ -72,7 +72,7 @@ def data_merge_by_date(date, parent_directory, verbose=True):
             print("Batch Number: {}".format(ii))
             if ii is not 0:
                 dfs[ii]['ix'] = dfs[ii].index.values + \
-                    dfs[ii - 1]['ix'].values[-1]
+                    dfs[ii - 1]['ix'].values[-1] + 1
             else:
                 dfs[ii]['ix'] = dfs[ii].index.values
             if os.path.split(d)[1][:4].isdigit():
@@ -139,7 +139,7 @@ def data_merge_by_batch(parent_directory, verbose=True):
             print("Processing parameter file {}".format(ii))
             if ii is not 0:
                 dfs[ii]['ix'] = dfs[ii].index.values + \
-                    dfs[ii - 1]['ix'].values[-1]
+                    dfs[ii - 1]['ix'].values[-1] + 1
             else:
                 dfs[ii]['ix'] = dfs[ii].index.values
 
@@ -197,7 +197,7 @@ def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
     result = pd.DataFrame()
 
     num_lines = sum(1 for line in open(pfile)) - 1
-    df = pd.read_csv(pfile, chunksize=chunk_size, index_col='idx')
+    df = pd.read_csv(pfile, chunksize=chunk_size, index_col='ix')
     for chunk in df:
         chunk.fillna(nan_sub, inplace=True)
         result = result.append(chunk)
