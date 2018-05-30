@@ -18,13 +18,12 @@ param_df = pd.read_csv('../batch/scratch/pdists_BS_PLOS_wide.csv',
 
 
 ## 50% variation
-chosen_params = ['r_m', 'v_pn', 'sigma_coll', 'p_tot', 'r_t', 'Vol_mit',
-                 'cytox_tot_tis', 'r_0', 'v_cn', 'T_max0', 'Xtot', 'Dp_n',
-                 'a_n', 'K_sigma', 'R_autp', 'K_G']
+chosen_params = ['a_n', 'r_t', 'r_m', 'phi', 'Xtot', 'sigma_coll', 'v_pn',
+                 'cytox_tot_tis', 'Vol_mit']
 
 prior_dict = priors_creator(param_df.loc[chosen_params, 'Default'].to_dict(),
                             0.5)
-prior_dict['k_aut'] = ["uniform", [0.3, 1.0]]
+prior_dict['k_aut'] = ["uniform", [0.3, 1.1]]
 
 
 config_dict = {"model_name": "BS",

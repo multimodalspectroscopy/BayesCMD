@@ -2891,4 +2891,4 @@
            'points': array([74.15713634, 74.3803328 , 74.27588924, ..., 73.98003748,
        74.13479852, 73.91420321])}],
  'weights': {},
- 'work': '/home/buck06191/repos/GitHub/BayesCMD/build/../PLOS_paper/sensitivity_analysis/wide_params/healthy/euclidean'}
+ 'work': '/home/buck06191/repos/GitHub/BayesCMD/build/../PLOS_paper/sensitivity_analysis/wide_params/healthy/euclidean/'}
