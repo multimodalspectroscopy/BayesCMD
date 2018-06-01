@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 sys.path.append(str(Path(os.path.abspath(__file__)).parents[1]))
 print(sys.path)
-sys.path.append(os.environ['HOME']+'/BayesCMD')
+sys.path.append(os.environ['HOME'] + '/BayesCMD')
 from bayescmd.abc import Batch
 from datetime import datetime
 import pprint
@@ -58,6 +58,9 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
 
             model_debug (bool): Whether to run this in model debug mode.
 
+            store_simulations (bool): Whether to store simulations as well as
+                parameters
+
         data_0 (string): Path to csv of original experimental data
 
         workdir (str): file path to store all output data in.
@@ -77,6 +80,9 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
     targets = conf['targets']
 
     d0 = data_0
+
+    if 'store_simulations' not in conf.keys():
+        conf['store_simulations'] = True
 
     workdir = workdir
 
@@ -102,7 +108,7 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
         run_length,
         d0,
         workdir,
-        store_simulations=True,
+        store_simulations=conf['store_simulations'],
         offset=True,
         batch_debug=batch_debug,
         model_debug=model_debug)
