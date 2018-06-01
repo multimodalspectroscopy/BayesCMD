@@ -79,7 +79,7 @@ def dtw_distance(data1, data2):
         d = []
         for ii in range(len(data1)):
             d.append(dtw.distance_fast(np.array(data1[ii], dtype=np.double),
-                                       np.array(data2[ii])))
+                                       np.array(data2[ii], dtype=np.double)))
     except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
