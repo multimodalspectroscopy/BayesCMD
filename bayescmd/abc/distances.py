@@ -8,7 +8,9 @@ DISTANCES : dict
 
 """
 import numpy as np
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 # Import DTW distance functions
 from dtaidistance import dtw
 # Comment this line out as it appears to be deprecated.
