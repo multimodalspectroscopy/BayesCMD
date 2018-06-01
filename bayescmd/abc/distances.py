@@ -8,6 +8,9 @@ DISTANCES : dict
 
 """
 import numpy as np
+
+# Import DTW distance functions
+from dtaidistance import dtw
 # Comment this line out as it appears to be deprecated.
 # from numpy import AxisError
 
@@ -25,6 +28,51 @@ class ZeroArrayError(Error):
     """Exception raised for errors in the zero array."""
 
     pass
+
+
+def dtw_distance(data1, data2):
+    """Get the DTW distance between two numpy arrays.
+
+    Parameters
+    ----------
+    data1 : np.ndarray
+        First data array.
+
+        The shape should match that of data2 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    data2 : np.ndarray
+        Second data array.
+
+        The shape should match that of data1 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    Returns
+    -------
+    d : float
+        DTW distance measure
+    """
+
+    try:
+        assert (data1.shape == data2.shape), 'Arrays not of equal size'
+    except AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    try:
+        d = []
+        for ii in range(len(data1)):
+            d.append(dtw.distance_fast(np.array(data1[ii], dtype=np.double),
+                                       np.array(data2[ii])))
+    except ValueError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    return np.array(d)
 
 
 def euclidean_dist(data1, data2):
@@ -328,7 +376,8 @@ DISTANCES = {
     'MSE': mean_square_error_dist,
     'RMSE': root_mean_square_error_dist,
     'NRMSE': normalised_root_mean_square_error_dist,
-    'MAE': mean_absolute_error_dist
+    'MAE': mean_absolute_error_dist,
+    'DTW': dtw_distance
 }
 
 
