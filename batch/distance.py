@@ -2,6 +2,7 @@
 import numpy
 import numpy.linalg
 from scipy.stats import zscore
+from dtaidistance import dtw
 # how do we deal with non-numeric results?
 # in some cases, client code may want to change this in order to get
 # wrong but pragmatic results (yes, this is a hack)
@@ -153,6 +154,30 @@ def nrmse(data1, data2):
     n = len(data1)
     rng = numpy.max(data1) - numpy.min(data1)
 
-    d = numpy.sqrt(1.0 / n * numpy.sum((data1 - data2) * (data1 - data2))) / rng
+    d = numpy.sqrt(
+        1.0 / n * numpy.sum((data1 - data2) * (data1 - data2))) / rng
+
+    return substitute(d)
+
+
+def dtw_distance(data1, data2):
+    # Assumes data1 is true/measured data
+    data1 = numpy.array(data1)
+    data2 = numpy.array(data2)
+
+    # try:
+    #     data1.shape[1]
+    # except IndexError:
+    #     print("Reshaping data1 to have 2 dimensions")
+    #     data1 = data1.reshape((-1, 1))
+    #
+    # try:
+    #     data2.shape[1]
+    # except IndexError:
+    #     print("Reshaping data2 to have 2 dimensions")
+    #     data2 = data2.reshape((-1, 1))
+
+    d = dtw.distance_fast(numpy.array(data1, dtype=numpy.double),
+                          numpy.array(data2, dtype=numpy.double))
 
     return substitute(d)

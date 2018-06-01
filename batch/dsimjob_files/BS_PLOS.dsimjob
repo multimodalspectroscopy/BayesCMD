@@ -28,7 +28,7 @@ input: P_a, normal, 88, 0.5
 alias: t, t
 
 # Set distance measure
-distance: nrmse
+distance: dtw_distance
 
 # the number of distinct levels (potentially) tested per parameter
 divisions: 20
@@ -38,7 +38,7 @@ divisions: 20
 # save_interval: 0
 
 # Morris paths or FAST samples
-npath: 100
+npath: 1
 
 # where to start each trajectory:
 # random = a completely random point in the search sequence
