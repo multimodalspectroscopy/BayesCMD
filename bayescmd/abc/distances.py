@@ -62,6 +62,19 @@ def dtw_distance(data1, data2):
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
         raise e
+
+    try:
+        data1.shape[1]
+    except IndexError:
+        print("Reshaping data1 to have 2 dimensions")
+        data1 = data1.reshape((-1, 1))
+
+    try:
+        data2.shape[1]
+    except IndexError:
+        print("Reshaping data2 to have 2 dimensions")
+        data2 = data2.reshape((-1, 1))
+
     try:
         d = []
         for ii in range(len(data1)):
