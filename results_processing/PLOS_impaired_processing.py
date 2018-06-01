@@ -31,8 +31,7 @@ ap.add_argument(
 args = ap.parse_args()
 
 # pfile = data_merge_by_batch(args.parent_dir)
-pfile = os.path.abspath(os.path.join(
-    args.parent_dir, 'all_parameters.csv'))
+pfile = os.path.abspath(os.path.join(args.parent_dir, 'all_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -65,46 +64,48 @@ print(results.columns)
 
 
 # Set accepted limit, lim
-lim = 1000
+lims = [100, 500, 1000]
 distances = []
 for dist_measure in ['NRMSE']:
     distances.extend(['{}_{}'.format(t, dist_measure)
                       for t in config['targets']])
     distances.append(dist_measure)
-for d in distances:
-    print("Working on {}".format(d.upper()))
-    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/"\
-        "Figures/{}".format(model_name, 'PLOS_paper',
-                            'impaired', 'wide_range', d)
+for lim in lims:
+    for d in distances:
+        print("Working on {}".format(d.upper()))
+        figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/"\
+            "Figures/{}".format(model_name, 'PLOS_paper',
+                                'impaired', 'wide_range', 'euclidean_SA', d)
 
-    dir_util.mkpath(figPath)
-    print("Plotting total histogram")
-    hist1 = histogram_plot(results, distance=d, frac=1)
-    hist1.savefig(
-        os.path.join(figPath, 'full_histogram_real.png'), bbox_inches='tight')
-    print("Plotting fraction histogram")
-    hist2 = histogram_plot(results, distance=d, limit=lim)
-    hist2.savefig(
-        os.path.join(figPath, 'fraction_histogram_real.png'),
-        bbox_inches='tight')
-    print("Considering lowest {} values".format(lim))
-    # print("Generating scatter plot")
-    # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
-    print("Generating KDE plot")
-    g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
-                 median_file=os.path.join(figPath, "medians.txt"))
-    g.fig.savefig(
-        os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
-                     .format(str(lim).replace('.', '_'), d)),
-        bbox_inches='tight')
-    print("Generating averaged time series plot")
-    fig = plot_repeated_outputs(results, n_repeats=25, limit=lim,
-                                distance=d, **config)
-    fig.set_size_inches(18.5, 12.5)
-    fig.savefig(
-        os.path.join(figPath, 'PLOS_impaired_{}_{}.png'
-                     .format(str(lim).replace('.', '_'), d)),
-        dpi=100)
+        dir_util.mkpath(figPath)
+        print("Plotting total histogram")
+        hist1 = histogram_plot(results, distance=d, frac=1)
+        hist1.savefig(
+            os.path.join(figPath, 'full_histogram_impaired.png'), bbox_inches='tight')
+        print("Plotting fraction histogram")
+        hist2 = histogram_plot(results, distance=d, limit=lim)
+        hist2.savefig(
+            os.path.join(
+                figPath, 'fraction_{}_histogram_impaired.png'.format(lim)),
+            bbox_inches='tight')
+        print("Considering lowest {} values".format(lim))
+        # print("Generating scatter plot")
+        # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
+        print("Generating KDE plot")
+        g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
+                     median_file=os.path.join(figPath, "medians.txt"))
+        g.fig.savefig(
+            os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
+                         .format(str(lim).replace('.', '_'), d)),
+            bbox_inches='tight')
+        print("Generating averaged time series plot")
+        fig = plot_repeated_outputs(results, n_repeats=25, limit=lim,
+                                    distance=d, **config)
+        fig.set_size_inches(18.5, 12.5)
+        fig.savefig(
+            os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
+                         .format(str(lim).replace('.', '_'), d)),
+            dpi=100)
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.
