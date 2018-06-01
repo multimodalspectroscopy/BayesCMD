@@ -1,1 +1,19 @@
-{"model_name": "BS", "inputs": ["P_a"], "create_params": false, "priors": {"a_n": ["uniform", [0.0328358208955224, 0.09850746268656721]], "r_t": ["uniform", [0.009000000000000001, 0.027000000000000003]], "r_m": ["uniform", [0.013500000000000002, 0.04050000000000001]], "phi": ["uniform", [0.018000000000000002, 0.054000000000000006]], "Xtot": ["uniform", [4.55, 13.649999999999999]], "sigma_coll": ["uniform", [31.395, 94.185]], "v_pn": ["uniform", [50.0, 150.0]], "cytox_tot_tis": ["uniform", [0.00275, 0.00825]], "Vol_mit": ["uniform", [0.0335, 0.1005]], "k_aut": ["uniform", [0.3, 1.1]]}, "targets": ["Vmca", "CCO", "TOI"], "debug": false}
+{
+    "model_name": "BS",
+    "inputs": ["P_a"],
+    "create_params": false,
+    "priors": {
+        "a_n": ["uniform", [0.0328358208955224, 0.09850746268656721]],
+        "r_t": ["uniform", [0.009000000000000001, 0.027000000000000003]],
+        "r_m": ["uniform", [0.013500000000000002, 0.04050000000000001]],
+        "phi": ["uniform", [0.018000000000000002, 0.054000000000000006]],
+        "Xtot": ["uniform", [4.55, 13.649999999999999]],
+        "sigma_coll": ["uniform", [31.395, 94.185]],
+        "v_pn": ["uniform", [50.0, 150.0]],
+        "cytox_tot_tis": ["uniform", [0.00275, 0.00825]],
+        "Vol_mit": ["uniform", [0.0335, 0.1005]],
+        "k_aut": ["uniform", [0.3, 1.1]]
+    },
+    "targets": ["Vmca", "CCO", "TOI"],
+    "debug": false
+}

@@ -13,6 +13,6 @@
         "v_on": ["uniform", [0.051511707542023756, 0.07726756131303562]],
         "k_aut": ["uniform", [0.3, 1.1]]
     },
-    "targets": ["Vmca", "CCO", "TOI", "CBF"],
+    "targets": ["Vmca", "CCO", "TOI"],
     "debug": false
 }
