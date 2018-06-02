@@ -13,6 +13,7 @@ from bayescmd.abc import import_actual_data
 from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
 import json
+import matplotlib.pyplot as plt
 from distutils import dir_util
 
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
@@ -30,8 +31,8 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-pfile = data_merge_by_batch(args.parent_dir)
-# pfile = os.path.abspath(os.path.join(args.parent_dir, 'all_parameters.csv'))
+# pfile = data_merge_by_batch(args.parent_dir)
+pfile = os.path.abspath(os.path.join(args.parent_dir, 'all_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -106,6 +107,6 @@ for lim in lims:
             os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
                          .format(str(lim).replace('.', '_'), d)),
             dpi=100)
-
+        plt.close('all')
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.
