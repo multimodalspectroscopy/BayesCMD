@@ -38,7 +38,7 @@ divisions: 20
 # save_interval: 0
 
 # Morris paths or FAST samples
-npath: 1
+npath: 100
 
 # where to start each trajectory:
 # random = a completely random point in the search sequence
