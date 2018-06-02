@@ -81,7 +81,68 @@ def dtw_distance(data1, data2):
         d = 0
         for ii in range(len(data1)):
             d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
-                                       np.array(data2[ii], dtype=np.double))
+                                   np.array(data2[ii], dtype=np.double))
+    except ValueError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+    return d
+
+
+def dtw_weighted_distance(data1, data2):
+    """Get the weighted DTW distance between two numpy arrays.
+
+    Data 2 assumed to be real/true data.
+
+    Parameters
+    ----------
+    data1 : np.ndarray
+        First data array.
+
+        The shape should match that of data2 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    data2 : np.ndarray
+        Second data array.
+
+        The shape should match that of data1 and the number of rows should
+        match the number of model outputs i.e. 2 model outputs will be two
+        rows.
+
+    Returns
+    -------
+    d : float
+        DTW distance measure
+    """
+
+    try:
+        assert (data1.shape == data2.shape), 'Arrays not of equal size'
+    except AssertionError as e:
+        print(e)
+        print("\tData 1: ", data1.shape)
+        print("\tData 2: ", data2.shape)
+        raise e
+
+    try:
+        data1.shape[1]
+    except IndexError:
+        print("Reshaping data1 to have 2 dimensions")
+        data1 = data1.reshape((-1, 1))
+
+    try:
+        data2.shape[1]
+    except IndexError:
+        print("Reshaping data2 to have 2 dimensions")
+        data2 = data2.reshape((-1, 1))
+
+    try:
+        d = 0
+        for ii in range(len(data1)):
+            rng = np.max(data2[ii]) - np.min(data2[ii])
+            d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
+                                   np.array(data2[ii], dtype=np.double))/rng
     except ValueError as e:
         print(e)
         print("\tData 1: ", data1.shape)
@@ -392,7 +453,8 @@ DISTANCES = {
     'RMSE': root_mean_square_error_dist,
     'NRMSE': normalised_root_mean_square_error_dist,
     'MAE': mean_absolute_error_dist,
-    'DTW': dtw_distance
+    'DTW': dtw_distance,
+    'DTW.weighted': dtw_weighted_distance
 }
 
 

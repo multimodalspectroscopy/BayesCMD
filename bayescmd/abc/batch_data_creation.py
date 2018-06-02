@@ -423,7 +423,7 @@ class Batch:
         parameters = []
         outputs = []
         distances = ['euclidean', 'manhattan', 'MSE', 'RMSE', 'NRMSE',
-                     'MAE', 'DTW']
+                     'MAE', 'DTW', 'DTW.weighted']
         t_distances = ["{}_{}".format(t, dist) for t in self.targets
                        for dist in distances]
         pf = os.path.join(self.workdir, "parameters.csv")
