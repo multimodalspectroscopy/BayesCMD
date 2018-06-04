@@ -87,6 +87,10 @@ def dtw_distance(data1, data2):
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
         raise e
+
+    except TypeError as e:
+        print("Null output - distance set to None")
+        d = None
     return d
 
 
@@ -148,6 +152,9 @@ def dtw_weighted_distance(data1, data2):
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
         raise e
+    except TypeError as e:
+        print("Null output - distance sset to None")
+        d = None
     return d
 
 
@@ -190,6 +197,7 @@ def euclidean_dist(data1, data2):
         print("\tData 1: ", data1.shape)
         print("\tData 2: ", data2.shape)
         raise e
+
     return d
 
 
