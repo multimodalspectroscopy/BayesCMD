@@ -65,9 +65,9 @@ print(results.columns)
 
 
 # Set accepted limit, lim
-lims = [100, 500, 1000]
+lims = [1000]
 distances = []
-for dist_measure in ['DTW']:
+for dist_measure in ['DTW.weighted']:
     distances.extend(['{}_{}'.format(t, dist_measure)
                       for t in config['targets']])
     distances.append(dist_measure)
