@@ -100,6 +100,11 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
         print("##### PRIORS ####")
         pprint.pprint(priors)
 
+    if "zero_flag" in conf.keys():
+        zero_flag = conf['zero_flag']
+    else:
+        zero_flag = {k: False for k in targets}
+
     batchWriter = Batch(
         model_name,
         priors,
@@ -114,7 +119,7 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
         model_debug=model_debug)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation(zero_flag={k: False for k in targets})
+    batchWriter.batchCreation(zero_flag= zero_flag)
 
 
 if __name__ == '__main__':
