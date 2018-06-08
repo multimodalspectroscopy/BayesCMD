@@ -55,13 +55,13 @@ cbar = sns.color_palette("muted", n_colors=4)
 #                     ".png".format(i, direction),
 #                     bbox_inches="tight")
 
-outputs = ["CMRO2", "CCO", "DHbT", "CBF", "DHbdiff",
-           "TOI", "Vmca", "DHbO2", "DHHb", "HHb", "HbO2"]
-
+# outputs = ["CMRO2", "CCO", "DHbT", "CBF", "DHbdiff",
+#            "TOI", "Vmca", "DHbO2", "DHHb", "HHb", "HbO2"]
+outputs = ['TOI', 'CBF', 'Vmca', 'CCO', 'CMRO2']
 # For debugging
 # outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
 
-# q10_range = [1, 1.5, 2, 2.5, 3, 3.5,  4, 4.5, 5]
+q10_range = [1, 1.5, 2, 2.5, 3, 3.5]
 pa_range = [30, 40, 50, 60, 70]
 sao2_range = [0.8, 0.9, 1.0]
 cbar = sns.color_palette("Set1", n_colors=len(pa_range))
@@ -69,77 +69,77 @@ cbar = sns.color_palette("Set1", n_colors=len(pa_range))
 data = {}
 direction = "down"
 workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia',
-                       "P_an")
+                       "q10")
 distutils.dir_util.mkpath(workdir)
 
-for p in pa_range:
-    print("Running P_an {}".format(p))
+for q in q10_range:
+    print("Running Q10 {}".format(q))
     config = {
         "model_name": "bp_hypothermia",
         "inputs": "temp",
         "parameters": {
-            "P_an": p
+            "Q_10": q
         },
         "targets": outputs,
-        "max_val": 38,
-        "min_val": 32,
+        "max_val": 37.5,
+        "min_val": 27.5,
         "debug": False,
         "direction": direction
     }
 
     model = RunSteadyState(conf=config, workdir=workdir)
     output = model.run_steady_state()
-    data[p] = output
+    data[q] = output
 now = datetime.now().strftime('%d%m%yT%H%M')
 with open(os.path.join(workdir, "{}.json".format(now)), 'w') as f:
     json.dump(data, f)
 
-for o in outputs:
-    if direction == "both":
-        fig, ax = plt.subplots(nrows=1, ncols=len(pa_range))
-        for idx, q in enumerate(sao2_range):
-            ax[idx].plot(data[q]["temp"][:len(data[q][o]) // 2 + 1],
-                         data[q][o][:len(data[q][o]) // 2 + 1],
-                         label="Up")
-            ax[idx].plot(data[q]["temp"][len(data[q][o]) // 2:],
-                         data[q][o][len(data[q][o]) // 2:],
-                         label="Down")
-
-            ax[idx].set_title("P_a: {}".format(q))
-            ax[idx].set_ylabel(o)
-            ax[idx].set_xlabel("Temp (C)")
-        ax[idx].legend()
-        plt.tight_layout()
-
-        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_P_an/{}".format(
-            now)
-        distutils.dir_util.mkpath(path)
-        fig.savefig(os.path.join(path, "{}_both.png".format(o)),
-                    bbox_inches="tight")
-        plt.close()
-
-    else:
-        fig, ax = plt.subplots()
-        for idx, q in enumerate(pa_range):
-            # if direction == "both":
-            #     ax.plot(output["temp"][:len(output[o]) // 2 + 1],
-            #             output[o][:len(output[o]) // 2 + 1],
-            #             label="Up")
-            #     ax.plot(output["temp"][len(output[o]) // 2:],
-            #             output[o][len(output[o]) // 2:],
-            #             label="Down")
-            # else:
-            ax.plot(data[q]["temp"],
-                    data[q][o], label=q, color=cbar[idx])
-        ax.set_title(
-            "{} response to Temperature for varying Arterial Blood Pressure".format(o))
-        ax.set_ylabel(o)
-        ax.set_xlabel("Temp (C)")
-        ax.legend()
-
-        path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_P_an/{}".format(
-            now)
-        distutils.dir_util.mkpath(path)
-        fig.savefig(os.path.join(path, "{}.png".format(o)),
-                    bbox_inches="tight")
-        plt.close()
+# for o in outputs:
+#     if direction == "both":
+#         fig, ax = plt.subplots(nrows=1, ncols=len(q10_range))
+#         for idx, q in enumerate(q10_range):
+#             ax[idx].plot(data[q]["temp"][:len(data[q][o]) // 2 + 1],
+#                          data[q][o][:len(data[q][o]) // 2 + 1],
+#                          label="Up")
+#             ax[idx].plot(data[q]["temp"][len(data[q][o]) // 2:],
+#                          data[q][o][len(data[q][o]) // 2:],
+#                          label="Down")
+#
+#             ax[idx].set_title("Q10: {}".format(q))
+#             ax[idx].set_ylabel(o)
+#             ax[idx].set_xlabel("Temp (C)")
+#         ax[idx].legend()
+#         plt.tight_layout()
+#
+#         path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/{}".format(
+#             now)
+#         distutils.dir_util.mkpath(path)
+#         fig.savefig(os.path.join(path, "{}_both.png".format(o)),
+#                     bbox_inches="tight")
+#         plt.close()
+#
+#     else:
+#         fig, ax = plt.subplots()
+#         for idx, q in enumerate(q10_range):
+#             # if direction == "both":
+#             #     ax.plot(output["temp"][:len(output[o]) // 2 + 1],
+#             #             output[o][:len(output[o]) // 2 + 1],
+#             #             label="Up")
+#             #     ax.plot(output["temp"][len(output[o]) // 2:],
+#             #             output[o][len(output[o]) // 2:],
+#             #             label="Down")
+#             # else:
+#             ax.plot(data[q]["temp"],
+#                     data[q][o], label=q, color=cbar[idx])
+#         ax.set_title(
+#             "{} response to Temperature for different Q10 values".format(o))
+#         ax.set_ylabel(o)
+#         ax.set_xlabel("Temp (C)")
+#         ax.legend()
+#
+#         path = "/home/buck06191/Dropbox/phd/hypothermia/Figures/varying_q10/{}".format(
+#             now)
+#         distutils.dir_util.mkpath(path)
+#         fig.savefig(os.path.join(path, "{}.png".format(o)),
+#                     bbox_inches="tight")
+#         plt.close()
