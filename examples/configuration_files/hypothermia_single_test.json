@@ -1,0 +1,7 @@
+{
+"model_name": "bp_hypothermia",
+"parameters": {"Q_10": 1.0},
+"inputs": "temp",
+"targets": ["CBF", "TOI", "DHbD"],
+"debug": false
+}
