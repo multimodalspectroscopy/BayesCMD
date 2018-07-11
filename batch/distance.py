@@ -1,7 +1,6 @@
 # custom distance functions for use with abc-sysbio and the BCMD batch scripts
 import numpy
 import numpy.linalg
-from scipy.stats import zscore
 from dtaidistance import dtw
 # how do we deal with non-numeric results?
 # in some cases, client code may want to change this in order to get
@@ -24,14 +23,6 @@ def substitute(x):
 def euclideanDistance(data1, data2, parameters, model):
     return [numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2)))]
 
-# z-score Euclidean distance
-
-
-def zscoreDistance(data1, data2, parameters, model):
-
-    data1 = zscore(data1)
-    data2 = zscore(data2)
-    return [numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2)))]
 # Tracy's custom distance metric
 
 
@@ -84,14 +75,6 @@ def cosineDistance(data1, data2, parameters, model):
 # -- generic distance functions that just return a scalar
 
 def euclidean(data1, data2):
-    return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
-
-
-def zscoredistance(data1, data2):
-
-    data1 = zscore(data1)
-    data2 = zscore(data2)
-
     return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
 
 
@@ -179,5 +162,92 @@ def dtw_distance(data1, data2):
 
     d = dtw.distance_fast(numpy.array(data1, dtype=numpy.double),
                           numpy.array(data2, dtype=numpy.double))
+
+    return substitute(d)
+
+
+## Eucidean distance between minima
+def minima_distance(data1, data2):
+
+    min_1 = numpy.min(data1)
+    min_2 = numpy.min(data2)
+
+    d = euclidean(min_1-data1[0], min_2-data2[0])
+
+    return substitute(d)
+
+
+## Euclidean distance between maxima
+
+def maxima_distance(data1, data2):
+
+    max_1 = numpy.max(data1)
+    max_2 = numpy.max(data2)
+
+    d = euclidean(max_1-data1[0], max_2-data2[0])
+
+    return substitute(d)
+
+## Euclidean distance between largest inflection point
+
+def inflection_distance(data1, data2):
+
+    max_1 = numpy.max(data1)
+    max_2 = numpy.max(data2)
+
+    min_1 = numpy.min(data1)
+    min_2 = numpy.min(data2)
+
+    if abs(max_1) > abs(min_1):
+        d = euclidean((max_1-data1[0]), (max_2-data2[0]))
+    else:
+        d = euclidean((min_1-data1[0]), (min_2-data2[0]))
+
+
+    return substitute(d)
+
+
+## Scaled Eucidean distance between minima
+def scaled_minima_distance(data1, data2):
+
+    rng = numpy.max(data1) - numpy.min(data1)
+
+    min_1 = numpy.min(data1)
+    min_2 = numpy.min(data2)
+
+    d = euclidean((min_1-data1[0])/rng, (min_2-data2[0])/rng)
+
+    return substitute(d)
+
+
+## Scaled Euclidean distance between maxima
+
+def scaled_maxima_distance(data1, data2):
+
+    rng = numpy.max(data1) - numpy.min(data1)
+    max_1 = numpy.max(data1)
+    max_2 = numpy.max(data2)
+
+    d = euclidean((max_1-data1[0])/rng, (max_2-data2[0])/rng)
+
+    return substitute(d)
+
+
+## Scaled Euclidean distance between largest inflection point
+
+def scaled_inflection_distance(data1, data2):
+
+    rng = numpy.max(data1) - numpy.min(data1)
+    max_1 = numpy.max(data1)
+    max_2 = numpy.max(data2)
+
+    min_1 = numpy.min(data1)
+    min_2 = numpy.min(data2)
+
+    if abs(max_1) > abs(min_1):
+        d = euclidean((max_1-data1[0])/rng, (max_2-data2[0])/rng)
+    else:
+        d = euclidean((min_1-data1[0])/rng, (min_2-data2[0])/rng)
+
 
     return substitute(d)

@@ -1,0 +1,56 @@
+model: BS
+
+# vars to be simulated, with distrib of initial conditions
+var: CCO, uniform, -0.01, 0.01
+var: HbO2, uniform, -0.01, 0.01
+var: HHb, uniform, -0.01, 0.01
+var: CBF, uniform, 0.011, 0.013
+var: TOI, uniform, 74.11, 74.13
+
+# optional external file specifying param distributions
+param_file: ./scratch/pdists_BS_PLOS_wide.csv
+
+# Morris or FAST?
+job_mode: morris
+
+# param_select specifies which params to vary
+# may specify an explicit (comma-separated) list
+# or * to mean all params for which a distrib has been provided (the default)
+param_select: *
+
+# inputs, with perturbation distribs
+# (latter ignored unless the --perturb command-line switch is given)
+input: SaO2sup, normal, 0.88, 0.5
+
+
+# use an alias for t to specify the t variable, if not using the default ' t'
+# in particular, you might need to alias t to itself
+# if explicitly including it by that name in a CSV
+alias: t, t
+
+# Set distance measure
+distance: scaled_inflection_distance
+
+# the number of distinct levels (potentially) tested per parameter
+divisions: 20
+
+# periodically save intermediate results after this many jobs (default 100)
+# set to 0 for no intermediate saves
+# save_interval: 0
+
+# Morris paths or FAST samples
+npath: 100
+
+# where to start each trajectory:
+# random = a completely random point in the search sequence
+# default = start at default value for params (or nearest point on search grid)
+path_start: default
+
+# number of repeat trials to run for each param draw -- since we perturb the inputs the trials are non-deterministic
+beta: 20
+
+# number of sims to run in parallel
+nbatch: 7
+
+# NaN substitute value
+substitute: 0
