@@ -57,7 +57,8 @@ cbar = sns.color_palette("muted", n_colors=4)
 
 # outputs = ["CMRO2", "CCO", "DHbT", "CBF", "DHbdiff",
 #            "TOI", "Vmca", "DHbO2", "DHHb", "HHb", "HbO2"]
-outputs = ['TOI', 'CBF', 'Vmca', 'CCO', 'CMRO2', 'DHbdiff']
+
+outputs = ['TOI', 'DHbdiff', 'CBF', 'CCO', 'CMRO2']
 # For debugging
 # outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
 
@@ -82,7 +83,11 @@ for q in q10_range:
         },
         "targets": outputs,
         "max_val": 37,
+<<<<<<< HEAD
         "min_val": 33,
+=======
+        "min_val": 33.5,
+>>>>>>> 93b78ed58a9889410e0fa40f0500422f03f5f80f
         "debug": False,
         "direction": direction
     }

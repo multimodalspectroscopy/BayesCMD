@@ -415,7 +415,7 @@ h = -r + sqrt(pow(r,2.0) + 2.0*r_0*h_0 + h_0*h_0)
 ## ~ s$^{-1}$
 ## $k_1$
 ## + Metabolism
-k1 = Q_temp * k10*exp(-ck1*(Dp-Dp_n))
+k1 = Q_temp * k10 * exp(-ck1*(Dp-Dp_n))
 
 ## Forward reaction rate constant for the reduction of Cu$_A$ at normal $\Delta p$.
 ## ~ s$^{-1}$
