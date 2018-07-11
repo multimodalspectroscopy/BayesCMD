@@ -41,9 +41,8 @@ with open(args.conf, 'r') as conf_f:
 params = conf['priors']
 
 input_path = os.path.join(BASEDIR,
-                          'PLOS_paper',
                           'data',
-                          'simulated_smooth_combined_impaired_ABP.csv')
+                          'hx01_offset.csv')
 
 d0 = import_actual_data(input_path)
 
@@ -57,11 +56,11 @@ config = {
     "inputs": inputs,
     "parameters": params,
     "input_path": input_path,
-    "zero_flag": {k: False for k in targets}
+    "zero_flag": conf['zero_flag']
 }
 
 results = data_import(pfile)
-print(results.columns)
+# print(results.columns)
 
 
 # Set accepted limit, lim
@@ -75,38 +74,43 @@ for lim in lims:
     for d in distances:
         print("Working on {}".format(d.upper()))
         figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/"\
-            "Figures/{}".format(model_name, 'PLOS_paper',
-                                'impaired', 'narrow_range', 'euclidean', d)
+            "{}/Figures/{}".format(model_name, 'PLOS_paper', 'hypercapnia',
+                                   'healthy', 'narrow_range', 'euclidean', d)
 
         dir_util.mkpath(figPath)
         print("Plotting total histogram")
         hist1 = histogram_plot(results, distance=d, frac=1)
         hist1.savefig(
-            os.path.join(figPath, 'full_histogram_impaired.png'), bbox_inches='tight')
+            os.path.join(figPath, 'full_histogram_healthy.png'),
+            bbox_inches='tight')
         print("Plotting fraction histogram")
         hist2 = histogram_plot(results, distance=d, limit=lim)
         hist2.savefig(
             os.path.join(
-                figPath, 'fraction_{}_histogram_impaired.png'.format(lim)),
+                figPath, 'fraction_{}_histogram_healthy.png'.format(lim)),
             bbox_inches='tight')
         print("Considering lowest {} values".format(lim))
         # print("Generating scatter plot")
         # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
-        print("Generating KDE plot")
-        g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
-                     median_file=os.path.join(figPath, "medians.txt"))
-        g.fig.savefig(
-            os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
-                         .format(str(lim).replace('.', '_'), d)),
-            bbox_inches='tight')
+        # print("Generating KDE plot")
+        # g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
+        #              median_file=os.path.join(figPath, "medians.txt"))
+        # g.fig.savefig(
+        #     os.path.join(figPath, 'PLOS_healthy_{}_{}_kde.png'
+        #                  .format(str(lim).replace('.', '_'), d)),
+        #     bbox_inches='tight')
         print("Generating averaged time series plot")
+        config["offset"] = {}
+        # for t in config["targets"]:
+        #     config["offset"]["{}_offset".format(t)] = d0[t][0]
         fig = plot_repeated_outputs(results, n_repeats=25, limit=lim,
                                     distance=d, **config)
         fig.set_size_inches(18.5, 12.5)
         fig.savefig(
-            os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
+            os.path.join(figPath, 'PLOS_healthy_{}_{}_TS.png'
                          .format(str(lim).replace('.', '_'), d)),
             dpi=100)
         plt.close('all')
+
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.

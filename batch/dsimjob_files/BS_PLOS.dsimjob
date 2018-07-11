@@ -7,7 +7,7 @@ var: CBF, uniform, 0.011, 0.013
 var: TOI, uniform, 74.15, 74.16
 
 # optional external file specifying param distributions
-param_file: ./scratch/pdists_BS_PLOS_wide.csv
+param_file: ./scratch/pdists_BS_PLOS.csv
 
 # Morris or FAST?
 job_mode: morris
@@ -28,7 +28,7 @@ input: P_a, normal, 88, 0.5
 alias: t, t
 
 # Set distance measure
-distance: dtw_distance
+distance: nrmse
 
 # the number of distinct levels (potentially) tested per parameter
 divisions: 20

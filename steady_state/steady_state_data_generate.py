@@ -57,7 +57,7 @@ cbar = sns.color_palette("muted", n_colors=4)
 
 # outputs = ["CMRO2", "CCO", "DHbT", "CBF", "DHbdiff",
 #            "TOI", "Vmca", "DHbO2", "DHHb", "HHb", "HbO2"]
-outputs = ['TOI', 'CBF', 'Vmca', 'CCO', 'CMRO2']
+outputs = ['TOI', 'CBF', 'Vmca', 'CCO', 'CMRO2', 'DHbdiff']
 # For debugging
 # outputs.extend(["k_MAshut", "k_nMAshut", "Q_temp", "_ADP", "_ATP"])
 
@@ -67,7 +67,7 @@ sao2_range = [0.8, 0.9, 1.0]
 cbar = sns.color_palette("Set1", n_colors=len(pa_range))
 
 data = {}
-direction = "down"
+direction = "both"
 workdir = os.path.join('.', 'build', 'steady_state', 'bp_hypothermia',
                        "q10")
 distutils.dir_util.mkpath(workdir)
@@ -81,8 +81,8 @@ for q in q10_range:
             "Q_10": q
         },
         "targets": outputs,
-        "max_val": 37.5,
-        "min_val": 27.5,
+        "max_val": 37,
+        "min_val": 33,
         "debug": False,
         "direction": direction
     }

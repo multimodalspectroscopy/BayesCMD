@@ -1028,6 +1028,10 @@ def get_output(model_name,
     for k, v in dist.items():
         p[k] = v
 
+    if zero_flag:
+        for k, boolean in zero_flag.items():
+            if boolean:
+                output[k] = [x - output[k][0] for x in output[k]]
     return p, output
 
 

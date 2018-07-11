@@ -617,7 +617,7 @@ def postproc(jobs, results, config):
 
         collated[name] = { 'target': pts,
                            'distances': [] }
-
+    collated['TOTAL'] = {'distances': [] }
     summed = []
 
     print 'Calculating distances'
@@ -630,10 +630,10 @@ def postproc(jobs, results, config):
                 dist = config['distance'](cv['target'], results[job, rep, :, species])
                 cv['distances'].append(dist)
                 sumdist += dist * config['weights'].get(name, 1)
+            collated['TOTAL']['distances'].append(sumdist)
             summed.append(sumdist)
 
     if config['job_mode']=='hessian':
-        summed
         process_hessian(jobs, np.array(summed), config)
     else:
         process_SA(jobs, collated, config)
