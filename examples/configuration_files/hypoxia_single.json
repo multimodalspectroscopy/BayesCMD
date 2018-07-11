@@ -1,0 +1,7 @@
+{
+"model_name": "BS",
+"parameters": {},
+"inputs": "SaO2sup",
+"targets": ["HbO2", "HHb", "CCO", "TOI"],
+"debug": false
+}

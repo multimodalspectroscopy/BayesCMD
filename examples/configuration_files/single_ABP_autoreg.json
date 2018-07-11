@@ -1,0 +1,7 @@
+{
+"model_name": "BS",
+"parameters": {},
+"inputs": "P_a",
+"targets": ["CBF", "TOI", "CCO"],
+"debug": false
+}
