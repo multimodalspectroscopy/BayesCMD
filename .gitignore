@@ -99,3 +99,6 @@ config.guess
 config.status
 config.sub
 install-sh
+
+# Custom add
+parsetab.py
