@@ -1,1 +1,26 @@
-{"model_name": "BS", "inputs": ["SaO2sup"], "create_params": false, "priors": {"sigma_coll": ["uniform", [31.395, 94.185]], "R_auto": ["uniform", [0.75, 2.25]], "n_h": ["uniform", [1.25, 3.75]], "r_t": ["uniform", [0.009000000000000001, 0.027000000000000003]], "mu_max": ["uniform", [0.5, 1.5]], "n_m": ["uniform", [0.915, 2.745]], "r_m": ["uniform", [0.013500000000000002, 0.04050000000000001]], "P_v": ["uniform", [2.0, 6.0]], "phi": ["uniform", [0.018000000000000002, 0.054000000000000006]], "Xtot": ["uniform", [4.55, 13.649999999999999]]}, "targets": ["TOI", "CCO", "HHb", "HbO2"], "zero_flag": {"TOI": false, "CCO": true, "HHb": true, "HbO2": true}, "batch_debug": false}
+{
+    "model_name": "BS",
+    "inputs": ["SaO2sup"],
+    "create_params": false,
+    "priors": {
+        "sigma_coll": ["uniform", [31.395, 94.185]],
+        "R_auto": ["uniform", [0.75, 2.25]],
+        "n_h": ["uniform", [1.25, 3.75]],
+        "r_t": ["uniform", [0.009000000000000001, 0.027000000000000003]],
+        "mu_max": ["uniform", [0.5, 1.5]],
+        "n_m": ["uniform", [0.915, 2.745]],
+        "r_m": ["uniform", [0.013500000000000002, 0.04050000000000001]],
+        "P_v": ["uniform", [2.0, 6.0]],
+        "phi": ["uniform", [0.018000000000000002, 0.054000000000000006]],
+        "Xtot": ["uniform", [4.55, 13.649999999999999]]
+    },
+    "targets": ["TOI", "CCO", "HHb", "HbO2"],
+    "zero_flag": {
+        "TOI": false,
+        "CCO": true,
+        "HHb": true,
+        "HbO2": true
+    },
+    "batch_debug": false,
+    "store_simulations": false
+}
