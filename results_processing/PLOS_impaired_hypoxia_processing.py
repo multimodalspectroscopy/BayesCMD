@@ -1,4 +1,4 @@
-"""Process results from 230218."""
+"""Process impaired hypoxia results."""
 import os
 import argparse
 import sys
@@ -43,7 +43,7 @@ params = conf['priors']
 input_path = os.path.join(BASEDIR,
                           'PLOS_paper',
                           'data',
-                          'hypoxia_output.csv')
+                          'impaired_hypoxia_output.csv')
 
 d0 = import_actual_data(input_path)
 
@@ -71,47 +71,53 @@ for dist_measure in ['NRMSE']:
     distances.extend(['{}_{}'.format(t, dist_measure)
                       for t in config['targets']])
     distances.append(dist_measure)
-for lim in lims:
-    for d in distances:
-        print("Working on {}".format(d.upper()))
-        figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
-            "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
-                                'healthy', 'wide_range', 'inflection', d)
 
-        dir_util.mkpath(figPath)
-        print("Plotting total histogram")
-        hist1 = histogram_plot(results, distance=d, frac=1)
-        hist1.savefig(
-            os.path.join(figPath, 'full_histogram_healthy.png'),
-            bbox_inches='tight')
-        print("Plotting fraction histogram")
-        hist2 = histogram_plot(results, distance=d, limit=lim)
-        hist2.savefig(
-            os.path.join(
-                figPath, 'fraction_{}_histogram_healthy.png'.format(lim)),
-            bbox_inches='tight')
-        print("Considering lowest {} values".format(lim))
-        # print("Generating scatter plot")
-        # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
-        print("Generating KDE plot")
-        g = kde_plot(results, params, limit=lim, n_ticks=4, d=d,
-                     median_file=os.path.join(figPath, "medians.txt"))
-        g.fig.savefig(
-            os.path.join(figPath, 'PLOS_healthy_{}_{}_kde.png'
-                         .format(str(lim).replace('.', '_'), d)),
-            bbox_inches='tight')
-        print("Generating averaged time series plot")
-        config["offset"] = {}
-        for t in config["targets"]:
-            config["offset"]["{}_offset".format(t)] = d0[t][0]
-        fig = plot_repeated_outputs(results, n_repeats=25, limit=lim,
-                                    distance=d, **config)
-        fig.set_size_inches(18.5, 12.5)
-        fig.savefig(
-            os.path.join(figPath, 'PLOS_healthy_{}_{}_TS.png'
-                         .format(str(lim).replace('.', '_'), d)),
-            dpi=100)
-        plt.close('all')
+max_error = 0.1
+for d in distances:
+
+    lim =  
+    print("Working on {}".format(d.upper()))
+    figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
+        "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
+                            'impaired', 'wide_range', 'inflection', d)
+
+    dir_util.mkpath(figPath)
+    print("Plotting total histogram")
+    hist1 = histogram_plot(results, distance=d, frac=1)
+    hist1.savefig(
+        os.path.join(figPath, 'full_histogram_impaired.png'),
+        bbox_inches='tight')
+    print("Plotting fraction histogram")
+    hist2 = histogram_plot(results, distance=d, limit=lim)
+    hist2.savefig(
+        os.path.join(
+            figPath, 'fraction_{}_histogram_impaired.png'.format(lim)),
+        bbox_inches='tight')
+    print("Considering lowest {} values".format(lim))
+    sorted_results = results.sort_values(by=d).head(lim)
+    # print("Generating scatter plot")
+    # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
+    print("Generating KDE plot")
+    g = kde_plot(sorted_results, params, limit=lim, n_ticks=4, d=d,
+                    median_file=os.path.join(figPath, "medians.txt"))
+    g.fig.savefig(
+        os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
+                        .format(str(lim).replace('.', '_'), d)),
+        bbox_inches='tight')
+    print("Generating averaged time series plot")
+    config["offset"] = {}
+    for t in config["targets"]:
+        config["offset"]["{}_offset".format(t)] = d0[t][0]
+    fig = plot_repeated_outputs(sorted_results, n_repeats=25, limit=lim,
+                                distance=d, **config)
+    fig.set_size_inches(18.5, 12.5)
+    fig.savefig(
+        os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
+                        .format(str(lim).replace('.', '_'), d)),
+        dpi=100)
+    plt.close('all')
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
 # TODO: Fix issue with time series cutting short.
+
+

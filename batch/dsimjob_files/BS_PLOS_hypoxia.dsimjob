@@ -4,7 +4,7 @@ model: BS
 var: CCO, uniform, -0.01, 0.01
 var: HbO2, uniform, -0.01, 0.01
 var: HHb, uniform, -0.01, 0.01
-var: CBF, uniform, 0.011, 0.013
+# var: CBF, uniform, 0.011, 0.013
 var: TOI, uniform, 74.11, 74.13
 
 # optional external file specifying param distributions
