@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#$ -l h_rt=0:45:00
+#$ -l h_rt=1:15:00
 #$ -N experimental_hypoxia_wide
 #$ -wd /home/ucbpjru/Scratch
 # Set up the job array.  In this instance we have requested 1000 tasks
