@@ -21,5 +21,6 @@
         "HbD": true,
         "HbT": true
     },
-    "batch_debug": false
+    "batch_debug": false,
+    "store_simulations": false
 }
