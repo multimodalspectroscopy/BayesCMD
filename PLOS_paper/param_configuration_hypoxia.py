@@ -12,36 +12,49 @@ param_df = pd.read_csv('../batch/scratch/pdists_BS_PLOS_wide.csv',
                               'Min', 'Max', 'Default'],
                        index_col=0)
 
-chosen_params = ['sigma_coll',
-                 'R_auto',
-                 'n_h',
-                 'r_t',
-                 'mu_max',
-                 'n_m',
-                 'r_m',
-                 'P_v',
-                 'phi',
-                 'Xtot']
+# chosen_params = ['sigma_coll',
+#                  'R_auto',
+#                  'n_h',
+#                  'r_t',
+#                  'mu_max',
+#                  'n_m',
+#                  'r_m',
+#                  'P_v',
+#                  'phi',
+#                  'Xtot']
 
-prior_dict = priors_creator(param_df.loc[chosen_params, 'Default'].to_dict(),
+experimental_params = [
+    'P_ic',
+    'v_on',
+    'n_m',
+    'T_max0',
+    'E_2',
+    'h_0',
+    'K_sigma',
+    'v_un',
+    'R_autc',
+    'v_cn'
+    ]
+
+prior_dict = priors_creator(param_df.loc[experimental_params, 'Default'].to_dict(),
                             0.5)
 
 
 
-config_dict = {"model_name": "BS",
-               "inputs": ["SaO2sup"],
+config_dict = {"model_name": "BS1-1",
+               "inputs": ["SaO2sup", "P_a", "Pa_CO2"],
                "create_params": False,
                "priors": prior_dict,
-               "targets": ["TOI", "CCO", "HHb", "HbO2"],
+               "targets": ["TOI", "CCO", "HbT", "HbD"],
                "zero_flag": {
                    "TOI": False,
                    "CCO": True,
-                   "HHb": True,
-                   "HbO2": True
+                   "HbD": True,
+                   "HbT": True
                },
                "batch_debug": False
                }
 
-with open('../examples/configuration_files/healthy_hypoxia_config.json',
+with open('../examples/configuration_files/experimental_hypoxia_config.json',
           'w') as f:
     json.dump(config_dict, f)
