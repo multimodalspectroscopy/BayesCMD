@@ -32,7 +32,7 @@ ap.add_argument(
 args = ap.parse_args()
 
 # pfile = data_merge_by_batch(args.parent_dir)
-pfile = os.path.abspath(os.path.join(args.parent_dir, 'all_parameters.csv'))
+pfile = os.path.abspath(os.path.join(args.parent_dir, 'reduced_sorted_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -75,7 +75,7 @@ for dist_measure in ['NRMSE']:
 max_error = 0.1
 for d in distances:
 
-    lim =  
+    lim = 1000
     print("Working on {}".format(d.upper()))
     figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
         "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
@@ -95,8 +95,6 @@ for d in distances:
         bbox_inches='tight')
     print("Considering lowest {} values".format(lim))
     sorted_results = results.sort_values(by=d).head(lim)
-    # print("Generating scatter plot")
-    # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
     print("Generating KDE plot")
     g = kde_plot(sorted_results, params, limit=lim, n_ticks=4, d=d,
                     median_file=os.path.join(figPath, "medians.txt"))
