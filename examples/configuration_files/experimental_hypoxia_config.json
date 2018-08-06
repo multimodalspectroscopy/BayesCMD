@@ -1,0 +1,25 @@
+{
+    "model_name": "BS1-1",
+    "inputs": ["SaO2sup", "P_a", "Pa_CO2"],
+    "create_params": false,
+    "priors": {
+        "P_ic": ["uniform", [4.75, 14.25]],
+        "v_on": ["uniform", [0.032, 0.097]],
+        "n_m": ["uniform", [0.915, 2.745]],
+        "T_max0": ["uniform", [1.055, 3.165]],
+        "E_2": ["uniform", [51.5, 154.5]],
+        "h_0": ["uniform", [0.0015, 0.00450]],
+        "K_sigma": ["uniform", [5.0, 15.0]],
+        "v_un": ["uniform", [0.5, 1.5]],
+        "R_autc": ["uniform", [1.1, 3.30]],
+        "v_cn": ["uniform", [20.0, 60.0]]
+    },
+    "targets": ["TOI", "CCO", "HbT", "HbD"],
+    "zero_flag": {
+        "TOI": false,
+        "CCO": true,
+        "HbD": true,
+        "HbT": true
+    },
+    "batch_debug": false
+}
