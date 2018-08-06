@@ -10,12 +10,16 @@ from datetime import datetime
 
 
 inputs = {"P_a": (40, 150), "Pa_CO2": (8, 80), "SaO2sup": (0.5, 1.0)}
-title_dict = {"P_a": "Arterial Blood Pressure",
-              "Pa_CO2": "Partial Pressure of CO2",
-              "SaO2sup": "Arterial Oxygen Saturation"}
+title_dict = {"P_a": "Arterial Blood Pressure (mmHg)",
+              "Pa_CO2": "Partial Pressure of $CO_2$ (mmHg)",
+              "SaO2sup": "Arterial Oxygen Saturation (%)",
+              "CBF": "$CBF/CBF_n$",
+              "CMRO2": "$CMRO_2 (mMs^{-1}$",
+              "HbT": "HbT ($\mu M$)",
+              "CCO": "CCO ($\mu M$)"}
 outputs = ["CMRO2", "CCO", "HbT", "CBF"]
-r_ts = {"default": 0.018,
-"16": 0.016, "13":0.013, "10": 0.01}
+r_ts = {"$r_t$: 0.018": 0.018,
+"$r_t$: 0.016": 0.016, "$r_t$: 0.013":0.013, "$r_t$: 0.010": 0.01}
 
 cbar = sns.color_palette("muted", n_colors=4)
 direction = "both"
@@ -101,6 +105,11 @@ for o in outputs:
         fig, ax = plt.subplots()
 
         for idx, k in enumerate(r_ts.keys()):
+            if i == "SaO2sup":
+                data[k][i] = [x*100 for x in data[k][i]]
+
+            if o == "CBF":
+                data[k][o] = [x/0.0125 for x in data[k][o]]
             ax.set_position([0.1, 0.1, 0.7, 0.8])
             line = ax.plot(data[k][i][:len(data[k][i]) // 2 + 1],
                            data[k][o][:len(data[k][o]) // 2 + 1],
@@ -111,10 +120,10 @@ for o in outputs:
                            color=cbar[idx], linestyle='--')[0]
             add_arrow(line, direction='left', position=25, size=24)
 
-        ax.set_title("Steady state for varying levels\nof "
-                     "$r_t$",
-                     size=20)
-        ax.set_ylabel(o, size=18)
+        # ax.set_title("Steady state for varying levels\nof "
+        #              "$r_t$",
+        #              size=20)
+        ax.set_ylabel(title_dict[o], size=16)
         ax.set_xlabel(title_dict[i], size=16)
         legend = ax.legend(loc='center left', bbox_to_anchor=(1.0, 0.5),
                            prop={'size': 12})
