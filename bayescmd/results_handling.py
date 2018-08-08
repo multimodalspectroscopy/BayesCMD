@@ -230,7 +230,8 @@ def frac_calculator(df, frac):
     return int(len(df) * frac / 100)
 
 
-def histogram_plot(df, distance='euclidean', frac=None, limit=None, n_bins=100):
+def histogram_plot(df, distance='euclidean', frac=None, limit=None, tolerance=None,
+                   n_bins=100):
     """Plot histogram of distance values.
 
     Plot a histogram showing the distribution of distance values for a given
@@ -262,7 +263,10 @@ def histogram_plot(df, distance='euclidean', frac=None, limit=None, n_bins=100):
     """
     sorted_df = df.sort_values(by=distance)
 
-    if limit:
+    if tolerance:
+        accepted_limit = sum(df[distance].values < tolerance)
+        print("For a tolerance of {}, we use {} particles.".format(tolerance, accepted_limit))
+    elif limit:
         accepted_limit = limit
     elif frac:
         accepted_limit = frac_calculator(sorted_df, frac)
@@ -460,6 +464,7 @@ def kde_plot(df,
              params,
              limit=None,
              frac=None,
+             tolerance=None,
              median_file=None,
              true_medians=None,
              openopt_medians=None,
@@ -512,13 +517,16 @@ def kde_plot(df,
     p_names = list(params.keys())
     sorted_df = df.sort_values(by=d)
 
-    if limit:
+    if tolerance:
+        accepted_limit = sum(df[d].values < tolerance)
+    elif limit:
         accepted_limit = limit
     elif frac:
         accepted_limit = frac_calculator(sorted_df, frac)
     else:
-        raise ValueError('No limit or fraction given.')
+        raise ValueError('No tolerance, limit or fraction given.')
 
+    
     sorted_df['Accepted'] = np.zeros(len(sorted_df))
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
     sorted_df['Accepted'][sorted_df[d] == 100000] = 2
@@ -940,10 +948,10 @@ def single_kde_plot(df,
 
         lines = []
         if true_medians:
-            lines.append(('True', mlines.Line2D([], [], color='green')))
+            lines.append(('True Value', mlines.Line2D([], [], color='green')))
         if openopt_medians:
-            lines.append(('OpenOpt', mlines.Line2D([], [], color='red')))
-        lines.append(('Inferred', mlines.Line2D([], [], color='black')))
+            lines.append(('OpenOpt Median', mlines.Line2D([], [], color='red')))
+        lines.append(('ABC Median', mlines.Line2D([], [], color='black')))
 
         fig.legend(labels=[l[0] for l in lines],
                    handles=[l[1] for l in lines],
@@ -1043,6 +1051,7 @@ def plot_repeated_outputs(df,
                           targets,
                           n_repeats,
                           zero_flag,
+                          tolerance=None,
                           limit=None,
                           frac=None,
                           openopt_path=None,
@@ -1091,7 +1100,9 @@ def plot_repeated_outputs(df,
     p_names = list(parameters.keys())
     sorted_df = df.sort_values(by=distance)
 
-    if limit:
+    if tolerance:
+        accepted_limit = sum(df[distance].values < tolerance)
+    elif limit:
         accepted_limit = limit
     elif frac:
         accepted_limit = frac_calculator(sorted_df, frac)
@@ -1161,7 +1172,7 @@ def plot_repeated_outputs(df,
                 ax=ax[ii])
             paths = []
             true_plot, = ax[ii].plot(
-                times, true_data[target], 'r', label='True')
+                times, true_data[target], 'r', label='True Data', alpha=0.6)
             paths.append(true_plot)
             if openopt_path:
                 openopt_plot, = ax[ii].plot(
