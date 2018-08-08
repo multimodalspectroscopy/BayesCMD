@@ -43,7 +43,7 @@ params = conf['priors']
 input_path = os.path.join(BASEDIR,
                           'PLOS_paper',
                           'data',
-                          'hypoxia_output.csv')
+                          'cleaned_hypoxia_experimental.csv')
 
 d0 = import_actual_data(input_path)
 
@@ -66,41 +66,41 @@ results = data_import(pfile)
 
 # Set accepted limit, lim
 # lims = [1000]
-tols = [0.11]
+tols = [0.916]
 distances = []
 for dist_measure in ['NRMSE']:
-    # distances.extend(['{}_{}'.format(t, dist_measure)
-    #                   for t in config['targets']])
+#     distances.extend(['{}_{}'.format(t, dist_measure)
+#                       for t in config['targets']])
     distances.append(dist_measure)
 # for lim in lims:
 for tol in tols:
     for d in distances:
         print("Working on {}".format(d.upper()))
-        figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/{}/"\
+        figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
             "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
-                                'healthy', 'wide_range', 'inflection', 'tolerance', d)
+                                'experimental', 'wide_range', 'tolerance', d)
 
         dir_util.mkpath(figPath)
         print("Plotting total histogram")
         hist1 = histogram_plot(results, distance=d, frac=1)
         hist1.savefig(
-            os.path.join(figPath, 'full_histogram_healthy.png'),
+            os.path.join(figPath, 'full_histogram_experimental.png'),
             bbox_inches='tight')
         print("Plotting fraction histogram")
         hist2 = histogram_plot(results, distance=d, tolerance=tol)
         hist2.savefig(
             os.path.join(
-                figPath, 'tolerance_{}_histogram_healthy.png'.format(str(tol).replace('.', '_'))),
+                figPath, 'tol_{}_histogram_experimental.png'.format(str(tol).replace('.', '_'))),
             bbox_inches='tight')
-        print("Considering values below {}".format(tol))
+        print("Considering {} lowest values".format(tol))
         # print("Generating scatter plot")
-        # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
+        # scatter_dist_plot(results, params, tolerance=tol, n_ticks=4)
+        sorted_results = results.sort_values(by=d).head(5000)
         print("Generating KDE plot")
-        
-        g = kde_plot(results, params, tolerance=tol, n_ticks=4, d=d,
+        g = kde_plot(sorted_results, params, tolerance=tol, n_ticks=4, d=d,
                      median_file=os.path.join(figPath, "medians.txt"))
         g.fig.savefig(
-            os.path.join(figPath, 'PLOS_healthy_{}_{}_kde.png'
+            os.path.join(figPath, 'PLOS_experimental_{}_{}_kde.png'
                          .format(str(tol).replace('.', '_'), d)),
             bbox_inches='tight')
         print("Generating averaged time series plot")
@@ -111,7 +111,7 @@ for tol in tols:
                                     distance=d, **config)
         fig.set_size_inches(18.5, 12.5)
         fig.savefig(
-            os.path.join(figPath, 'PLOS_healthy_{}_{}_TS.png'
+            os.path.join(figPath, 'PLOS_experimental_{}_{}_TS.png'
                          .format(str(tol).replace('.', '_'), d)),
             dpi=100)
         plt.close('all')

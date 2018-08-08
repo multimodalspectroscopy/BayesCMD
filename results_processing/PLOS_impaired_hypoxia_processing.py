@@ -65,21 +65,21 @@ results = data_import(pfile)
 
 
 # Set accepted limit, lim
-lims = [1000]
+# tols = [0.5]
 distances = []
 for dist_measure in ['NRMSE']:
-    distances.extend(['{}_{}'.format(t, dist_measure)
-                      for t in config['targets']])
+    # distances.extend(['{}_{}'.format(t, dist_measure)
+    #                   for t in config['targets']])
     distances.append(dist_measure)
 
-max_error = 0.1
+lim = 1000
 for d in distances:
 
-    lim = 1000
+    tol = 0.21
     print("Working on {}".format(d.upper()))
     figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
         "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
-                            'impaired', 'wide_range', 'inflection', d)
+                            'impaired', 'wide_range', 'tolerance', d)
 
     dir_util.mkpath(figPath)
     print("Plotting total histogram")
@@ -88,30 +88,32 @@ for d in distances:
         os.path.join(figPath, 'full_histogram_impaired.png'),
         bbox_inches='tight')
     print("Plotting fraction histogram")
-    hist2 = histogram_plot(results, distance=d, limit=lim)
+    hist2 = histogram_plot(results, distance=d, tolerance=tol)
     hist2.savefig(
         os.path.join(
-            figPath, 'fraction_{}_histogram_impaired.png'.format(lim)),
+            figPath, 'tol_{}_histogram_impaired.png'.format(str(tol).replace('.', '_'))),
         bbox_inches='tight')
-    print("Considering lowest {} values".format(lim))
-    sorted_results = results.sort_values(by=d).head(lim)
+    print("Considering values below {}".format(tol))
+
+    # don't need to use all values for the kde plot
+    sorted_results = results.sort_values(by=d).head(10000)
     print("Generating KDE plot")
-    g = kde_plot(sorted_results, params, limit=lim, n_ticks=4, d=d,
+    g = kde_plot(results, params, tolerance=tol, n_ticks=4, d=d,
                     median_file=os.path.join(figPath, "medians.txt"))
     g.fig.savefig(
         os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
-                        .format(str(lim).replace('.', '_'), d)),
+                        .format(str(tol).replace('.', '_'), d)),
         bbox_inches='tight')
+
     print("Generating averaged time series plot")
-    config["offset"] = {}
-    for t in config["targets"]:
-        config["offset"]["{}_offset".format(t)] = d0[t][0]
-    fig = plot_repeated_outputs(sorted_results, n_repeats=25, limit=lim,
+    # for t in config["targets"]:
+    #     config["offset"]["{}_offset".format(t)] = d0[t][0]
+    fig = plot_repeated_outputs(sorted_results, n_repeats=25, tolerance=tol,
                                 distance=d, **config)
     fig.set_size_inches(18.5, 12.5)
     fig.savefig(
         os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
-                        .format(str(lim).replace('.', '_'), d)),
+                        .format(str(tol).replace('.', '_'), d)),
         dpi=100)
     plt.close('all')
 
