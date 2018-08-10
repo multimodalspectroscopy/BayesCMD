@@ -23,20 +23,31 @@ param_df = pd.read_csv('../batch/scratch/pdists_BS_PLOS_wide.csv',
 #                  'phi',
 #                  'Xtot']
 
-experimental_params = [
-    'P_ic',
-    'v_on',
-    'n_m',
-    'T_max0',
-    'E_2',
-    'h_0',
-    'K_sigma',
-    'v_un',
-    'R_autc',
-    'v_cn'
-    ]
+# experimental_params = [
+#     'P_ic',
+#     'v_on',
+#     'n_m',
+#     'T_max0',
+#     'E_2',
+#     'h_0',
+#     'K_sigma',
+#     'v_un',
+#     'R_autc',
+#     'v_cn'
+#     ]
 
-prior_dict = priors_creator(param_df.loc[experimental_params, 'Default'].to_dict(),
+filtered_params = ['n_m',
+                   'r_m',
+                   'K_sigma',
+                   'p_tot',
+                   'k_aut',
+                   'v_cn',
+                   'sigma_e0',
+                   'k2_n',
+                   'Xtot',
+                   'R_autc']
+
+prior_dict = priors_creator(param_df.loc[filtered_params, 'Default'].to_dict(),
                             0.5)
 
 
@@ -52,9 +63,10 @@ config_dict = {"model_name": "BS1-1",
                    "HbD": True,
                    "HbT": True
                },
-               "batch_debug": False
+               "batch_debug": False,
+               "store_simulations": False
                }
 
-with open('../examples/configuration_files/experimental_hypoxia_config.json',
+with open('../examples/configuration_files/filtered_hypoxia_config.json',
           'w') as f:
     json.dump(config_dict, f)
