@@ -230,7 +230,7 @@ class Batch:
                  limit,
                  data_0,
                  workdir,
-                 store_simulations=True,
+                 store_simulations=False,
                  burnin=999,
                  sample_rate=None,
                  model_debug=False,
