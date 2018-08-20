@@ -415,7 +415,7 @@ class Batch:
         Returns
         -------
         :obj:`None`
-            Outputs are writen to file.
+            Outputs are written to file.
 
         """
         STORE_VALUE = 1000
@@ -467,11 +467,21 @@ class Batch:
             else:
                 data_length = max([len(l) for l in self.d0.values()])
                 output = {}
-                output['ii'] = [ii] * data_length
+                if ('t' not in self.d0.keys()) and (self.sample_rate is not None):
+                    times = [i * self.sample_rate for i in range(data_length + 1)]
+                elif 't' in self.d0.keys():
+                    times = self.d0['t']
+                    if times[0] != 0:
+                        times.insert(0, 0)
+                else:
+                    raise KeyError("time ('t') not in given data")
+
                 for t in self.targets:
                     output[t] = [np.nan] * data_length
                 for i in self.inputs:
                     output[i] = [np.nan] * data_length
+                output['ii'] = [ii] * data_length
+
                 outputs.append(output)
                 # ----- Add distances to the params dictionary ----- #
                 for dist in distances:

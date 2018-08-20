@@ -242,7 +242,7 @@ class model_bcmd:
                     for post in self.vars[ii]['post']:
                         signal = post(signal)
 
-                    dd = dist(signal, target)
+                    dd = dist(target, signal)
 
                     if self.debug:
                         print >> sys.stderr, 'distance due to %s: %f' % (self.vnames[

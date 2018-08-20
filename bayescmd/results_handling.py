@@ -619,7 +619,6 @@ pandas convert column type
     """
     ax = plt.gca()
     p = sns.distplot(x, ax=ax, hist_kws={"linewidth": 1})
-    x1, y1 = p.get_lines()[0].get_data()
     x_median = np.median(x)
     ax.vlines(x_median, 0, ax.get_ylim()[1])
     if true_medians is not None:

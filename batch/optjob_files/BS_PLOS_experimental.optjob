@@ -1,0 +1,36 @@
+# optimisation for BayesCMD Report. Uses hx01 dataprint
+model: BS1-1
+
+input: SaO2sup, normal, 0.99, 0.5
+input: P_a, normal, 76.0, 0.5
+input: Pa_CO2, normal, 35.25, 0.5
+
+
+# Vars to optimise for 
+###
+var: TOI, constant, 65.124
+
+var: HbD, constant, 0
+post: HbD, zero
+
+var: HbT, constant, 0
+post: HbT, zero
+
+var: CCO, constant, 0
+post: CCO, zero
+
+
+# take time from data file
+alias: t, t
+param_file: scratch/pdists_BS_PLOS_wide.csv
+
+# parameter details
+param_select: n_m, r_m, K_sigma, p_tot, k_aut, v_cn, sigma_e0, k2_n, Xtot, R_autc
+
+# job details
+job_mode: GLP
+solver: pswarm
+max_iter: 5000
+distance: nrmse
+
+steady: 1000

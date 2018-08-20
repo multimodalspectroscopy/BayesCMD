@@ -360,28 +360,6 @@ def normalised_root_mean_square_error_dist(data1, data2):
     Returns
     -------
     d : float
-    xcept AssertionError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
-    assert (data1.shape == data2.shape), 'Arrays not of equal size'
-
-    # Get number of time points to average over.
-    n = data2.shape[1]
-
-    rng = np.max(data2, axis=1) - np.min(data2, axis=1)
-    try:
-        d = np.sum(np.sqrt(1 / n * np.sum((data1 - data2) * (data1 - data2),
-                                          axis=1))/rng)
-    except ValueError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
-    return d
-    Root Mean Square Error distance measure
-
     """
     try:
         assert (data1.shape == data2.shape), 'Arrays not of equal size'
