@@ -1,18 +1,18 @@
 {
-"model_name": "BS1-1",
-"parameters": {
-    "k2_n": 5873.518400,
-    "K_sigma": 5.000000,
-    "k_aut": 1.009993,
-    "n_m": 2.745000,
-    "p_tot": 12.913221,
-    "R_autc": 2.337526,
-    "r_m": 0.039141,
-    "sigma_e0": 0.071250,
-    "v_cn": 60.000000,
-    "Xtot": 13.650000
-},
-"inputs": ["SaO2sup", "P_a", "Pa_CO2"],
-"targets": ["HbT", "HbD", "CCO", "TOI"],
-"debug": false
+    "model_name": "BS1-1",
+    "parameters": {
+        "k2_n": 5873.518400,
+        "K_sigma": 5.000000,
+        "k_aut": 1.037624,
+        "n_m": 1.729228,
+        "p_tot": 19.129620,
+        "R_autc": 1.100000,
+        "r_m": 0.024105,
+        "sigma_e0": 0.071250,
+        "v_cn": 60.000000,
+        "Xtot": 7.369974
+    },
+    "inputs": ["SaO2sup", "P_a", "Pa_CO2"],
+    "targets": ["HbT", "HbD", "CCO", "TOI"],
+    "debug": false
 }
