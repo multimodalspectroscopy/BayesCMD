@@ -423,7 +423,7 @@ def medians_kde_plot(x, y, medians, true_medians, openopt_medians, **kws):
         ax.plot(true_medians[x.name], true_medians[y.name], 'gX')
 
     if openopt_medians is not None:
-        ax.plot(openopt_medians[x.name], openopt_medians[y.name], color='mX')
+        ax.plot(openopt_medians[x.name], openopt_medians[y.name], 'mX')
 
     return ax
 
@@ -586,6 +586,10 @@ def kde_plot(df,
 
         lines = []
         lines.append(('Inferred', mlines.Line2D([], [], color='black')))
+        if openopt_medians:
+            lines.append(('OpenOpt Value', mlines.Line2D([], [], color='red')))
+        if true_medians:
+            lines.append(('True Value', mlines.Line2D([], [], color='green')))
 
         g.fig.legend(labels=[l[0] for l in lines],
                      handles=[l[1] for l in lines],
@@ -1171,12 +1175,13 @@ def plot_repeated_outputs(df,
                 ax=ax[ii])
             paths = []
             true_plot, = ax[ii].plot(
-                times, true_data[target], 'r', label='True Data', alpha=0.6)
+                times, true_data[target], 'g', label='True Data', alpha=0.6)
             paths.append(true_plot)
             if openopt_path:
                 openopt_plot, = ax[ii].plot(
-                    times, openopt_data[target], 'g', label='OpenOpt')
-                paths.append(openopt_plot)
+                    times, openopt_data[target], 'r', label='OpenOpt', alpha=0.75, linestyle=':')
+                openopt_line = mlines.Line2D([], [], color='r', label='OpenOpt')
+                paths.append(openopt_line)
             bayes_line = mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
             paths.append(bayes_line)
