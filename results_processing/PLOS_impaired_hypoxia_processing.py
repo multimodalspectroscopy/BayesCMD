@@ -61,6 +61,18 @@ config = {
 }
 
 results = data_import(pfile)
+
+true_medians = {'P_v': 4.0,
+ 'R_auto': 1.5,
+ 'Xtot': 9.1,
+ 'mu_max': 1.0,
+ 'n_h': 2.5,
+ 'n_m': 1.83,
+ 'phi': 0.036000000000000004,
+ 'r_m': 0.027000000000000003,
+ 'r_t': 0.013,
+ 'sigma_coll': 62.79}
+
 # print(results.columns)
 
 
@@ -99,7 +111,8 @@ for d in distances:
     sorted_results = results.sort_values(by=d).head(10000)
     print("Generating KDE plot")
     g = kde_plot(results, params, tolerance=tol, n_ticks=4, d=d,
-                    median_file=os.path.join(figPath, "medians.txt"))
+                    median_file=os.path.join(figPath, "medians.txt"),
+                    true_medians=true_medians)
     g.fig.savefig(
         os.path.join(figPath, 'PLOS_impaired_{}_{}_kde.png'
                         .format(str(tol).replace('.', '_'), d)),
