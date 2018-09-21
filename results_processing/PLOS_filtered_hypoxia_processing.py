@@ -32,7 +32,7 @@ ap.add_argument(
 args = ap.parse_args()
 
 # pfile = data_merge_by_batch(args.parent_dir)
-pfile = os.path.abspath(os.path.join(args.parent_dir, 'posterior_parameters.csv')) #'reduced_sorted_parameters.csv'))
+pfile = os.path.abspath(os.path.join(args.parent_dir, 'reduced_sorted_parameters.csv'))
 
 with open(args.conf, 'r') as conf_f:
     conf = json.load(conf_f)
@@ -71,56 +71,57 @@ results = data_import(pfile)
 
 
 # Set accepted limit, lim
-#lims = [1000]
-tols = [0.798]
+lims = [2000]
+# tols = [0.798]
 distances = []
 for dist_measure in ['NRMSE']:
-    # distances.extend(['{}_{}'.format(t, dist_measure)
-    #                   for t in config['targets']])
+    distances.extend(['{}_{}'.format(t, dist_measure)
+                   for t in config['targets']])
     distances.append(dist_measure)
-# for lim in lims:
-for tol in tols:
+for lim in lims:
+# for tol in tols:
     for d in distances:
         print("Working on {}".format(d.upper()))
         figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/"\
             "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
-                                'filtered_2', 'wide_range', 'tolerance', d)
+                                'filtered_2', 'wide_range', 'limit', d)
 
         dir_util.mkpath(figPath)
-        print("Plotting total histogram")
-        hist1 = histogram_plot(results, distance=d, frac=1)
-        hist1.savefig(
-            os.path.join(figPath, 'full_histogram_filtered.png'),
-            bbox_inches='tight')
-        print("Plotting fraction histogram")
-        hist2 = histogram_plot(results, distance=d, tolerance=tol)
-        hist2.savefig(
-            os.path.join(
-                figPath, 'tol_{}_histogram_filtered.png'.format(str(tol).replace('.', '_'))),
-            bbox_inches='tight')
-        print("Considering {} lowest values".format(tol))
-        # print("Generating scatter plot")
-        # scatter_dist_plot(results, params, tolerance=tol, n_ticks=4)
-        sorted_results = results.sort_values(by=d).head(5000)
-        print("Generating KDE plot")
-        g = kde_plot(sorted_results, params, tolerance=tol, n_ticks=4, d=d,
-                     median_file=os.path.join(figPath, "medians.txt"), openopt_medians=openopt_medians)
-        g.fig.savefig(
-            os.path.join(figPath, 'PLOS_filtered_{}_{}_kde.png'
-                         .format(str(tol).replace('.', '_'), d)),
-            bbox_inches='tight')
+        # print("Plotting total histogram")
+        # hist1 = histogram_plot(results, distance=d, frac=1)
+        # hist1.savefig(
+        #     os.path.join(figPath, 'full_histogram_filtered.png'),
+        #     bbox_inches='tight')
+        # print("Plotting fraction histogram")
+        # hist2 = histogram_plot(results, distance=d, tolerance=tol)
+        # hist2.savefig(
+        #     os.path.join(
+        #         figPath, 'tol_{}_histogram_filtered.png'.format(str(tol).replace('.', '_'))),
+        #     bbox_inches='tight')
+        # print("Considering {} lowest values".format(tol))
+        # # print("Generating scatter plot")
+        # # scatter_dist_plot(results, params, tolerance=tol, n_ticks=4)
+        sorted_results = results.sort_values(by=d).head(2000)
+        # print("Generating KDE plot")
+        # g = kde_plot(sorted_results, params, tolerance=tol, n_ticks=4, d=d,
+        #              median_file=os.path.join(figPath, "medians.txt"), openopt_medians=openopt_medians)
+        # g.fig.savefig(
+        #     os.path.join(figPath, 'PLOS_filtered_{}_{}_kde.png'
+        #                  .format(str(tol).replace('.', '_'), d)),
+        #     bbox_inches='tight')
         print("Generating averaged time series plot")
         config["offset"] = {}
         for t in config["targets"]:
             config["offset"]["{}_offset".format(t)] = d0[t][0]
-        fig = plot_repeated_outputs(results, n_repeats=25, tolerance=tol,
+        fig, ax = plot_repeated_outputs(results, n_repeats=25, limit=lim,
                                     distance=d, openopt_path=openopt_run, **config)
+        
+        for i, u in enumerate([" (%)", " ($\mu M$)", " ($\mu M$)", " ($\mu M$)"]):
+            ax[i].set_ylabel(ax[i].get_ylabel()+u)
+        
         fig.set_size_inches(18.5, 12.5)
         fig.savefig(
             os.path.join(figPath, 'PLOS_filtered_{}_{}_TS.png'
-                         .format(str(tol).replace('.', '_'), d)),
+                         .format(str(lim).replace('.', '_'), d)),
             dpi=100)
         plt.close('all')
-
-# # TODO: Fix issue with plot formatting, cutting off axes etc
-# # TODO: Fix issue with time series cutting short.

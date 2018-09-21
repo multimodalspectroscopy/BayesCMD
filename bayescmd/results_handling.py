@@ -1166,16 +1166,21 @@ def plot_repeated_outputs(df,
         fig, ax = plt.subplots(len(targets))
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
+
         for ii, target in enumerate(targets):
-            sns.tsplot(
-                data=d['Outputs'][target],
-                time=times,
+            x = [j for j in times for n in range(len(d['Outputs'][target]))]
+            y = np.array(d['Outputs'][target]).transpose().flatten()
+            df = pd.DataFrame({"Time": x, "Posterior": y})
+            sns.lineplot(
+                y="Posterior",
+                x="Time",
+                data=df,
                 estimator=np.median,
                 ci=95,
                 ax=ax[ii])
             paths = []
             true_plot, = ax[ii].plot(
-                times, true_data[target], 'g', label='True Data', alpha=0.6)
+                times, true_data[target], 'g', label='Data', alpha=0.6)
             paths.append(true_plot)
             if openopt_path:
                 openopt_plot, = ax[ii].plot(
@@ -1194,18 +1199,18 @@ def plot_repeated_outputs(df,
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(22)
         if openopt_path:
-            fig.legend(labels=['True\nData', 'OpenOpt', 'Posterior\nPredictive'],
+            fig.legend(labels=['Data', 'OpenOpt', 'Posterior\nPredictive'],
                        handles=paths, prop={"size": 20},
                        bbox_to_anchor=(1.0, 0.6))
         else:
-            fig.legend(labels=['True\nData', 'Posterior\nPredictive'],
+            fig.legend(labels=['Data', 'Posterior\nPredictive'],
                        handles=paths, prop={"size": 20},
                        bbox_to_anchor=(1.0, 0.6))
-        plt.subplots_adjust(hspace=1, right=0.8)
-        if limit:
-            fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
-                         format(n_repeats, limit))
-        elif frac:
-            fig.suptitle("Simulated output for {} repeats using top {}% of data\n".
-                         format(n_repeats, frac))
-    return fig
+        plt.subplots_adjust(hspace=1, right=0.8, top = 0.95)
+        # if limit:
+        #     fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
+        #                  format(n_repeats, limit))
+        # elif frac:
+        #     fig.suptitle("Simulated output for {} repeats using top {}% of data\n".
+        #                  format(n_repeats, frac))
+    return fig, ax

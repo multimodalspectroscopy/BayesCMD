@@ -77,55 +77,61 @@ true_medians= {'P_v': 4.0,
 
 
 # Set accepted limit, lim
-# lims = [1000]
-tols = [0.11]
+lims = [1000]
+# tols = [0.11]
 distances = []
 for dist_measure in ['NRMSE']:
     # distances.extend(['{}_{}'.format(t, dist_measure)
     #                   for t in config['targets']])
     distances.append(dist_measure)
-# for lim in lims:
-for tol in tols:
+for lim in lims:
+# for tol in tols:
     for d in distances:
         print("Working on {}".format(d.upper()))
         figPath = "/home/buck06191/Dropbox/phd/Bayesian_fitting/{}/{}/{}/{}/{}/{}/{}/"\
             "Figures/{}".format(model_name, 'PLOS_paper', 'hypoxia',
-                                'healthy', 'wide_range', 'inflection', 'tolerance', d)
+                                'healthy', 'wide_range', 'limit', 'tolerance', d)
 
         dir_util.mkpath(figPath)
-        print("Plotting total histogram")
-        hist1 = histogram_plot(results, distance=d, frac=1)
-        hist1.savefig(
-            os.path.join(figPath, 'full_histogram_healthy.png'),
-            bbox_inches='tight')
-        print("Plotting fraction histogram")
-        hist2 = histogram_plot(results, distance=d, tolerance=tol)
-        hist2.savefig(
-            os.path.join(
-                figPath, 'tolerance_{}_histogram_healthy.png'.format(str(tol).replace('.', '_'))),
-            bbox_inches='tight')
-        print("Considering values below {}".format(tol))
-        # print("Generating scatter plot")
-        # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
-        print("Generating KDE plot")
+        # print("Plotting total histogram")
+        # hist1 = histogram_plot(results, distance=d, frac=1)
+        # hist1.savefig(
+        #     os.path.join(figPath, 'full_histogram_healthy.png'),
+        #     bbox_inches='tight')
+        # print("Plotting fraction histogram")
+        # hist2 = histogram_plot(results, distance=d, tolerance=tol)
+        # hist2.savefig(
+        #     os.path.join(
+        #         figPath, 'tolerance_{}_histogram_healthy.png'.format(str(tol).replace('.', '_'))),
+        #     bbox_inches='tight')
+        # print("Considering values below {}".format(tol))
+        # # print("Generating scatter plot")
+        # # scatter_dist_plot(results, params, limit=lim, n_ticks=4)
+        # print("Generating KDE plot")
         
-        g = kde_plot(results, params, tolerance=tol, n_ticks=4, d=d,
-                     median_file=os.path.join(figPath, "medians.txt"),
-                     true_medians=true_medians)
-        g.fig.savefig(
-            os.path.join(figPath, 'PLOS_healthy_{}_{}_kde.png'
-                         .format(str(tol).replace('.', '_'), d)),
-            bbox_inches='tight')
-        print("Generating averaged time series plot")
-        config["offset"] = {}
-        for t in config["targets"]:
-            config["offset"]["{}_offset".format(t)] = d0[t][0]
-        fig = plot_repeated_outputs(results, n_repeats=25, tolerance=tol,
+        # g = kde_plot(results, params, tolerance=tol, n_ticks=4, d=d,
+        #              median_file=os.path.join(figPath, "medians.txt"),
+        #              true_medians=true_medians)
+        # g.fig.savefig(
+        #     os.path.join(figPath, 'PLOS_healthy_{}_{}_kde.png'
+        #                  .format(str(tol).replace('.', '_'), d)),
+        #     bbox_inches='tight')
+        # print("Generating averaged time series plot")
+        # config["offset"] = {}
+        # for t in config["targets"]:
+        #     config["offset"]["{}_offset".format(t)] = d0[t][0]
+        fig, ax = plot_repeated_outputs(results, n_repeats=25, limit=lim,
                                     distance=d, **config)
+
+        for i, u in enumerate([" (%)", " ($\mu M$)", " ($\mu M$)", " ($\mu M$)"]):
+            ax[i].set_ylabel(ax[i].get_ylabel()+u)
+        
+        for i, y_lim in enumerate([(35,80), (-1.1, 0.1), (-2, 30), (-25, 2)]):
+            ax[i].set_ylim(y_lim)
         fig.set_size_inches(18.5, 12.5)
         fig.savefig(
             os.path.join(figPath, 'PLOS_healthy_{}_{}_TS.png'
-                         .format(str(tol).replace('.', '_'), d)),
+                         .format(str(lim).replace('.', '_'), d)),
             dpi=100)
         plt.close('all')
 
