@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from datetime import datetime
+import matplotlib as mpl
+from PIL import Image
+from io import BytesIO
+mpl.rc('figure', dpi=400)
 
 
 inputs = {"P_a": (40, 150), "Pa_CO2": (8, 80), "SaO2sup": (0.5, 1.0)}
@@ -14,7 +18,7 @@ title_dict = {"P_a": "Arterial Blood Pressure (mmHg)",
               "Pa_CO2": "Partial Pressure of $CO_2$ (mmHg)",
               "SaO2sup": "Arterial Oxygen Saturation (%)",
               "CBF": "$CBF/CBF_n$",
-              "CMRO2": "$CMRO_2 (mMs^{-1}$",
+              "CMRO2": "$CMRO_2 (mMs^{-1})$",
               "HbT": "HbT ($\mu M$)",
               "CCO": "CCO ($\mu M$)"}
 outputs = ["CMRO2", "CCO", "HbT", "CBF"]
@@ -23,6 +27,26 @@ r_ts = {"$r_t$: 0.018": 0.018,
 
 cbar = sns.color_palette("muted", n_colors=4)
 direction = "both"
+
+def TIFF_exporter(fig, fname, fig_dir = '.'):
+    """
+    Parameters
+    ----------
+    fig: matplotlib figure
+    """
+    
+    # save figure
+    # (1) save the image in memory in PNG format
+    png1 = BytesIO()
+    fig.savefig(png1, format='png', bbox_inches='tight')
+
+    # (2) load this image into PIL
+    png2 = Image.open(png1)
+
+    # (3) save as TIFF
+    png2.save(os.path.join(fig_dir,'{}.tiff'.format(fname)))
+    png1.close()
+    return True
 
 
 def add_arrow(line, position=None, direction='right', size=15, color=None):
@@ -125,9 +149,12 @@ for o in outputs:
         #              size=20)
         ax.set_ylabel(title_dict[o], size=16)
         ax.set_xlabel(title_dict[i], size=16)
-        legend = ax.legend(loc='center left', bbox_to_anchor=(1.0, 0.5),
-                           prop={'size': 12})
+        ax.tick_params(axis='both', which='major', labelsize=16)
 
-        fig.savefig(os.path.join(base_work_dir, "{}_{}.png".format(i,
-                                                                   direction)),
-                    bbox_inches="tight")
+        legend = ax.legend(loc='center left', bbox_to_anchor=(1.0, 0.5),
+                           prop={'size': 22})
+
+        # fig.savefig(os.path.join(base_work_dir, "{}_{}.png".format(i,
+        #                                                            direction)),
+        #             bbox_inches="tight")
+        TIFF_exporter(fig, "{}_{}".format(i, direction), fig_dir=base_work_dir)
