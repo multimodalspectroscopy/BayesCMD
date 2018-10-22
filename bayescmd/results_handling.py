@@ -1199,14 +1199,14 @@ def plot_repeated_outputs(df,
                          ax[0].get_xticklabels() + ax[0].get_yticklabels()):
                 item.set_fontsize(22)
         if openopt_path:
-            fig.legend(labels=['Data', 'OpenOpt', 'Posterior\nPredictive'],
+            lgd = fig.legend(labels=['Data', 'OpenOpt', 'Posterior\nPredictive'],
                        handles=paths, prop={"size": 20},
                        bbox_to_anchor=(1.0, 0.6))
         else:
-            fig.legend(labels=['Data', 'Posterior\nPredictive'],
+            lgd = fig.legend(labels=['Data', 'Posterior\nPredictive'],
                        handles=paths, prop={"size": 20},
                        bbox_to_anchor=(1.0, 0.6))
-        plt.subplots_adjust(hspace=1, right=0.8, top = 0.95)
+        plt.subplots_adjust(hspace=1, right=0.825, top = 0.95)
         # if limit:
         #     fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
         #                  format(n_repeats, limit))
