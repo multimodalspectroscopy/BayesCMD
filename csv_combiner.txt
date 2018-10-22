@@ -1,8 +1,0 @@
-awk 'FNR==1 && NR!=1{next;}{print}' ./build/batch/bp_hypotherma/1203018_long/1741T120318/clean_data/summary_distances_*.csv > ./build/batch/bp_hypotherma/1203018_long/1741T120318/clean_data/total_summary.csv
-awk 'FNR==1 && NR!=1{next;}{print}' ./build/batch/bp_hypotherma/1203018_long/1742T120318/clean_data/summary_distances_*.csv > ./build/batch/bp_hypotherma/1203018_long/1742T120318/clean_data/total_summary.csv
-awk 'FNR==1 && NR!=1{next;}{print}' ./build/batch/bp_hypotherma/1203018_long/1743T120318/clean_data/summary_distances_*.csv > ./build/batch/bp_hypotherma/1203018_long/1743T120318/clean_data/total_summary.csv
-awk 'FNR==1 && NR!=1{next;}{print}' ./build/batch/bp_hypotherma/1203018_long/1744T120318/clean_data/summary_distances_*.csv > ./build/batch/bp_hypotherma/1203018_long/1744T120318/clean_data/total_summary.csv
-awk 'FNR==1 && NR!=1{next;}{print}' ./build/batch/bp_hypotherma/1203018_long/1745T120318/clean_data/summary_distances_*.csv > ./build/batch/bp_hypotherma/1203018_long/1745T120318/clean_data/total_summary.csv
-
-# workon python3
-# python results_processing_120318.py /build/batch/bp_hypothermia/1203018_long /examples/configuration_files/bp_hypothermia_batch.json

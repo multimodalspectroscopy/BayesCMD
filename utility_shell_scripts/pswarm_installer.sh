@@ -9,6 +9,6 @@ wget http://www.norg.uminho.pt/aivaz/pswarm/software/PPSwarm_v1_5.zip -O \
     cd ./PPSwarm_v1_5 && \
     make py && \
 
-    cp pswarm_py.so ../batch/pylib/ && \
+    cp pswarm_py.so ../../batch/pylib/ && \
     cd .. && \
 rm -r PPSwarm_v1_5
