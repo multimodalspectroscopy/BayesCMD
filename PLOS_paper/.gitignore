@@ -1,6 +1,0 @@
-# Don't upload figures or results files
-*.png
-results.txt
-*.input
-*.out
-*/.ipynb_checkpoints/*

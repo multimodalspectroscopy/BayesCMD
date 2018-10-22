@@ -1,5 +1,0 @@
-set datafile separator ","
-set style line 1 lc rgb '#0080ff' lt 1 lw 2 pt 7 ps 1.5
-set style line 2 lc rgb '#ff3333' lt 1 lw 2 pt 7 ps 1.5
-set style line 3 lc rgb '#33ff33' lt 1 lw 2 pt 7 ps 1.5
-plot "hx01.csv" using 6 with linespoints ls 1, "BS_0_0.csv" using 2 with linespoints ls 2, "hx01_611.csv" using 5 with linespoints ls 3
