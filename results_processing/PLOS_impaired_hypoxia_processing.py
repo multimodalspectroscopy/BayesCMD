@@ -14,7 +14,30 @@ from bayescmd.abc import priors_creator
 from bayescmd.util import findBaseDir
 import json
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from PIL import Image
+from io import BytesIO
+mpl.rc('figure', dpi=400)
 from distutils import dir_util
+def TIFF_exporter(fig, fname, fig_dir = '.', extra_artists=()):
+    """
+    Parameters
+    ----------
+    fig: matplotlib figure
+    """
+    
+    # save figure
+    # (1) save the image in memory in PNG format
+    png1 = BytesIO()
+    fig.savefig(png1, format='png', bbox_extra_artists=extra_artists)
+
+    # (2) load this image into PIL
+    png2 = Image.open(png1)
+
+    # (3) save as TIFF
+    png2.save(os.path.join(fig_dir,'{}.tiff'.format(fname)))
+    png1.close()
+    return True
 
 BASEDIR = os.path.abspath(findBaseDir('BayesCMD'))
 
@@ -123,17 +146,18 @@ for d in distances:
     #     config["offset"]["{}_offset".format(t)] = d0[t][0]
     fig, ax = plot_repeated_outputs(sorted_results, n_repeats=25, limit=lim,
                                 distance=d, **config)
-    for i, u in enumerate([" (%)", " ($\mu M$)", " ($\mu M$)", " ($\mu M$)"]):
-        ax[i].set_ylabel(ax[i].get_ylabel()+u)
+    for i, label in enumerate(["{} (%)", "$\Delta${} ($\mu M$)", "$\Delta${} ($\mu M$)", "$\Delta${} ($\mu M$)"]):
+        ax[i].set_ylabel(label.format(ax[i].get_ylabel()))
     
     for i, y_lim in enumerate([(35,80), (-1.1, 0.1), (-2, 30), (-25, 2)]):
         ax[i].set_ylim(y_lim)
 
     fig.set_size_inches(18.5, 12.5)
-    fig.savefig(
-        os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
-                        .format(str(lim).replace('.', '_'), d)),
-        dpi=100)
+    # fig.savefig(
+    #     os.path.join(figPath, 'PLOS_impaired_{}_{}_TS.png'
+    #                     .format(str(lim).replace('.', '_'), d)),
+    #     dpi=100)
+    TIFF_exporter(fig, 'PLOS_impaired_{}_{}_TS'.format(str(lim).replace('.', '_'), d), fig_dir=figPath)
     plt.close('all')
 
 # TODO: Fix issue with plot formatting, cutting off axes etc
