@@ -1,29 +1,25 @@
+from ..util import findBaseDir
+from ..bcmdModel import ModelBCMD
+import matplotlib.pyplot as plt
+import pandas as pd
+import itertools
+import numpy as np
+from datetime import datetime
+import distutils.dir_util
+from subprocess import TimeoutExpired
+import argparse
+import csv
+import json
+import os
 """Class to run model once."""
 
 # import sys and os
-import sys
-sys.path.append('..')
-import os
-#os.environ['BASEDIR'] = 'BayesCMD'
-# import non custom packages
-import json
-import csv
-import argparse
-from subprocess import TimeoutExpired
-import distutils.dir_util
-from datetime import datetime
-import numpy as np
-import itertools
+# import sys
+# sys.path.append('..')
+os.environ['BASEDIR'] = 'BayesCMD'
 
-import pandas as pd
-import matplotlib.pyplot as plt
-# import bayescmd
-from bayescmd.bcmdModel import ModelBCMD
-import bayescmd.abc as abc
-from bayescmd.util import findBaseDir
 
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
-print(BASEDIR)
 
 
 class RunSteadyState:
