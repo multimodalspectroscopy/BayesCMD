@@ -1,7 +1,6 @@
 # custom distance functions for use with abc-sysbio and the BCMD batch scripts
 import numpy
 import numpy.linalg
-from dtaidistance import dtw
 # how do we deal with non-numeric results?
 # in some cases, client code may want to change this in order to get
 # wrong but pragmatic results (yes, this is a hack)
@@ -143,30 +142,7 @@ def nrmse(data1, data2):
     return substitute(d)
 
 
-def dtw_distance(data1, data2):
-    # Assumes data1 is true/measured data
-    data1 = numpy.array(data1)
-    data2 = numpy.array(data2)
-
-    # try:
-    #     data1.shape[1]
-    # except IndexError:
-    #     print("Reshaping data1 to have 2 dimensions")
-    #     data1 = data1.reshape((-1, 1))
-    #
-    # try:
-    #     data2.shape[1]
-    # except IndexError:
-    #     print("Reshaping data2 to have 2 dimensions")
-    #     data2 = data2.reshape((-1, 1))
-
-    d = dtw.distance_fast(numpy.array(data1, dtype=numpy.double),
-                          numpy.array(data2, dtype=numpy.double))
-
-    return substitute(d)
-
-
-## Eucidean distance between minima
+# Eucidean distance between minima
 def minima_distance(data1, data2):
 
     min_1 = numpy.min(data1)
@@ -177,7 +153,7 @@ def minima_distance(data1, data2):
     return substitute(d)
 
 
-## Euclidean distance between maxima
+# Euclidean distance between maxima
 
 def maxima_distance(data1, data2):
 
@@ -188,7 +164,8 @@ def maxima_distance(data1, data2):
 
     return substitute(d)
 
-## Euclidean distance between largest inflection point
+# Euclidean distance between largest inflection point
+
 
 def inflection_distance(data1, data2):
 
@@ -203,11 +180,10 @@ def inflection_distance(data1, data2):
     else:
         d = euclidean((min_1-data1[0]), (min_2-data2[0]))
 
-
     return substitute(d)
 
 
-## Scaled Eucidean distance between minima
+# Scaled Eucidean distance between minima
 def scaled_minima_distance(data1, data2):
 
     rng = numpy.max(data1) - numpy.min(data1)
@@ -220,7 +196,7 @@ def scaled_minima_distance(data1, data2):
     return substitute(d)
 
 
-## Scaled Euclidean distance between maxima
+# Scaled Euclidean distance between maxima
 
 def scaled_maxima_distance(data1, data2):
 
@@ -233,7 +209,7 @@ def scaled_maxima_distance(data1, data2):
     return substitute(d)
 
 
-## Scaled Euclidean distance between largest inflection point
+# Scaled Euclidean distance between largest inflection point
 
 def scaled_inflection_distance(data1, data2):
 
@@ -248,6 +224,5 @@ def scaled_inflection_distance(data1, data2):
         d = euclidean((max_1-data1[0])/rng, (max_2-data2[0])/rng)
     else:
         d = euclidean((min_1-data1[0])/rng, (min_2-data2[0])/rng)
-
 
     return substitute(d)
