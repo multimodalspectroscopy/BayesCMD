@@ -624,8 +624,8 @@ def output_results(jobs, results, config, intermediate=False):
 def reorder_by_x(unordered_array, x_var_array):
     new_idx = np.argsort(x_var_array)
     reordered_array = unordered_array[new_idx]
-
-    return reordered_array
+    reordered_x = x_var_array[new_idx]
+    return reordered_array, reordered_x
 
 # do postprocessing on the simulation results
 # -- ie, for each output, calculate distance metric and then work out sensitivity or hessian
@@ -655,11 +655,11 @@ def postproc(jobs, results, config):
                         if input_data['name'] = config['x_variable']:
                             x_var = input_data['points']
                             continue
-                    cv_target_reordered = reorder_by_x(cv['target'], x_var)
-                    results_reordered = reorder_by_x(results[job, rep, :, species], x_var)
+                    cv_target_reordered, cv_reordered_x = reorder_by_x(cv['target'], x_var)
+                    results_reordered, results_reordered_x = reorder_by_x(results[job, rep, :, species], x_var)
+                    x_vals = (cv_reordered_x, results_reordered_x)
 
-
-                    dist = config['distance'](cv_target_reordered, results_reordered)
+                    dist = config['distance'](cv_target_reordered, results_reordered, *x_vals)
                 else:
                     dist = config['distance'](cv['target'], results[job, rep,:, species])
                 cv['distances'].append(dist)

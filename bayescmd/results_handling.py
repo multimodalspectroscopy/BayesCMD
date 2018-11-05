@@ -265,7 +265,8 @@ def histogram_plot(df, distance='euclidean', frac=None, limit=None, tolerance=No
 
     if tolerance:
         accepted_limit = sum(df[distance].values < tolerance)
-        print("For a tolerance of {}, we use {} particles.".format(tolerance, accepted_limit))
+        print("For a tolerance of {}, we use {} particles.".format(
+            tolerance, accepted_limit))
     elif limit:
         accepted_limit = limit
     elif frac:
@@ -526,7 +527,6 @@ def kde_plot(df,
     else:
         raise ValueError('No tolerance, limit or fraction given.')
 
-    
     sorted_df['Accepted'] = np.zeros(len(sorted_df))
     sorted_df['Accepted'].iloc[:accepted_limit] = 1
     sorted_df['Accepted'][sorted_df[d] == 100000] = 2
@@ -953,7 +953,8 @@ def single_kde_plot(df,
         if true_medians:
             lines.append(('True Value', mlines.Line2D([], [], color='green')))
         if openopt_medians:
-            lines.append(('OpenOpt Median', mlines.Line2D([], [], color='red')))
+            lines.append(
+                ('OpenOpt Median', mlines.Line2D([], [], color='red')))
         lines.append(('ABC Median', mlines.Line2D([], [], color='black')))
 
         fig.legend(labels=[l[0] for l in lines],
@@ -1122,7 +1123,7 @@ def plot_repeated_outputs(df,
     input_data = abc.inputParse(d0, inputs)
 
     true_data = pd.read_csv(input_path)
-    times = true_data['t'].as_matrix()
+    times = true_data['t'].values
 
     if openopt_path:
         openopt_data = pd.read_csv(openopt_path)
@@ -1137,7 +1138,7 @@ def plot_repeated_outputs(df,
             file=sys.stderr)
         raise e
 
-    posteriors = sorted_df.iloc[:accepted_limit][p_names].as_matrix()
+    posteriors = sorted_df.iloc[:accepted_limit][p_names].values
     while len(outputs_list) < n_repeats:
         idx = rand_selection.pop()
         p = dict(zip(p_names, posteriors[idx]))
@@ -1162,8 +1163,8 @@ def plot_repeated_outputs(df,
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
     with sns.plotting_context(
-            "talk", font_scale=1.6, rc={"figure.figsize": (26, 12)}):
-        fig, ax = plt.subplots(len(targets))
+            "talk", font_scale=1.6, rc={"figure.figsize": (20, 16)}):
+        fig, ax = plt.subplots(len(targets), sharex=True, dpi=400)
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
 
@@ -1185,7 +1186,8 @@ def plot_repeated_outputs(df,
             if openopt_path:
                 openopt_plot, = ax[ii].plot(
                     times, openopt_data[target], 'r', label='OpenOpt', alpha=0.75, linestyle=':')
-                openopt_line = mlines.Line2D([], [], color='r', label='OpenOpt')
+                openopt_line = mlines.Line2D(
+                    [], [], color='r', label='OpenOpt')
                 paths.append(openopt_line)
             bayes_line = mlines.Line2D(
                 [], [], color=sns.color_palette()[0], label='Bayes')
@@ -1195,18 +1197,21 @@ def plot_repeated_outputs(df,
             ax[ii].set_ylabel(r'{}'.format(target))
             ax[ii].set_xlabel('Time (sec)')
             ax[ii].title.set_fontsize(25)
-            for item in ([ax[0].xaxis.label, ax[0].yaxis.label] +
-                         ax[0].get_xticklabels() + ax[0].get_yticklabels()):
-                item.set_fontsize(22)
-        if openopt_path:
-            lgd = fig.legend(labels=['Data', 'OpenOpt', 'Posterior\nPredictive'],
-                       handles=paths, prop={"size": 20},
-                       bbox_to_anchor=(1.0, 0.6))
-        else:
-            lgd = fig.legend(labels=['Data', 'Posterior\nPredictive'],
-                       handles=paths, prop={"size": 20},
-                       bbox_to_anchor=(1.0, 0.6))
-        plt.subplots_adjust(hspace=1, right=0.825, top = 0.95)
+            for item in ([ax[ii].xaxis.label, ax[ii].yaxis.label] +
+                         ax[ii].get_xticklabels() + ax[ii].get_yticklabels()):
+                item.set_fontsize(25)
+        # if openopt_path:
+        #     lgd = fig.legend(labels=['Data', 'OpenOpt', 'Posterior Predictive'],
+        #                      handles=paths, prop={"size": 30},
+        #                      bbox_to_anchor=(0.2, 0, .62, .10), loc=3,
+        #                      ncol=3, mode="expand", borderaxespad=0.,
+        #                      columnspacing=26)
+        # else:
+        #     lgd = fig.legend(labels=['Data', 'Posterior Predictive'],
+        #                      handles=paths, prop={"size": 24},
+        #                      bbox_to_anchor=(0.2, 0, .6, .10), loc=3,
+        #                      ncol=2, mode="expand", borderaxespad=0.)
+            plt.subplots_adjust(hspace=1, right=0.95, bottom=0.15)
         # if limit:
         #     fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
         #                  format(n_repeats, limit))
