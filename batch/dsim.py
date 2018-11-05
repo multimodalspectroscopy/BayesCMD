@@ -247,7 +247,7 @@ def process_inputs(config):
     print 'Processing inputs'
 
     job = inputs.readFile(config['jobfile'])
-    print(job)
+    print "JOB: ", job
     data = inputs.readFile(config['datafile'])
 
     # there's scope for something silly to go wrong here, but for now
@@ -263,8 +263,8 @@ def process_inputs(config):
     model = job['header']['model'][0][0]
     vars = job['header']['var']
     # Check  define x_variable is an input variable.
-    if config['x_variable'] not in [var[0] for var in vars]:
-        config['x_variable'] = X_VARIABLE
+    # if config['x_variable'] not in [var[0] for var in vars]:
+    #     config['x_variable'] = X_VARIABLE
     params = job['header'].get('param', [])
 
     # params specified in external files are added after, and skipped by
@@ -651,17 +651,20 @@ def postproc(jobs, results, config):
 
                 # If using non-default x_variable, reorder by it and use this for distance.
                 if config['x_variable'] != 't':
+                    print "Using {} as x-variable".format(config['x_variable'])
                     for input_data in config['inputs']:
-                        if input_data['name'] = config['x_variable']:
+                        if input_data['name'] == config['x_variable']:
                             x_var = input_data['points']
+                            print "found x-data"
+                            print x_var
                             continue
                     cv_target_reordered, cv_reordered_x = reorder_by_x(cv['target'], x_var)
                     results_reordered, results_reordered_x = reorder_by_x(results[job, rep, :, species], x_var)
                     x_vals = (cv_reordered_x, results_reordered_x)
 
-                    dist = config['distance'](cv_target_reordered, results_reordered, *x_vals)
+                    dist = config['distance'](cv_target_reordered, results_reordered, x_vals=x_vals)
                 else:
-                    dist = config['distance'](cv['target'], results[job, rep,:, species])
+                    dist = config['distance'](cv['target'], results[job, rep,:, species], x_vals=None)
                 cv['distances'].append(dist)
                 sumdist += dist * config['weights'].get(name, 1)
             collated['TOTAL']['distances'].append(sumdist)

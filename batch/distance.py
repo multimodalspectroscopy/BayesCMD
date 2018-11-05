@@ -74,11 +74,11 @@ def cosineDistance(data1, data2, parameters, model):
 
 # -- generic distance functions that just return a scalar
 
-def euclidean(data1, data2, *x_vals):
+def euclidean(data1, data2, **kwargs):
     return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
 
 
-def cosine(data1, data2, *x_vals):
+def cosine(data1, data2, **kwargs):
     d = numpy.dot(data1, data2)
     n = numpy.linalg.norm(data1) * numpy.linalg.norm(data2)
     if n != 0:
@@ -89,7 +89,7 @@ def cosine(data1, data2, *x_vals):
         return SUBSTITUTE
 
 
-def angular(data1, data2, *x_vals):
+def angular(data1, data2, **kwargs):
     d = numpy.dot(data1, data2)
     n = numpy.linalg.norm(data1) * numpy.linalg.norm(data2)
     if n != 0:
@@ -107,7 +107,7 @@ def angular(data1, data2, *x_vals):
 # parameter uncertainty, albeit under incredibly dubious distributional assumptions...
 
 
-def loglik(data1, data2, sigma=None, *x_vals):
+def loglik(data1, data2, sigma=None, **kwargs):
     resid = data1 - data2
     T = numpy.prod(data1.shape)
     if sigma is None:
@@ -117,21 +117,21 @@ def loglik(data1, data2, sigma=None, *x_vals):
 # specialise loglik with an explicit sigma
 
 
-def loglikWithSigma(sigma, *x_vals):
+def loglikWithSigma(sigma, **kwargs):
     def f(data1, data2):
         return loglik(data1, data2, sigma)
     return f
 
 
-def manhattan(data1, data2, *x_vals):
+def manhattan(data1, data2, **kwargs):
     return substitute(numpy.sum(numpy.fabs(data1 - data2)))
 
 
-def meandist(data1, data2, *x_vals):
+def meandist(data1, data2, **kwargs):
     return substitute(numpy.sqrt(numpy.mean((data1 - data2) * (data1 - data2))))
 
 
-def nrmse(data1, data2, *x_vals):
+def nrmse(data1, data2, **kwargs):
     # Assumes data1 is true/measured data
     # Get number of time points to average over.
     n = len(data1)
@@ -144,7 +144,7 @@ def nrmse(data1, data2, *x_vals):
 
 
 # Eucidean distance between minima
-def minima_distance(data1, data2, *x_vals):
+def minima_distance(data1, data2, **kwargs):
 
     min_1 = numpy.min(data1)
     min_2 = numpy.min(data2)
@@ -156,7 +156,7 @@ def minima_distance(data1, data2, *x_vals):
 
 # Euclidean distance between maxima
 
-def maxima_distance(data1, data2, *x_vals):
+def maxima_distance(data1, data2, **kwargs):
 
     max_1 = numpy.max(data1)
     max_2 = numpy.max(data2)
@@ -168,7 +168,7 @@ def maxima_distance(data1, data2, *x_vals):
 # Euclidean distance between largest inflection point
 
 
-def inflection_distance(data1, data2, *x_vals):
+def inflection_distance(data1, data2, **kwargs):
 
     max_1 = numpy.max(data1)
     max_2 = numpy.max(data2)
@@ -185,7 +185,7 @@ def inflection_distance(data1, data2, *x_vals):
 
 
 # Scaled Eucidean distance between minima
-def scaled_minima_distance(data1, data2, *x_vals):
+def scaled_minima_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
 
@@ -199,7 +199,7 @@ def scaled_minima_distance(data1, data2, *x_vals):
 
 # Scaled Euclidean distance between maxima
 
-def scaled_maxima_distance(data1, data2, *x_vals):
+def scaled_maxima_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
     max_1 = numpy.max(data1)
@@ -212,7 +212,7 @@ def scaled_maxima_distance(data1, data2, *x_vals):
 
 # Scaled Euclidean distance between largest inflection point
 
-def scaled_inflection_distance(data1, data2, *x_vals):
+def scaled_inflection_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
     max_1 = numpy.max(data1)
@@ -229,9 +229,14 @@ def scaled_inflection_distance(data1, data2, *x_vals):
     return substitute(d)
 
 
-def pearson_r_distance(data1, data2, x_vals=None):
+def pearson_r_distance(data1, data2, **kwargs):
 
+    if 'x_vals' in kwargs.keys():
+        x_vals = kwargs['x_vals']
+    else:
+        raise ValueError("Didn't receive x-values.")
     if x_vals is None:
+        print x_vals
         raise ValueError("Didn't receive x-values.")
 
     data1_r = pearsonr(data1, x_vals[0])
