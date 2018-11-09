@@ -1,0 +1,35 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "BCMD modeldef",
+	"patterns": [{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.operator.modeldef",
+				"match": "\\b@(import|version|input|output|extern|independent)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.modeldef",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [{
+				"name": "constant.character.escape.modeldef",
+				"match": "\\\\."
+			}]
+		},
+		"comments": {
+			"patterns": [{
+				"name": "comment.line.number-sign.modeldef",
+				"begin": "(?x)\n  (?:\n    \\# \\s* (type:)\n    \\s*+ (?# we want `\\s*+` which is possessive quantifier since\n             we do not actually want to backtrack when matching\n             whitespace here)\n    (?! $ | \\#)\n  )\n",
+				"end": "(?:$|(?=\\#))"
+			}]
+		}
+	}
+}

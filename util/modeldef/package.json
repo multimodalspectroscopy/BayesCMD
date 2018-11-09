@@ -1,0 +1,26 @@
+{
+    "name": "modeldef",
+    "displayName": "modeldef",
+    "description": "BCMD modeldef code highlighting",
+    "version": "0.0.1",
+    "publisher": "BCMD",
+    "engines": {
+        "vscode": "^1.28.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "modeldef",
+            "aliases": ["BCMD modeldef", "modeldef"],
+            "extensions": [".modeldef"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "modeldef",
+            "scopeName": "text",
+            "path": "./syntaxes/modeldef.tmLanguage.json"
+        }]
+    }
+}
