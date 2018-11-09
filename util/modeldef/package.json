@@ -19,7 +19,7 @@
         }],
         "grammars": [{
             "language": "modeldef",
-            "scopeName": "text",
+            "scopeName": "text.modeldef",
             "path": "./syntaxes/modeldef.tmLanguage.json"
         }]
     }
