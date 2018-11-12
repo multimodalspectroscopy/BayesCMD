@@ -168,7 +168,7 @@ def process_args():
         config['build'] = args.build
     else:
         config['build'] = BUILD
-
+    
     if args.outdir:
         config['work'] = args.outdir
     # otherwise leave as None and concoct after reading job file
@@ -315,6 +315,7 @@ def process_inputs(config):
     config['sensitivities'] = os.path.join(workdir, config['sensitivities'])
     config['info'] = os.path.join(workdir, config['info'])
 
+    print(config['program'])
     if not os.path.isfile(config['program']):
         raise Exception("model executable '%s' does not exist" % config['program'])
 
