@@ -110,7 +110,7 @@ CBF := CBFn
 ## ~ $\mu$M
 ## $\Delta{}oxCCO$
 ## + NIRS Measurement
-CCO = CCO_offset+1000.0*Vol_mit*((1-df)*a-a_n)
+CCO = 1000.0*Vol_mit*((1-df)*a-a_n)
 
 ## Rate of cerebral oxygen metabolism.
 ## ~ mM s$^{-1}$
@@ -141,31 +141,6 @@ C_NADH = Z/2.0*log10(1.0/NADNADHrat)
 ## $\Delta{}G$
 ## + Metabolism
 DGp = Gp0 + Z*Fdy*log10(gp)
-
-## Change in total deoxygenated haemoglobin signal measured by NIRS
-## ~ $\mu$M
-## $\Delta{}HHb$
-## + NIRS Measurement
-DHHb = DHHb_offset + HHb-HHbn
-
-## Change in total oxygenated haemoglobin signal measured by NIRS
-## ~ $\mu$M
-## $\Delta{}HbO_2$
-## + NIRS Measurement
-DHbO2 = DHbO2_offset + HbO2-HbO2n
-
-## Change in total haemoglobin as measured by NIRS
-## ~ $\mu$M
-## $\Delta{}HbT$
-## + NIRS Measurement
-DHbT = DHbT_offset + HbT-HbTn
-
-## Change in Hbdiff signal as measured by NIRS
-## ~ $\mu$M
-## $\Delta{}HbD$
-## + NIRS Measurement
-DHbdiff = DHbdiff_offset + (DHbO2 - DHHb)
-
 
 ## Proton motive force across the mitochondrial inner membrane.
 ## ~ mV
@@ -217,6 +192,12 @@ HbO2 := HbO2n
 ## + NIRS Measurement
 HbT = (Vol_art+Vol_ven)*Xtot/4.0*blood_frac*1000.0
 HbT := HbTn
+
+## Absolute Hbdiff signal as measured by NIRS
+## ~ $\mu$M
+## $HbD$
+## + NIRS Measurement
+Hbdiff = HbO2 - HHb
 
 ## Rate at which oxygen is supplied to the mitochondria, minimum of diffusion rate and delivery rate
 ## ~ $mM s^{-1}$
@@ -1451,12 +1432,6 @@ C_buffi := 0.022
 ## + Metabolism
 C_buffic := 0.025
 
-## An arbitrary baseline offset to the CCO signal
-## ~ $\mu M$
-## $\Delta{}oxCCO_{offset}$
-## + Measurement NIRS
-CCO_offset := 0.0
-
 ## Fraction of blood normally passing through carotid arteries
 ## ~ dimensionless
 ## $occ_frac}$
@@ -1510,30 +1485,6 @@ CVinh := 1.0
 ## $CCO_{tis}$
 ## + Metabolism
 cytox_tot_tis := 0.0022
-
-## An arbitrary baseline offset to the Hbdiff signal
-## ~ $\mu M$
-## $\Delta{}Hbdiff_{offset}$
-## + Measurement NIRS
-DHbdiff_offset := 0.0
-
-## An arbitrary baseline offset to the HbO$_2$ signal
-## ~ $\mu M$
-## $\Delta{}HbO_2_{offset}$
-## + Measurement NIRS
-DHbO2_offset := 0.0
-
-## An arbitrary baseline offset to the HbT signal
-## ~ $\mu M$
-## $\Delta{}HbT_{offset}$
-## + Measurement NIRS
-DHbT_offset := 0.0
-
-## An arbitrary baseline offset to the HHb signal
-## ~ $\mu M$
-## $\Delta{}HHb_{offset}$
-## + Measurement NIRS
-DHHb_offset := 0.0
 
 ## Difference between $\Delta{}p_{30}$ and  normal $\Delta{}p$.
 ## ~ mV
