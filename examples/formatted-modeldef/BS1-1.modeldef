@@ -137,7 +137,7 @@ CBF := CBFn
 ## ~ uM
 ## $\Delta{}oxCCO$
 ## + NIRS_cco
-CCO = CCO_offset + 1000 * Vol_mit * (a - a_n)
+CCO = 1000 * Vol_mit * (a - a_n)
 
 ## Rate of cerebral oxygen metabolism.
 ## ~ mM s$^{-1}$
@@ -440,11 +440,7 @@ CBFn := 0.0125
 ## + NIRS_blood
 CBFscale := 5000
 
-## Signal offset for the NIRS CCO measurement.
-## ~ uM
-## $\Delta{}oxCCO_{off}$
-## + NIRS_cco
-CCO_offset := 0
+
 
 ## Parameter controlling sensitivity of $k_1$ to $\Delta p$.
 ## ~ mV$^{-1}$
