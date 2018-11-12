@@ -1,7 +1,8 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "BCMD modeldef",
-	"patterns": [{
+	"patterns": [
+		{
 			"include": "#keywords"
 		},
 		{
@@ -16,7 +17,6 @@
 	],
 	"repository": {
 		"keywords": {
-
 			"name": "keyword.control.modeldef",
 			"match": "^@(import|version|input|output|extern|independent)\\b"
 		},
@@ -24,61 +24,78 @@
 			"name": "string.quoted.double.modeldef",
 			"begin": "\"",
 			"end": "\"",
-			"patterns": [{
-				"name": "constant.character.escape.modeldef",
-				"match": "\\\\."
-			}]
+			"patterns": [
+				{
+					"name": "constant.character.escape.modeldef",
+					"match": "\\\\."
+				}
+			]
 		},
 		"comments": {
 			"name": "comment.line.number-sign.modeldef",
-			"match": "(^|\\s+?)((#{1}(?=[^#]))(\\s*?))$"
+			"match": "#\\s+.+"
 		},
 		"documentation": {
 			"name": "comment.block.documentation.modeldef",
 			"match": "^(#{2})(\\s+.*?)$",
 			"captures": {
-					"1": {
-						"name": "punctuation.definition.documentation.modeldef"
-					},
-					"2": {
-						"patterns": [{
-								"match": "(\\s+\\+{1})(\\s+[\\S[^#]].*)",
-								"captures": {
-									"1": {"name": "punctuation.compartment.modeldef"},
-									"2": {"name": "string.unquoted.modeldef"}
+				"1": {
+					"name": "punctuation.definition.documentation.modeldef"
+				},
+				"2": {
+					"patterns": [
+						{
+							"match": "(\\s+\\+{1})(\\s+[\\S[^#]].*)",
+							"captures": {
+								"1": {
+									"name": "punctuation.compartment.modeldef"
 								},
-								"name": "comment.block.documentation.compartment.modeldef"
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
 							},
-							{
-								"match": "(\\s+)(?=[^~\\$\\+])([\\S[^#]].*)",
-								"captures": {
-									"2": {"name": "string.unquoted.modeldef"}
-								},
-								"name": "comment.block.documentation.definition.modeldef"
-
+							"name": "comment.block.documentation.compartment.modeldef"
+						},
+						{
+							"match": "(\\s+)(?=[^~\\$\\+])([\\S[^#]].*)",
+							"captures": {
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
 							},
-							{
-								"match": "(\\s+~{1})(\\s+[\\S[^#]].*)",
-								"captures": {
-									"1": {"name": "punctuation.units.modeldef"},
-									"2": {"name": "string.unquoted.modeldef"}
+							"name": "comment.block.documentation.definition.modeldef"
+						},
+						{
+							"match": "(\\s+~{1})(\\s+[\\S[^#]].*)",
+							"captures": {
+								"1": {
+									"name": "punctuation.units.modeldef"
 								},
-								"name": "comment.block.documentation.units.modeldef"
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
 							},
-							{
-								"match": "(\\s+\\${1})(\\s*[\\S[^#]].*)(\\${1})",
-								"captures": {
-									"1": {"name": "punctuation.symbol.modeldef"},
-									"2": {"name": "string.unquoted.modeldef"},
-									"3": {"name": "punctuation.symbol.modeldef"}
+							"name": "comment.block.documentation.units.modeldef"
+						},
+						{
+							"match": "(\\s+\\${1})(\\s*[\\S[^#]].*)(\\${1})",
+							"captures": {
+								"1": {
+									"name": "punctuation.symbol.modeldef"
 								},
-								"name": "comment.block.documentation.symbol.modeldef"
-							}
-
-						]
-					}
+								"2": {
+									"name": "string.unquoted.modeldef"
+								},
+								"3": {
+									"name": "punctuation.symbol.modeldef"
+								}
+							},
+							"name": "comment.block.documentation.symbol.modeldef"
+						}
+					]
 				}
 			}
+		}
 	},
 	"scopeName": "text.modeldef"
 }
