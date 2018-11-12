@@ -1,0 +1,35 @@
+{
+    "name": "input",
+    "displayName": "input",
+    "description": "Syntax for the bcmd input files",
+    "version": "0.0.1",
+    "publisher": "BCMD",
+    "engines": {
+        "vscode": "^1.28.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "input",
+                "aliases": [
+                    "BCMD input",
+                    "input"
+                ],
+                "extensions": [
+                    ".input"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "input",
+                "scopeName": "text.input",
+                "path": "./syntaxes/input.tmLanguage.json"
+            }
+        ]
+    }
+}
