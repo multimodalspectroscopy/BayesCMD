@@ -1,0 +1,101 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "BCMD modeldef",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#documentation"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"name": "keyword.control.modeldef",
+			"match": "^@(import|version|input|output|extern|independent)\\b"
+		},
+		"strings": {
+			"name": "string.quoted.double.modeldef",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.modeldef",
+					"match": "\\\\."
+				}
+			]
+		},
+		"comments": {
+			"name": "comment.line.number-sign.modeldef",
+			"match": "#\\s+.+"
+		},
+		"documentation": {
+			"name": "comment.block.documentation.modeldef",
+			"match": "^(#{2})(\\s+.*?)$",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.documentation.modeldef"
+				},
+				"2": {
+					"patterns": [
+						{
+							"match": "(\\s+\\+{1})(\\s+[\\S[^#]].*)",
+							"captures": {
+								"1": {
+									"name": "punctuation.compartment.modeldef"
+								},
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
+							},
+							"name": "comment.block.documentation.compartment.modeldef"
+						},
+						{
+							"match": "(\\s+)(?=[^~\\$\\+])([\\S[^#]].*)",
+							"captures": {
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
+							},
+							"name": "comment.block.documentation.definition.modeldef"
+						},
+						{
+							"match": "(\\s+~{1})(\\s+[\\S[^#]].*)",
+							"captures": {
+								"1": {
+									"name": "punctuation.units.modeldef"
+								},
+								"2": {
+									"name": "string.unquoted.modeldef"
+								}
+							},
+							"name": "comment.block.documentation.units.modeldef"
+						},
+						{
+							"match": "(\\s+\\${1})(\\s*[\\S[^#]].*)(\\${1})",
+							"captures": {
+								"1": {
+									"name": "punctuation.symbol.modeldef"
+								},
+								"2": {
+									"name": "string.unquoted.modeldef"
+								},
+								"3": {
+									"name": "punctuation.symbol.modeldef"
+								}
+							},
+							"name": "comment.block.documentation.symbol.modeldef"
+						}
+					]
+				}
+			}
+		}
+	},
+	"scopeName": "text.modeldef"
+}
