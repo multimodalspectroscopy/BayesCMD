@@ -651,12 +651,9 @@ def postproc(jobs, results, config):
 
                 # If using non-default x_variable, reorder by it and use this for distance.
                 if config['x_variable'] != 't':
-                    print "Using {} as x-variable".format(config['x_variable'])
                     for input_data in config['inputs']:
                         if input_data['name'] == config['x_variable']:
                             x_var = input_data['points']
-                            print "found x-data"
-                            print x_var
                             continue
                     cv_target_reordered, cv_reordered_x = reorder_by_x(cv['target'], x_var)
                     results_reordered, results_reordered_x = reorder_by_x(results[job, rep, :, species], x_var)
