@@ -1,6 +1,7 @@
 # custom distance functions for use with abc-sysbio and the BCMD batch scripts
 import numpy
 import numpy.linalg
+from scipy.stats import pearsonr
 # how do we deal with non-numeric results?
 # in some cases, client code may want to change this in order to get
 # wrong but pragmatic results (yes, this is a hack)
@@ -73,11 +74,11 @@ def cosineDistance(data1, data2, parameters, model):
 
 # -- generic distance functions that just return a scalar
 
-def euclidean(data1, data2):
+def euclidean(data1, data2, **kwargs):
     return substitute(numpy.sqrt(numpy.sum((data1 - data2) * (data1 - data2))))
 
 
-def cosine(data1, data2):
+def cosine(data1, data2, **kwargs):
     d = numpy.dot(data1, data2)
     n = numpy.linalg.norm(data1) * numpy.linalg.norm(data2)
     if n != 0:
@@ -88,7 +89,7 @@ def cosine(data1, data2):
         return SUBSTITUTE
 
 
-def angular(data1, data2):
+def angular(data1, data2, **kwargs):
     d = numpy.dot(data1, data2)
     n = numpy.linalg.norm(data1) * numpy.linalg.norm(data2)
     if n != 0:
@@ -106,7 +107,7 @@ def angular(data1, data2):
 # parameter uncertainty, albeit under incredibly dubious distributional assumptions...
 
 
-def loglik(data1, data2, sigma=None):
+def loglik(data1, data2, sigma=None, **kwargs):
     resid = data1 - data2
     T = numpy.prod(data1.shape)
     if sigma is None:
@@ -116,21 +117,21 @@ def loglik(data1, data2, sigma=None):
 # specialise loglik with an explicit sigma
 
 
-def loglikWithSigma(sigma):
+def loglikWithSigma(sigma, **kwargs):
     def f(data1, data2):
         return loglik(data1, data2, sigma)
     return f
 
 
-def manhattan(data1, data2):
+def manhattan(data1, data2, **kwargs):
     return substitute(numpy.sum(numpy.fabs(data1 - data2)))
 
 
-def meandist(data1, data2):
+def meandist(data1, data2, **kwargs):
     return substitute(numpy.sqrt(numpy.mean((data1 - data2) * (data1 - data2))))
 
 
-def nrmse(data1, data2):
+def nrmse(data1, data2, **kwargs):
     # Assumes data1 is true/measured data
     # Get number of time points to average over.
     n = len(data1)
@@ -143,7 +144,7 @@ def nrmse(data1, data2):
 
 
 # Eucidean distance between minima
-def minima_distance(data1, data2):
+def minima_distance(data1, data2, **kwargs):
 
     min_1 = numpy.min(data1)
     min_2 = numpy.min(data2)
@@ -155,7 +156,7 @@ def minima_distance(data1, data2):
 
 # Euclidean distance between maxima
 
-def maxima_distance(data1, data2):
+def maxima_distance(data1, data2, **kwargs):
 
     max_1 = numpy.max(data1)
     max_2 = numpy.max(data2)
@@ -167,7 +168,7 @@ def maxima_distance(data1, data2):
 # Euclidean distance between largest inflection point
 
 
-def inflection_distance(data1, data2):
+def inflection_distance(data1, data2, **kwargs):
 
     max_1 = numpy.max(data1)
     max_2 = numpy.max(data2)
@@ -184,7 +185,7 @@ def inflection_distance(data1, data2):
 
 
 # Scaled Eucidean distance between minima
-def scaled_minima_distance(data1, data2):
+def scaled_minima_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
 
@@ -198,7 +199,7 @@ def scaled_minima_distance(data1, data2):
 
 # Scaled Euclidean distance between maxima
 
-def scaled_maxima_distance(data1, data2):
+def scaled_maxima_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
     max_1 = numpy.max(data1)
@@ -211,7 +212,7 @@ def scaled_maxima_distance(data1, data2):
 
 # Scaled Euclidean distance between largest inflection point
 
-def scaled_inflection_distance(data1, data2):
+def scaled_inflection_distance(data1, data2, **kwargs):
 
     rng = numpy.max(data1) - numpy.min(data1)
     max_1 = numpy.max(data1)
@@ -224,5 +225,23 @@ def scaled_inflection_distance(data1, data2):
         d = euclidean((max_1-data1[0])/rng, (max_2-data2[0])/rng)
     else:
         d = euclidean((min_1-data1[0])/rng, (min_2-data2[0])/rng)
+
+    return substitute(d)
+
+
+def pearson_r_distance(data1, data2, **kwargs):
+
+    if 'x_vals' in kwargs.keys():
+        x_vals = kwargs['x_vals']
+    else:
+        raise ValueError("Didn't receive x-values.")
+    if x_vals is None:
+        print x_vals
+        raise ValueError("Didn't receive x-values.")
+
+    data1_r = pearsonr(data1, x_vals[0])
+    data2_r = pearsonr(data2, x_vals[1])
+
+    d = euclidean(data1_r[0], data2_r[0])
 
     return substitute(d)

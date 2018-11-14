@@ -44,6 +44,7 @@ INTERFERENCE = 4
 SAVE_INTERVAL = 100
 DISTANCE = 'euclidean'
 DELTA = 1e-6
+X_VARIABLE = 't'
 
 # suppress stray floating point warnings
 np.seterr(all='ignore')
@@ -167,7 +168,7 @@ def process_args():
         config['build'] = args.build
     else:
         config['build'] = BUILD
-
+    
     if args.outdir:
         config['work'] = args.outdir
     # otherwise leave as None and concoct after reading job file
@@ -176,6 +177,9 @@ def process_args():
     config['dryrun'] = args.dryrun
 
     return config
+
+
+
 
 # convert a vars or params list into the required dictionary format,
 # pulling points from the data file, with alias redirection as necessary
@@ -199,6 +203,7 @@ def process_vars(vars, aliases, data):
 
         if dataname in data:
             var['points'] = np.array(data[dataname])
+
 
         if len(item) > 1:
             var['dist'] = item[1]
@@ -234,12 +239,15 @@ def process_vars(vars, aliases, data):
 
     return result
 
+
+
+
 # get job details from input files
 def process_inputs(config):
     print 'Processing inputs'
 
     job = inputs.readFile(config['jobfile'])
-    print(job)
+    print "JOB: ", job
     data = inputs.readFile(config['datafile'])
 
     # there's scope for something silly to go wrong here, but for now
@@ -254,6 +262,9 @@ def process_inputs(config):
 
     model = job['header']['model'][0][0]
     vars = job['header']['var']
+    # Check  define x_variable is an input variable.
+    # if config['x_variable'] not in [var[0] for var in vars]:
+    #     config['x_variable'] = X_VARIABLE
     params = job['header'].get('param', [])
 
     # params specified in external files are added after, and skipped by
@@ -304,6 +315,7 @@ def process_inputs(config):
     config['sensitivities'] = os.path.join(workdir, config['sensitivities'])
     config['info'] = os.path.join(workdir, config['info'])
 
+    print(config['program'])
     if not os.path.isfile(config['program']):
         raise Exception("model executable '%s' does not exist" % config['program'])
 
@@ -327,6 +339,7 @@ def process_inputs(config):
     config['divisions'] = int(job['header'].get('divisions', [[DIVISIONS]])[0][0])
     config['nbatch'] = int(job['header'].get('nbatch', [[NBATCH]])[0][0])
     config['job_mode'] = job['header'].get('job_mode', [[JOB_MODE]])[0][0]
+    config['x_variable'] = job['header'].get('x_variable', [[X_VARIABLE]])[0][0]
     config['npath'] = int(job['header'].get('npath', [[NPATH]])[0][0])
     config['jump'] = int(job['header'].get('jump', [[JUMP]])[0][0])
     config['interference'] = int(job['header'].get('interference', [[INTERFERENCE]])[0][0])
@@ -606,6 +619,15 @@ def output_results(jobs, results, config, intermediate=False):
         postproc(jobs, results, config)
 
 
+
+
+# Reorder an array by a given x variable e.g. temp instead of time.
+def reorder_by_x(unordered_array, x_var_array):
+    new_idx = np.argsort(x_var_array)
+    reordered_array = unordered_array[new_idx]
+    reordered_x = x_var_array[new_idx]
+    return reordered_array, reordered_x
+
 # do postprocessing on the simulation results
 # -- ie, for each output, calculate distance metric and then work out sensitivity or hessian
 def postproc(jobs, results, config):
@@ -627,7 +649,20 @@ def postproc(jobs, results, config):
             for species in range(results.shape[3]):
                 name = config['vars'][species]['name']
                 cv = collated[name]
-                dist = config['distance'](cv['target'], results[job, rep, :, species])
+
+                # If using non-default x_variable, reorder by it and use this for distance.
+                if config['x_variable'] != 't':
+                    for input_data in config['inputs']:
+                        if input_data['name'] == config['x_variable']:
+                            x_var = input_data['points']
+                            continue
+                    cv_target_reordered, cv_reordered_x = reorder_by_x(cv['target'], x_var)
+                    results_reordered, results_reordered_x = reorder_by_x(results[job, rep, :, species], x_var)
+                    x_vals = (cv_reordered_x, results_reordered_x)
+
+                    dist = config['distance'](cv_target_reordered, results_reordered, x_vals=x_vals)
+                else:
+                    dist = config['distance'](cv['target'], results[job, rep,:, species], x_vals=None)
                 cv['distances'].append(dist)
                 sumdist += dist * config['weights'].get(name, 1)
             collated['TOTAL']['distances'].append(sumdist)
