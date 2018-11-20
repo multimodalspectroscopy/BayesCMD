@@ -308,7 +308,7 @@ def process_inputs(config):
         workdir = os.path.join(config['build'], model, timestamp)
 
     config['name'] = model
-    config['program'] = job['header'].get('program', [[os.path.join(BUILD, model + '.model')]])[0][0]
+    config['program'] = job['header'].get('program', [[os.path.join(config['build'], model + '.model')]])[0][0]
     config['model_io'] = job['header'].get('model_io', [[os.path.join(workdir, 'model_io')]])[0][0]
     config['work'] = workdir
     config['outfile'] = os.path.join(workdir, config['outfile'])
