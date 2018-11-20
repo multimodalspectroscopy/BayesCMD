@@ -45,7 +45,7 @@ k_lac_trans,uniform,1.6,2.4,2
 k_lk2,uniform,0.0304,0.0456,0.038
 k_nADPATP,uniform,303.2,454.8,379
 k_PCrATP_eq_ef,uniform,132.8,199.2,166
-k_PCrATP_ht,uniform,1.6e-05,2.4e-05,0.00002
+k_PCrATP_ht,uniform,1.6E-05,2.4E-05,2E-05
 k_PytoLac_ht,uniform,8,12,10
 K_sigma,uniform,8,12,10
 k_unc,uniform,0.8,1.2,1
@@ -114,5 +114,6 @@ Vmax_NHE,uniform,0.0204,0.0306,0.0255
 Vol_mit,uniform,0.0536,0.0804,0.067
 Vol_totn,uniform,0.8,1.2,1
 Xtot_n,uniform,4.32,6.48,5.4
-Q_10,uniform,1.7,3.1,2.6
-df, uniform, 0,1.0,0
+temp_n,uniform,35,39,37
+Q_10,uniform,1,6,2.23
+df,uniform,0,1,0
