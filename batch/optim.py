@@ -247,7 +247,7 @@ def process_inputs(config):
 
     config['name'] = model
     config['program'] = job['header'].get(
-        'program', [[os.path.join(BUILD, model + '.model')]])[0][0]
+        'program', [[os.path.join(config['build'], model + '.model')]])[0][0]
     config['model_io'] = job['header'].get(
         'model_io', [[os.path.join(workdir, 'model_io')]])[0][0]
     config['work'] = workdir
@@ -395,6 +395,7 @@ def make_optimiser(config, model):
 def optimise(config, model, optimiser):
     x0 = [x.get('default', 0) for x in config['params']]
     return optimiser.solve(config['solver'], x0=x0, plot=0, debug=0)
+
 
 # main entry point
 # provide a job file and a data file
