@@ -35,9 +35,7 @@ from .data_import import inputParse
 from .data_import import import_actual_data
 from .distances import get_distance
 
-os.environ['BASEDIR'] = 'BayesCMD'
-
-BASEDIR = findBaseDir(os.environ['BASEDIR'])
+BASEDIR = os.environ.get('BASEDIR', findBaseDir('BayesCMD'))
 
 
 class Error(Exception):
@@ -468,7 +466,8 @@ class Batch:
                 data_length = max([len(l) for l in self.d0.values()])
                 output = {}
                 if ('t' not in self.d0.keys()) and (self.sample_rate is not None):
-                    times = [i * self.sample_rate for i in range(data_length + 1)]
+                    times = [
+                        i * self.sample_rate for i in range(data_length + 1)]
                 elif 't' in self.d0.keys():
                     times = self.d0['t']
                     if times[0] != 0:

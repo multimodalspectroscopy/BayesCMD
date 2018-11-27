@@ -35,12 +35,7 @@ from bayescmd.util import findBaseDir
 TIMEOUT = 60
 # default base directory - this should be a relative directory path
 # leading to BayesCMD/
-try:
-    BASEDIR = findBaseDir(os.environ['BASEDIR'])
-    print(os.path.abspath(BASEDIR))
-except KeyError:
-    BASEDIR = findBaseDir('BayesCMD')
-    print(os.path.abspath(BASEDIR))
+BASEDIR = os.environ.get('BASEDIR', findBaseDir('BayesCMD'))
 
 
 class ModelBCMD:
