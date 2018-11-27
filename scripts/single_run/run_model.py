@@ -1,23 +1,23 @@
+from bayescmd.util import findBaseDir
+import bayescmd.abc as abc
+from bayescmd.bcmdModel import ModelBCMD
+import itertools
+import numpy as np
+from datetime import datetime
+import distutils.dir_util
+from subprocess import TimeoutExpired
+import argparse
+import csv
+import json
+import os
 """Class to run model once."""
 
 # import sys and os
 import sys
 sys.path.append('..')
-import os
 #os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
-import json
-import csv
-import argparse
-from subprocess import TimeoutExpired
-import distutils.dir_util
-from datetime import datetime
-import numpy as np
-import itertools
 # import bayescmd
-from bayescmd.bcmdModel import ModelBCMD
-import bayescmd.abc as abc
-from bayescmd.util import findBaseDir
 
 BASEDIR = findBaseDir(os.environ['BASEDIR'])
 print(BASEDIR)
@@ -162,6 +162,7 @@ if __name__ == '__main__':
     now = datetime.now().strftime('%d%m%yT%H%M')
 
     with open(args.conf, 'r') as conf_f:
+
         config = json.load(conf_f)
 
     if args.workdir is None:

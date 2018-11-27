@@ -239,9 +239,27 @@ def pearson_r_distance(data1, data2, **kwargs):
         print x_vals
         raise ValueError("Didn't receive x-values.")
 
-    data1_r = pearsonr(data1, x_vals[0])
-    data2_r = pearsonr(data2, x_vals[1])
+    data1_r = pearsonr(x_vals[0], data1)
+    data2_r = pearsonr(x_vals[1], data2)
 
     d = euclidean(data1_r[0], data2_r[0])
+
+    return substitute(d)
+
+
+def scaled_pearson_r_distance(data1, data2, **kwargs):
+
+    if 'x_vals' in kwargs.keys():
+        x_vals = kwargs['x_vals']
+    else:
+        raise ValueError("Didn't receive x-values.")
+    if x_vals is None:
+        print x_vals
+        raise ValueError("Didn't receive x-values.")
+
+    data1_r = pearsonr(x_vals[0], data1)
+    data2_r = pearsonr(x_vals[1], data2)
+
+    d = euclidean(data1_r[0], data2_r[0])/data1_r[0]
 
     return substitute(d)
