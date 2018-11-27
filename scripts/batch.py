@@ -1,20 +1,21 @@
+from bayescmd.abc import priors_creator
+from bayescmd.util import findBaseDir
+import json
+import argparse
+import distutils.dir_util
+import pprint
+from datetime import datetime
+from bayescmd.abc import Batch
 """Run a simple hypercapnia batch using the BS model."""
 # import sys and os
 import sys
 import os
 from pathlib import Path
 sys.path.append(str(Path(os.path.abspath(__file__)).parents[1]))
-print(sys.path)
+# print(sys.path)
 sys.path.append(os.environ['HOME'] + '/BayesCMD')
-from bayescmd.abc import Batch
-from datetime import datetime
-import pprint
-import distutils.dir_util
-import argparse
-import json
-from bayescmd.util import findBaseDir
-from bayescmd.abc import priors_creator
-BASEDIR = findBaseDir('BayesCMD')
+
+BASEDIR = os.environ.get('BASEDIR', findBaseDir('BayesCMD'))
 
 # model_name = 'BS'
 # inputs = ['Pa_CO2', 'P_a', 'SaO2sup']  # Input variables
@@ -119,7 +120,7 @@ def process(conf, run_length, data_0, workdir, batch_debug=False,
         model_debug=model_debug)
 
     batchWriter.definePriors()
-    batchWriter.batchCreation(zero_flag= zero_flag)
+    batchWriter.batchCreation(zero_flag=zero_flag)
 
 
 if __name__ == '__main__':
