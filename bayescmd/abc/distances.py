@@ -12,7 +12,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 # Import DTW distance functions
-from dtaidistance import dtw
+# from dtaidistance import dtw
 # Comment this line out as it appears to be deprecated.
 # from numpy import AxisError
 
@@ -32,130 +32,130 @@ class ZeroArrayError(Error):
     pass
 
 
-def dtw_distance(data1, data2):
-    """Get the DTW distance between two numpy arrays.
+# def dtw_distance(data1, data2):
+#     """Get the DTW distance between two numpy arrays.
 
-    Parameters
-    ----------
-    data1 : np.ndarray
-        First data array.
+#     Parameters
+#     ----------
+#     data1 : np.ndarray
+#         First data array.
 
-        The shape should match that of data2 and the number of rows should
-        match the number of model outputs i.e. 2 model outputs will be two
-        rows.
+#         The shape should match that of data2 and the number of rows should
+#         match the number of model outputs i.e. 2 model outputs will be two
+#         rows.
 
-    data2 : np.ndarray
-        Second data array.
+#     data2 : np.ndarray
+#         Second data array.
 
-        The shape should match that of data1 and the number of rows should
-        match the number of model outputs i.e. 2 model outputs will be two
-        rows.
+#         The shape should match that of data1 and the number of rows should
+#         match the number of model outputs i.e. 2 model outputs will be two
+#         rows.
 
-    Returns
-    -------
-    d : float
-        DTW distance measure
-    """
+#     Returns
+#     -------
+#     d : float
+#         DTW distance measure
+#     """
 
-    try:
-        assert (data1.shape == data2.shape), 'Arrays not of equal size'
-    except AssertionError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
+#     try:
+#         assert (data1.shape == data2.shape), 'Arrays not of equal size'
+#     except AssertionError as e:
+#         print(e)
+#         print("\tData 1: ", data1.shape)
+#         print("\tData 2: ", data2.shape)
+#         raise e
 
-    try:
-        data1.shape[1]
-    except IndexError:
-        print("Reshaping data1 to have 2 dimensions")
-        data1 = data1.reshape((-1, 1))
+#     try:
+#         data1.shape[1]
+#     except IndexError:
+#         print("Reshaping data1 to have 2 dimensions")
+#         data1 = data1.reshape((-1, 1))
 
-    try:
-        data2.shape[1]
-    except IndexError:
-        print("Reshaping data2 to have 2 dimensions")
-        data2 = data2.reshape((-1, 1))
+#     try:
+#         data2.shape[1]
+#     except IndexError:
+#         print("Reshaping data2 to have 2 dimensions")
+#         data2 = data2.reshape((-1, 1))
 
-    try:
-        d = 0
-        for ii in range(len(data1)):
-            d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
-                                   np.array(data2[ii], dtype=np.double))
-    except ValueError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
+#     try:
+#         d = 0
+#         for ii in range(len(data1)):
+#             d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
+#                                    np.array(data2[ii], dtype=np.double))
+#     except ValueError as e:
+#         print(e)
+#         print("\tData 1: ", data1.shape)
+#         print("\tData 2: ", data2.shape)
+#         raise e
 
-    except TypeError as e:
-        print("Null output - distance set to None")
-        d = None
-    return d
+#     except TypeError as e:
+#         print("Null output - distance set to None")
+#         d = None
+#     return d
 
 
-def dtw_weighted_distance(data1, data2):
-    """Get the weighted DTW distance between two numpy arrays.
+# def dtw_weighted_distance(data1, data2):
+#     """Get the weighted DTW distance between two numpy arrays.
 
-    Data 2 assumed to be real/true data.
+#     Data 2 assumed to be real/true data.
 
-    Parameters
-    ----------
-    data1 : np.ndarray
-        First data array.
+#     Parameters
+#     ----------
+#     data1 : np.ndarray
+#         First data array.
 
-        The shape should match that of data2 and the number of rows should
-        match the number of model outputs i.e. 2 model outputs will be two
-        rows.
+#         The shape should match that of data2 and the number of rows should
+#         match the number of model outputs i.e. 2 model outputs will be two
+#         rows.
 
-    data2 : np.ndarray
-        Second data array.
+#     data2 : np.ndarray
+#         Second data array.
 
-        The shape should match that of data1 and the number of rows should
-        match the number of model outputs i.e. 2 model outputs will be two
-        rows.
+#         The shape should match that of data1 and the number of rows should
+#         match the number of model outputs i.e. 2 model outputs will be two
+#         rows.
 
-    Returns
-    -------
-    d : float
-        DTW distance measure
-    """
+#     Returns
+#     -------
+#     d : float
+#         DTW distance measure
+#     """
 
-    try:
-        assert (data1.shape == data2.shape), 'Arrays not of equal size'
-    except AssertionError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
+#     try:
+#         assert (data1.shape == data2.shape), 'Arrays not of equal size'
+#     except AssertionError as e:
+#         print(e)
+#         print("\tData 1: ", data1.shape)
+#         print("\tData 2: ", data2.shape)
+#         raise e
 
-    try:
-        data1.shape[1]
-    except IndexError:
-        print("Reshaping data1 to have 2 dimensions")
-        data1 = data1.reshape((-1, 1))
+#     try:
+#         data1.shape[1]
+#     except IndexError:
+#         print("Reshaping data1 to have 2 dimensions")
+#         data1 = data1.reshape((-1, 1))
 
-    try:
-        data2.shape[1]
-    except IndexError:
-        print("Reshaping data2 to have 2 dimensions")
-        data2 = data2.reshape((-1, 1))
+#     try:
+#         data2.shape[1]
+#     except IndexError:
+#         print("Reshaping data2 to have 2 dimensions")
+#         data2 = data2.reshape((-1, 1))
 
-    try:
-        d = 0
-        for ii in range(len(data1)):
-            rng = np.max(data2[ii]) - np.min(data2[ii])
-            d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
-                                   np.array(data2[ii], dtype=np.double))/rng
-    except ValueError as e:
-        print(e)
-        print("\tData 1: ", data1.shape)
-        print("\tData 2: ", data2.shape)
-        raise e
-    except TypeError as e:
-        print("Null output - distance sset to None")
-        d = None
-    return d
+#     try:
+#         d = 0
+#         for ii in range(len(data1)):
+#             rng = np.max(data2[ii]) - np.min(data2[ii])
+#             d += dtw.distance_fast(np.array(data1[ii], dtype=np.double),
+#                                    np.array(data2[ii], dtype=np.double))/rng
+#     except ValueError as e:
+#         print(e)
+#         print("\tData 1: ", data1.shape)
+#         print("\tData 2: ", data2.shape)
+#         raise e
+#     except TypeError as e:
+#         print("Null output - distance sset to None")
+#         d = None
+#     return d
 
 
 def euclidean_dist(data1, data2):
@@ -434,13 +434,13 @@ def mean_absolute_error_dist(data1, data2):
 
 DISTANCES = {
     'euclidean': euclidean_dist,
-    'manhattan': manhattan_dist,
-    'MSE': mean_square_error_dist,
+    # 'manhattan': manhattan_dist,
+    # 'MSE': mean_square_error_dist,
     'RMSE': root_mean_square_error_dist,
     'NRMSE': normalised_root_mean_square_error_dist,
-    'MAE': mean_absolute_error_dist,
-    'DTW': dtw_distance,
-    'DTW.weighted': dtw_weighted_distance
+    'MAE': mean_absolute_error_dist
+    # 'DTW': dtw_distance,
+    # 'DTW.weighted': dtw_weighted_distance
 }
 
 
