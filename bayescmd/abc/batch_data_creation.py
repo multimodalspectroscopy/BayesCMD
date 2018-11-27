@@ -420,8 +420,7 @@ class Batch:
         prec_zero = max(2, int(math.log10(self.limit / STORE_VALUE)))
         parameters = []
         outputs = []
-        distances = ['euclidean', 'manhattan', 'MSE', 'RMSE', 'NRMSE',
-                     'MAE', 'DTW', 'DTW.weighted']
+        distances = ['euclidean', 'RMSE', 'NRMSE', 'MAE']
         t_distances = ["{}_{}".format(t, dist) for t in self.targets
                        for dist in distances]
         pf = os.path.join(self.workdir, "parameters.csv")
