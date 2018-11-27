@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.append(str(Path(os.path.abspath(__file__)).parents[1]))
 # print(sys.path)
 sys.path.append(os.environ['HOME'] + '/BayesCMD')
-
+print(os.environ['BASEDIR'])
 BASEDIR = os.environ.get('BASEDIR', findBaseDir('BayesCMD'))
 
 # model_name = 'BS'
