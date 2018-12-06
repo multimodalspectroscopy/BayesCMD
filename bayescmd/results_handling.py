@@ -197,7 +197,8 @@ def data_import(pfile, nan_sub=100000, chunk_size=10000, verbose=True):
     result = pd.DataFrame()
 
     num_lines = sum(1 for line in open(pfile)) - 1
-    df = pd.read_csv(pfile, chunksize=chunk_size, index_col='ix')
+    df = pd.read_csv(pfile, chunksize=chunk_size)
+
     for chunk in df:
         chunk.fillna(nan_sub, inplace=True)
         result = result.append(chunk)
@@ -350,8 +351,8 @@ def scatter_dist_plot(df,
         for ii, ax in enumerate(g.axes.flat):
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]][1])
-            ax.set_xlim(params[p_names[ii_x]][1])
+            ax.set_ylim(tuple(params[p_names[ii_y]][1]))
+            ax.set_xlim(tuple(params[p_names[ii_x]][1]))
             xmax = params[p_names[ii_x]][1][1]
             xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax, round_sig((xmax - xmin) / n_ticks))
@@ -515,7 +516,7 @@ def kde_plot(df,
         Seaborn pairgrid object is returned in case of further formatting.
 
     """
-    p_names = list(params.keys())
+    p_names = [k for k, v in params.items() if v[0] != 'constant']
     sorted_df = df.sort_values(by=d)
 
     if tolerance:
@@ -564,8 +565,8 @@ def kde_plot(df,
                 label.set_rotation(50)
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]][1])
-            ax.set_xlim(params[p_names[ii_x]][1])
+            ax.set_ylim(tuple(params[p_names[ii_y]][1]))
+            ax.set_xlim(tuple(params[p_names[ii_x]][1]))
             xmax = params[p_names[ii_x]][1][1]
             xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax,
@@ -792,8 +793,8 @@ def comparison_kde_plot(df_list,
                 label.set_rotation(50)
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
-            ax.set_ylim(params[p_names[ii_y]][1])
-            ax.set_xlim(params[p_names[ii_x]][1])
+            ax.set_ylim(tuple(params[p_names[ii_y]][1]))
+            ax.set_xlim(tuple(params[p_names[ii_x]][1]))
             xmax = params[p_names[ii_x]][1][1]
             xmin = params[p_names[ii_x]][1][0]
             xticks = np.arange(xmin, xmax,
@@ -931,7 +932,7 @@ def single_kde_plot(df,
             label.set_rotation(50)
 
         # ax.set_ylim(params[p_names[0]][1])
-        ax.set_xlim(params[p_names[0]][1])
+        ax.set_xlim(tuple(params[p_names[0]][1]))
         xmax = params[p_names[0]][1][1]
         xmin = params[p_names[0]][1][0]
         xticks = np.arange(xmin, xmax,
