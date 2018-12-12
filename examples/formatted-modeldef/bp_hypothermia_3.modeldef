@@ -396,31 +396,31 @@ h = -r + sqrt(pow(r,2.0) + 2.0*r_0*h_0 + h_0*h_0)
 ## ~ s$^{-1}$
 ## $k_1$
 ## + Metabolism
-k1 = Q_temp_met * k10 * exp(-ck1*(Dp-Dp_n))
+k1 = Q_temp * k10 * exp(-ck1*(Dp-Dp_n))
 
 ## Forward reaction rate constant for the reduction of Cu$_A$ at normal $\Delta p$.
 ## ~ s$^{-1}$
 ## $k_{1,0}$
 ## + Metabolism
-k10 = Q_temp_met * k1_n*(NADpool/(1.0+NADNADHrat))/NADHn
+k10 = Q_temp * k1_n*(NADpool/(1.0+NADNADHrat))/NADHn
 
 ## Reaction rate constant for the reduction of a$_3$.
 ## ~ mM s$^{-1}$
 ## $k_2$
 ## + Metabolism
-k2 = Q_temp_met * k2_n*exp(-ck2*(Dp-Dp_n))
+k2 = Q_temp * k2_n*exp(-ck2*(Dp-Dp_n))
 
 ## Reverse reaction rate constant for the reduction of Cu$_A$.
 ## ~ s$^{-1}$
 ## $k_{-1}$
 ## + Metabolism
-kn1 = Q_temp_met * k1/Keq1
+kn1 = Q_temp * k1/Keq1
 
 ## Reverse reaction rate constant for the reduction of a$_3$.
 ## ~ s$^{-1}$
 ## $k_{-2}$
 ## + Metabolism
-kn2 = Q_temp_met * k2/Keq2
+kn2 = Q_temp * k2/Keq2
 
 ## Effective strength of the autoregulation reponse.
 ## ~ dimensionless
@@ -498,19 +498,19 @@ NADHcyt= (NADcytn + NADHcytn) - NADcyt
 ## ~ mM$^{-1}$s$^{-1}$
 ## $k_{MAshut}$
 ## + Metabolism
-k_MAshut = Q_temp_met*((CMRO2_n*NADHcyt)/3.0)/(NADn*_Hyn*NADHcyt - (1.0/Keq_MAshut)*NADcytn*H_n*NADH)
+k_MAshut = Q_temp*((CMRO2_n*NADHcyt)/3.0)/(NADn*_Hyn*NADHcyt - (1.0/Keq_MAshut)*NADcytn*H_n*NADH)
 
 ## Rate of backward reaction in the malate-aspartate shuttle
 ## ~ mM$^{-1}$s$^{-1}$
 ## $k^{-}_{MAshut}$
 ## + Metabolism
-k_nMAshut = Q_temp_met*((k_MAshut*NADH/NADHcyt)/Keq_MAshut)
+k_nMAshut = Q_temp*((k_MAshut*NADH/NADHcyt)/Keq_MAshut)
 
 ## Rate of forward reaction in the pyruvate lactate equlibirum
 ## ~ mM$^{-1}$s$^{-1}$
 ## $k_{pl}$
 ## + Metabolism
-k_PytoLac = Q_temp_met*((2.0*CMRglucn-CMRO2_n/3.0)+k_nPytoLac*_L0n*NADcytn)/(_Py0n*_Hyn)*(NADHcyt/NADHcytn)
+k_PytoLac = Q_temp*((2.0*CMRglucn-CMRO2_n/3.0)+k_nPytoLac*_L0n*NADcytn)/(_Py0n*_Hyn)*(NADHcyt/NADHcytn)
 
 ## Vmax of ATP use
 ## ~ mMs$^{-1}$
@@ -1010,31 +1010,31 @@ K_G = Gn/pow(r_n, 4.0)
 ## ~ mM
 ## $k_{m,ATP}$
 ## + Metabolism
-kmATP = Q_temp_met*_ATPn*km
+kmATP = Q_temp*_ATPn*km
 
 ## The $k_m$ value for ADP in the caricature of glycolysis
 ## ~ mM
 ## $k_{m,glycA}$
 ## + Metabolism
-Km_glucNA = Q_temp_met*Km_glucNAf*_ADPn
+Km_glucNA = Q_temp*Km_glucNAf*_ADPn
 
 ## The $k_m$ value for inorganic phosphate in the caricature of glycolysis
 ## ~ mM
 ## $k_{m,glycP}$
 ## + Metabolism
-Km_glucNP = Q_temp_met*Km_glucNPf*_Pn
+Km_glucNP = Q_temp*Km_glucNPf*_Pn
 
 ## The $k_m$ value for NAD in the TCA cycle
 ## ~ mM
 ## $k_{m,tcaN}$
 ## + Metabolism
-Km_NAD = Q_temp_met*Km_NADf*NADn
+Km_NAD = Q_temp*Km_NADf*NADn
 
 ## The $k_m$ value for pyruvate in the TCA cycle
 ## ~ mM
 ## $k_{m,tcaP}$
 ## + Metabolism
-Km_Py = Q_temp_met*Km_Pyf*_Py0n
+Km_Py = Q_temp*Km_Pyf*_Py0n
 
 ## Normal reverse reaction rate for the reduction of Cu$_A$.
 ## ~ s$^{-1}$
@@ -1052,13 +1052,13 @@ kn2_n = f_n/(Keq2_n*ared_n*b_n-a_n*bred_n)
 ## ~ $mM^{-1}s^{-1}$
 ## $k^{-}_{PCr}$
 ## + Metabolism
-k_nPCrATP = Q_temp_met*log(2.0)/((k_PCrATP_eq*(_PCrn+_ADPn+(_Hyn/(R_Hic)))+_Crn+_ATPn)*k_PCrATP_ht)
+k_nPCrATP = Q_temp*log(2.0)/((k_PCrATP_eq*(_PCrn+_ADPn+(_Hyn/(R_Hic)))+_Crn+_ATPn)*k_PCrATP_ht)
 
 ## The backward reaction rate in the pyruvate lactate equilibrium
 ## ~ $mM^{-1}s^{-1}$
 ## $k^{-}_{pl}$
 ## + Metabolism
-k_nPytoLac = Q_temp_met*k_PytoLac_ht
+k_nPytoLac = Q_temp*k_PytoLac_ht
 
 ## Equilibrium of the reaction in which phosphocreatine combines with ADP to give creatine and ATP
 ## ~ $mM^{-1}$
@@ -1070,7 +1070,7 @@ k_PCrATP_eq = k_PCrATP_eq_ef/_Hyn
 ## ~ $mM^{-2}s^{-1}$
 ## $k_{PCr}$
 ## + Metabolism
-k_PCrATP = Q_temp_met*log(2.0)/((_PCrn+_ADPn+(_Hyn/(R_Hic))+(_Crn+_ATPn)/k_PCrATP_eq)*k_PCrATP_ht)
+k_PCrATP = Q_temp*log(2.0)/((_PCrn+_ADPn+(_Hyn/(R_Hic))+(_Crn+_ATPn)/k_PCrATP_eq)*k_PCrATP_ht)
 
 ## Normal reaction rate of the TCA cycle
 ## ~ $mMs^{-1}$
@@ -1586,7 +1586,7 @@ k30 := 2.5e+05
 ## ~ mM$^{-1}$ s$^{-1}$
 ## $k_{AK}
 ## + Metabolism
-k_ADPATP = Q_temp_met*1055.0
+k_ADPATP = Q_temp*1055.0
 
 ## Overall functioning of autoregulatory response.
 ## ~ dimensionless
@@ -1604,19 +1604,19 @@ Keq_MAshut := 10.0
 ## ~ mM
 ## $k_{glut}$
 ## + Metabolism
-k_gluc_trans = Q_temp_met*6.2
+k_gluc_trans = Q_temp*6.2
 
 ## Km for the transport of a proton coupled with lactate in and out of the cell
 ## ~ mM
 ## $k_{MCT,H^{+}}$
 ## + Metabolism
-k_lac_h = Q_temp_met*0
+k_lac_h = Q_temp*0
 
 ## Km for the transport of lactate in and out of the cell
 ## ~ mM
 ## $k_{MCT}$
 ## + Metabolism
-k_lac_trans = Q_temp_met*2.0
+k_lac_trans = Q_temp*2.0
 
 ## Second constant controlling rate of L_lk of $\Delta{}p$
 ## ~ mV$^{-1}$
@@ -1628,49 +1628,49 @@ k_lk2 := 0.038
 ## ~ dimensionless
 ## $k_{m,ATP}$
 ## + Metabolism
-km = Q_temp_met*0.025
+km = Q_temp*0.025
 
 ## Km for ADP in glycolysis as a fraction of normal ADP concentration
 ## ~ dimensionless
 ## $k_{m,glycA,f}$
 ## + Metabolism
-Km_glucNAf = Q_temp_met*0.2
+Km_glucNAf = Q_temp*0.2
 
 ## Km for glucose in the caricature of glycolysis
 ## ~ dimensionless
 ## $k_{m,glycG}$
 ## + Metabolism
-Km_glucNgl = Q_temp_met*0.5000e-01
+Km_glucNgl = Q_temp*0.5000e-01
 
 ## Km for NAd in the caricature of glycolysis
 ## ~ dimensionless
 ## $k_{m,glycN}$
 ## + Metabolism
-Km_glucNN = Q_temp_met*0.0
+Km_glucNN = Q_temp*0.0
 
 ## Km for inorganic phosphate in glycolysis as a fraction of normal phosphate concentration
 ## ~ dimensionless
 ## $k_{m,glycP,f}$
 ## + Metabolism
-Km_glucNPf = Q_temp_met * 0.2
+Km_glucNPf = Q_temp * 0.2
 
 ## Km for NAd in the TCA cycle as a fraction of normal NAD concentration
 ## ~ dimensionless
 ## $k_{m,tcaN,f}$
 ## + Metabolism
-Km_NADf = Q_temp_met*0.6
+Km_NADf = Q_temp*0.6
 
 ## Km for pyruvatein the TCA cycle as a fraction of normal pyruvate concentration
 ## ~ dimensionless
 ## $k_{m,gtcaP,f}$
 ## + Metabolism
-Km_Pyf = Q_temp_met*0.005
+Km_Pyf = Q_temp*0.005
 
 ## Backward rate constant for the conversion of two molecules of ADP to one of ATP and one of AMP
 ## ~ mM$^{-1}$s$^{-1}$
 ## $k^{-}_{AK}
 ## + Metabolism
-k_nADPATP = Q_temp_met*379.0
+k_nADPATP = Q_temp*379.0
 
 ## Effective equilibrium constant for the reaction in which phosphocreatine combines with ADP to give creatine and ATP
 ## ~ dimensionless
