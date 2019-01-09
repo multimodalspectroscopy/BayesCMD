@@ -2081,7 +2081,7 @@ Q_10 := 2.23
 ## ~ dimensionless
 ## $k_{diff}$
 ## + Hypothermia
-k_diff = 1/temp * q_diff
+k_diff = temp/temp_n * q_diff
 k_diff > 0
 
 ## Parameter defining how much a change in temperature impacts diffusion rate parameter

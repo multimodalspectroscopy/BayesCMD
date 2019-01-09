@@ -2058,7 +2058,6 @@ Xtot_n := 5.4
 ## ~ s$^{-1}$
 ## $D_{O_{2}}$
 ## + Link
-#D_O2 = (k_diff * J_O2n)/(O2c_n-O2_n)
 D_O2 = (Q_temp_haemo * J_O2n)/(O2c_n-O2_n)
 
 
