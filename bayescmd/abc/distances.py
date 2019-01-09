@@ -546,13 +546,13 @@ def get_distance(actual_data,
                 d0.append(
                     zero_array(check_for_key(actual_data, k), zero_flag[k]))
             except (TypeError, IndexError):
-                print('Invalid Data', end="\r")
+                print('Invalid true Data')
                 return (float('NaN'))
             try:
                 d_star.append(
                     zero_array(check_for_key(sim_data, k), zero_flag[k]))
             except (TypeError, IndexError):
-                print('Invalid Data', end="\r")
+                print('Invalid simulated Data')
                 return (float('NaN'))
 
         d0 = np.array(d0)
