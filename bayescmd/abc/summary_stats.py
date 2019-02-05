@@ -29,29 +29,6 @@ class ZeroArrayError(Error):
     pass
 
 
-def zero_array(array, zero_flag):
-    """Zero an array of data with its initial values.
-
-    Parameters
-    ----------
-    array : list
-        List of data
-    zero_flags : bool
-        Boolean indicating if data needs zeroing
-    Returns
-    -------
-    zerod : list
-        Zero'd list
-
-    """
-    if zero_flag:
-        init = float(array[0])
-        zerod = [x - init for x in array]
-    else:
-        zerod = array
-    return zerod
-
-
 class SummaryStats:
     """
     Generate summary statistics from time series data.
@@ -84,22 +61,54 @@ class SummaryStats:
             'targetN': distance of Nth target
             }
     """
+    @staticmethod
+    def zero_array(array, zero_flag):
+        """Zero an array of data with its initial values.
+
+        Parameters
+        ----------
+        array : list
+            List of data
+        zero_flags : bool
+            Boolean indicating if data needs zeroing
+        Returns
+        -------
+        zerod : list
+            Zero'd list
+
+        """
+        if zero_flag:
+            init = float(array[0])
+            zerod = [x - init for x in array]
+        else:
+            zerod = array
+        return zerod
 
     def __init__(self, data, targets, zero_flag, observed_data=None):
 
-        self.d0 = {k: zero_array(data[k], zero_flag[k]) for k in targets}
+        self.d0 = {k: self.zero_array(data[k], zero_flag[k]) for k in targets}
         self.summary_stats = {k: {} for k in self.d0.keys()}
         self.autocorrelation = {k: {} for k in self.d0.keys()}
         if observed_data is not None:
-            self.residuals = {k: self.d0[k] - observed_data[k]
+            self.observed_data = observed_data
+            self.residuals = {k: np.array(self.d0[k]) - np.array(observed_data[k])
                               for k in self.d0.keys()}
             self.residual_autocorrelation = {k: {} for k in self.d0.keys()}
         else:
             self.residuals = None
+            self.observed_data = None
 
     def get_mean(self):
         for k, data in self.d0.items():
             self.summary_stats[k]['mean'] = np.mean(data)
+
+    def get_skew(self):
+        for k, data in self.d0.items():
+            self.summary_stats[k]['skewness'] = stats.skew(data)
+
+    def get_median(self):
+        for k, data in self.d0.items():
+            self.summary_stats[k]['median'] = np.median(data)
 
     def get_variance(self):
         for k, data in self.d0.items():
@@ -117,7 +126,9 @@ class SummaryStats:
             return acor
 
         for k, data in self.d0.items():
-            self.autocorrelation[k] = autocorr(data)
+            ac = autocorr(data)
+            self.autocorrelation[k] = ac
+            self.summary_stats[k]['max_ac'] = np.argmax(ac[len(ac)//2:])
 
             if self.residuals:
                 self.residual_autocorrelation[k] = autocorr(self.residuals[k])
@@ -126,6 +137,8 @@ class SummaryStats:
         self.get_mean()
         self.get_variance()
         self.get_autocorr()
+        self.get_median()
+        self.get_skew()
 
 
 if __name__ == '__main__':
