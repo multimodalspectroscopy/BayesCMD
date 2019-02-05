@@ -103,3 +103,5 @@ install-sh
 # Custom add
 parsetab.py
 .vscode/settings.json
+
+\.ipynb_checkpoints/
