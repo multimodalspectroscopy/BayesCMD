@@ -428,6 +428,7 @@ class Batch:
         header.insert(0, 'idx')
         header.extend(distances)
         header.extend(t_distances)
+        header.append('Model')
         for ii in range(self.limit):
 
             params, output = self.generateOutput()
@@ -452,7 +453,7 @@ class Batch:
                     except ValueError as error:
                         print("OUTPUT:\n", output)
                         raise error
-
+                params.append(self.model_name)
                 parameters.append(params)
                 if self.batch_debug:
                     print(
@@ -484,6 +485,10 @@ class Batch:
                 # ----- Add distances to the params dictionary ----- #
                 for dist in distances:
                     params[dist] = np.nan
+                    for t in self.targets:
+                        t_dist = "{}_{}".format(t, dist)
+                        params[t_dist] = np.nan
+                params.append(self.model_name)
                 parameters.append(params)
                 if self.batch_debug:
                     print(
