@@ -32,7 +32,7 @@ from .input_creation import InputCreator
 from bayescmd.util import findBaseDir
 
 # default timeout, in seconds
-TIMEOUT = 15
+TIMEOUT = 30
 # default base directory - this should be a relative directory path
 # leading to BayesCMD/
 BASEDIR = os.environ.get('BASEDIR', findBaseDir('BayesCMD'))
