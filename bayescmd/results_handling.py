@@ -130,30 +130,40 @@ def data_merge_by_batch(parent_directory, verbose=True):
                 os.path.join(parent_directory, d))) and d != 'archives']
     dirs = sort_human(dirs)
     if verbose:
-        print(dirs)
-    dfs = []
-    for d in dirs:
+        print("Processing %d directories" % len(dirs))
+    output_file = os.path.join(parent_directory,
+                               'all_parameters.csv')
+    # dfs = []
+
+    for ii, d in enumerate(dirs):
         try:
-            dfs.append(pd.read_csv(os.path.join(d, 'parameters.csv')))
-            ii = len(dfs) - 1
+            df = pd.read_csv(os.path.join(d, 'parameters.csv'))
+
+            # ii = len(dfs) - 1
             print("Processing parameter file {}".format(ii))
             if ii is not 0:
-                dfs[ii]['ix'] = dfs[ii].index.values + \
-                    dfs[ii - 1]['ix'].values[-1] + 1
+                df['ix'] = df.index.values + last_idx + 1
             else:
-                dfs[ii]['ix'] = dfs[ii].index.values
+                df['ix'] = df.index.values
 
             if os.path.split(d)[1].split('_')[-1].isdigit():
                 print(os.path.split(d)[1].split('_')[-1])
-                dfs[ii]['Batch'] = int(os.path.split(d)[1].split('_')[-1])
+                df['Batch'] = int(os.path.split(d)[1].split('_')[-1])
             else:
                 print("Batch number not found for {}".format(d))
                 continue
+
+            # save last index number for next go round
+            last_idx = df['ix'].values[-1]
+
+            with open(output_file, 'a') as out_f:
+                df.to_csv(out_f, header=out_f.tell() == 0, index=False)
+
         except FileNotFoundError:
             print("No parameters file in {}".format(d))
             continue
-    if verbose:
-        print("{} dataframes  to be joined".format(len(dfs)))
+    # if verbose:
+    #     print("{} dataframes  to be joined".format(len(dfs)))
     # for ii in range(len(dfs)):
         # if ii is not 0:
         #     dfs[ii]['ix'] = dfs[ii].index.values + dfs[ii - 1]['ix'].values[-1]
@@ -164,11 +174,11 @@ def data_merge_by_batch(parent_directory, verbose=True):
         #     dfs[ii]['Start Time'] = os.path.split(dirs[ii])[1][:4]
         # else:
         #     continue
-    df = pd.concat(dfs)
-    df.index = range(len(df))
-    output_file = os.path.join(parent_directory,
-                               'all_parameters.csv')
-    df.to_csv(output_file, index=False)
+    # df = pd.concat(dfs)
+    # df.index = range(len(df))
+    # output_file = os.path.join(parent_directory,
+    #                            'all_parameters.csv')
+    # df.to_csv(output_file, index=False)
 
     return output_file
 
@@ -1038,8 +1048,15 @@ def get_output(model_name,
         distance=distance.split("_")[-1],
         zero_flag=zero_flag)
 
-    for k, v in dist.items():
-        p[k] = v
+    try:
+        for k, v in dist.items():
+            p[k] = v
+    except AttributeError as e:
+        print("Error in finding distance.\n dist is {}:".format(dist))
+        pprint.pprint(p)
+        pprint.pprint(output)
+
+        raise e
 
     if zero_flag:
         for k, boolean in zero_flag.items():
@@ -1142,7 +1159,9 @@ def plot_repeated_outputs(df,
     posteriors = sorted_df.iloc[:accepted_limit][p_names].values
     while len(outputs_list) < n_repeats:
         idx = rand_selection.pop()
+        print("Sample {}, idx:{}".format(len(outputs_list), idx))
         p = dict(zip(p_names, posteriors[idx]))
+        pprint.pprint(p)
         if offset:
             p = {**p, **offset}
         output = get_output(
