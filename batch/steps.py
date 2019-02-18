@@ -287,21 +287,25 @@ def writeSequence ( seq, filename=False, comment='' ):
             assigned = False
         
         # now write the actual step
-        if step['type'] == '=':
-            assigned = True
-            file.write('= %g %g %s\n' % (step['start'], step['end'],
-                                         " ".join([("%g" % x) for x in step['setvalues']])))
-        elif step['type'] == '+':
-            file.write('+ %g %s\n' % (step['duration'],
-                                      " ".join([("%g" % x) for x in step['setvalues']])))
-        elif step['type'] == '*':
-            if not assigned:
-                print >> sys.stderr, "Warning: multi-step specified for fields without previous assignment"
-            file.write('* %d %g %s\n' % (step['n'], step['duration'],
-                                         " ".join([("%g" % x) for x in step['setvalues']])))
-        else:
-            # unknown step type, shouldn't happen but...
-            print >> sys.stderr, 'Unknown step type: %s' % step['type']
+        try:
+            if step['type'] == '=':
+                assigned = True
+                file.write('= %g %g %s\n' % (step['start'], step['end'],
+                                            " ".join([("%g" % x) for x in step['setvalues']])))
+            elif step['type'] == '+':
+                file.write('+ %g %s\n' % (step['duration'],
+                                        " ".join([("%g" % x) for x in step['setvalues']])))
+            elif step['type'] == '*':
+                if not assigned:
+                    print >> sys.stderr, "Warning: multi-step specified for fields without previous assignment"
+                file.write('* %d %g %s\n' % (step['n'], step['duration'],
+                                            " ".join([("%g" % x) for x in step['setvalues']])))
+            else:
+                # unknown step type, shouldn't happen but...
+                print >> sys.stderr, 'Unknown step type: %s' % step['type']
+        except TypeError as e:
+            print(step)
+            raise e
     
     if filename:
         file.close()
