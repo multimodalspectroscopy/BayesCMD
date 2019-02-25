@@ -176,7 +176,7 @@ def inflection_distance(data1, data2, **kwargs):
     min_1 = numpy.min(data1)
     min_2 = numpy.min(data2)
 
-    if abs(max_1) > abs(min_1):
+    if abs(max_2) > abs(min_2):
         d = euclidean((max_1-data1[0]), (max_2-data2[0]))
     else:
         d = euclidean((min_1-data1[0]), (min_2-data2[0]))
