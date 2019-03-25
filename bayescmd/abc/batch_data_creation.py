@@ -428,7 +428,7 @@ class Batch:
         header.insert(0, 'idx')
         header.extend(distances)
         header.extend(t_distances)
-        header.append('Model')
+        header.append('model_name')
         for ii in range(self.limit):
 
             params, output = self.generateOutput()
