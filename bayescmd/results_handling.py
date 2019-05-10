@@ -1183,7 +1183,7 @@ def plot_repeated_outputs(df,
         d['Outputs'][target] = [o[1][target] for o in outputs_list]
 
     with sns.plotting_context(
-            "talk", font_scale=1.6, rc={"figure.figsize": (20, 16)}):
+            "talk", rc={"figure.figsize": (7.5, 6)}):
         fig, ax = plt.subplots(len(targets), sharex=True, dpi=400)
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
@@ -1216,26 +1216,28 @@ def plot_repeated_outputs(df,
                 target, distance, d['Errors'][target]))
             ax[ii].set_ylabel(r'{}'.format(target))
             ax[ii].set_xlabel('Time (sec)')
-            ax[ii].title.set_fontsize(25)
+            ax[ii].title.set_fontsize(12)
             for item in ([ax[ii].xaxis.label, ax[ii].yaxis.label] +
                          ax[ii].get_xticklabels() + ax[ii].get_yticklabels()):
-                item.set_fontsize(25)
-        # if openopt_path:
-        #     lgd = fig.legend(labels=['Data', 'OpenOpt', 'Posterior Predictive'],
-        #                      handles=paths, prop={"size": 30},
-        #                      bbox_to_anchor=(0.2, 0, .62, .10), loc=3,
-        #                      ncol=3, mode="expand", borderaxespad=0.,
-        #                      columnspacing=26)
-        # else:
-        #     lgd = fig.legend(labels=['Data', 'Posterior Predictive'],
-        #                      handles=paths, prop={"size": 24},
-        #                      bbox_to_anchor=(0.2, 0, .6, .10), loc=3,
-        #                      ncol=2, mode="expand", borderaxespad=0.)
-            plt.subplots_adjust(hspace=1, right=0.95, bottom=0.15)
+                item.set_fontsize(10)
+        lgd = None
+        if openopt_path:
+            lgd = fig.legend(labels=['Data', 'OpenOpt', 'Posterior Predictive'],
+                             handles=paths, prop={"size": 10},
+                             bbox_to_anchor=(0.15, 0, .75, .10), loc=3,
+                             ncol=3, mode="expand", borderaxespad=0.,
+                             columnspacing=26)
+        else:
+            lgd = fig.legend(labels=['Data', 'Posterior Predictive'],
+                             handles=paths, prop={"size": 10},
+                             bbox_to_anchor=(0.2, 0, .75, .10), loc=3,
+                             ncol=2, mode="expand", borderaxespad=0.,
+                             columnspacing=26)
+        plt.subplots_adjust(hspace=0.75, right=0.95, bottom=0.15, top=0.9)
         # if limit:
         #     fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
         #                  format(n_repeats, limit))
         # elif frac:
         #     fig.suptitle("Simulated output for {} repeats using top {}% of data\n".
         #                  format(n_repeats, frac))
-    return fig, ax
+    return fig, ax, lgd
