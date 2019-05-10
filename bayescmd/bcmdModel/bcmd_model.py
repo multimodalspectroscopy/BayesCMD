@@ -340,7 +340,7 @@ class ModelBCMD:
         f_out = input_creator.initialised_creation(self.burn_in)
 
         if self.debug:
-            print(f_out.getvalue(), file=sys.stderr)
+            print(f_out.getvalue(), file=sys.stdout)
             f_out.seek(0)
 
         self.input_file = f_out.getvalue()
@@ -455,8 +455,7 @@ class ModelBCMD:
         self.output_coarse = StringIO(result.stdout.decode())
 
         if self.debug:
-            pprint.pprint(
-                'OUTPUT: ' + self.output_coarse.getvalue(), stream=sys.stderr)
+            print(self.output_coarse.getvalue(), file=sys.stderr)
             self.output_coarse.seek(0)
         return result
 
