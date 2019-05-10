@@ -18,8 +18,10 @@ sys.path.append('..')
 #os.environ['BASEDIR'] = 'BayesCMD'
 # import non custom packages
 # import bayescmd
-
-BASEDIR = findBaseDir(os.environ['BASEDIR'])
+try:
+    BASEDIR = findBaseDir(os.environ['BASEDIR'])
+except KeyError:
+    BASEDIR = findBaseDir('BayesCMD')
 print(BASEDIR)
 
 
