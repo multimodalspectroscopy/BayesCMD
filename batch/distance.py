@@ -229,7 +229,7 @@ def scaled_inflection_distance(data1, data2, **kwargs):
     return substitute(d)
 
 
-def pearson_r_distance(data1, data2, **kwargs):
+def pearsonr_distance(data1, data2, **kwargs):
 
     if 'x_vals' in kwargs.keys():
         x_vals = kwargs['x_vals']
@@ -247,7 +247,7 @@ def pearson_r_distance(data1, data2, **kwargs):
     return substitute(d)
 
 
-def scaled_pearson_r_distance(data1, data2, **kwargs):
+def scaled_pearsonr_distance(data1, data2, **kwargs):
 
     if 'x_vals' in kwargs.keys():
         x_vals = kwargs['x_vals']
@@ -261,5 +261,39 @@ def scaled_pearson_r_distance(data1, data2, **kwargs):
     data2_r = pearsonr(x_vals[1], data2)
 
     d = euclidean(data1_r[0], data2_r[0])/data1_r[0]
+
+    return substitute(d)
+
+
+def cropped_pearsonr_distance(data1, data2, **kwargs):
+
+    # Handle x_vals
+    if 'x_vals' in kwargs.keys():
+        x_vals = kwargs['x_vals']
+    else:
+        raise ValueError("Didn't receive x-values.")
+
+    if x_vals is None:
+        print x_vals
+        raise ValueError("Didn't receive x-values.")
+
+    # Crop data
+    if 'cropStart' in kwargs.keys():
+        crop_start = int(kwargs['cropStart'])
+
+    else:
+        raise ValueError("Didn't receive crop start.")
+
+    if 'cropStop' in kwargs.keys():
+        crop_stop = int(kwargs['cropStop'])
+    else:
+        raise ValueError("Didn't receive crop stop.")
+
+    data1_r = pearsonr(x_vals[0][crop_start:crop_stop],
+                       data1[crop_start:crop_stop])
+    data2_r = pearsonr(x_vals[1][crop_start:crop_stop],
+                       data2[crop_start:crop_stop])
+
+    d = euclidean(data1_r[0], data2_r[0])
 
     return substitute(d)

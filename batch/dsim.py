@@ -340,6 +340,8 @@ def process_inputs(config):
     config['nbatch'] = int(job['header'].get('nbatch', [[NBATCH]])[0][0])
     config['job_mode'] = job['header'].get('job_mode', [[JOB_MODE]])[0][0]
     config['x_variable'] = job['header'].get('x_variable', [[X_VARIABLE]])[0][0]
+    config['cropStart'] = job['header'].get('cropStart', [[None]])[0][0]
+    config['cropStop'] = job['header'].get('cropStop', [[None]])[0][0]
     config['npath'] = int(job['header'].get('npath', [[NPATH]])[0][0])
     config['jump'] = int(job['header'].get('jump', [[JUMP]])[0][0])
     config['interference'] = int(job['header'].get('interference', [[INTERFERENCE]])[0][0])
@@ -652,17 +654,24 @@ def postproc(jobs, results, config):
 
                 # If using non-default x_variable, reorder by it and use this for distance.
                 if config['x_variable'] != 't':
-                    for input_data in config['inputs']:
-                        if input_data['name'] == config['x_variable']:
-                            x_var = input_data['points']
-                            continue
+                    print("X_VAR is %s" % config['x_variable'])
+                    input_names = [input_data['name'] for input_data in config['inputs']]
+                    output_names = [output_data['name'] for output_data in config['vars']]
+                    print("INPUTS: ", input_names)
+                    print("OUTPUTS: ", output_names)
+                    if config['x_variable'] in input_names:
+                        x_var = [x['points'] for x in config['inputs'] if x['name'] == config['x_variable']][0]
+                    if config['x_variable'] in output_names:
+                        x_var = [x['points'] for x in config['vars'] if x['name'] == config['x_variable']][0]
+                    
+
                     cv_target_reordered, cv_reordered_x = reorder_by_x(cv['target'], x_var)
                     results_reordered, results_reordered_x = reorder_by_x(results[job, rep, :, species], x_var)
                     x_vals = (cv_reordered_x, results_reordered_x)
 
-                    dist = config['distance'](cv_target_reordered, results_reordered, x_vals=x_vals)
+                    dist = config['distance'](cv_target_reordered, results_reordered, x_vals=x_vals, cropStart=config['cropStart'], cropStop=config['cropStop'] )
                 else:
-                    dist = config['distance'](cv['target'], results[job, rep,:, species], x_vals=None)
+                    dist = config['distance'](cv['target'], results[job, rep,:, species], x_vals=None, cropStart=None, cropStop=None)
                 cv['distances'].append(dist)
                 sumdist += dist * config['weights'].get(name, 1)
             collated['TOTAL']['distances'].append(sumdist)
