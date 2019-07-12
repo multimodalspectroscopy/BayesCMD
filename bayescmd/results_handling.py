@@ -547,7 +547,7 @@ def kde_plot(df,
     kde_df = sorted_df.loc[(sorted_df['Accepted'] == plot_param), :]
     if verbose:
         print(kde_df['Accepted'].value_counts())
-    with sns.plotting_context("paper", rc={"xtick.labelsize": 10, "ytick.labelsize": 10, "axes.labelsize": 10, "figure.dpi":400}): 
+    with sns.plotting_context("paper", rc={"xtick.labelsize": 10, "ytick.labelsize": 10, "axes.labelsize": 10, "figure.dpi": 400}):
         g = sns.PairGrid(
             kde_df,
             vars=p_names,
@@ -574,14 +574,15 @@ def kde_plot(df,
         for ii, ax in enumerate(g.axes.flat):
             # for label in ax.get_xticklabels():
             #     label.set_rotation(50)
-            ax.xaxis.labelpad=7
-            ax.yaxis.labelpad=7
+            ax.xaxis.labelpad = 7
+            ax.yaxis.labelpad = 7
             ii_y = ii // len(p_names)
             ii_x = ii % len(p_names)
             ax.set_ylim(tuple(params[p_names[ii_y]][1]))
             ax.set_xlim(tuple(params[p_names[ii_x]][1]))
             ax.set_xlabel(ax.get_xlabel(), labelpad=1, rotation=30, fontsize=8)
-            ax.set_ylabel(ax.get_ylabel(), labelpad=10,rotation=40, fontsize=8)
+            ax.set_ylabel(ax.get_ylabel(), labelpad=10,
+                          rotation=40, fontsize=8)
             # xmax = params[p_names[ii_x]][1][1]
             # xmin = params[p_names[ii_x]][1][0]
             # xticks = np.arange(xmin, xmax,
@@ -601,18 +602,18 @@ def kde_plot(df,
         #                  "based on {} {}".format(
         #                      frac, d, title_dict[plot_param]),
         #                  fontsize=32)
-            
 
         lines = []
-        lines.append(('Posterior Median', mlines.Line2D([], [], color='black')))
+        lines.append(
+            ('Posterior Median', mlines.Line2D([], [], color='black')))
         if openopt_medians:
             lines.append(('OpenOpt Value', mlines.Line2D([], [], color='red')))
         if true_medians:
             lines.append(('True Value', mlines.Line2D([], [], color='green')))
 
         g.fig.legend(labels=[l[0] for l in lines],
-                 handles=[l[1] for l in lines],
-                 bbox_to_anchor=(0.35, 1), loc=2, prop={"size": 10})
+                     handles=[l[1] for l in lines],
+                     bbox_to_anchor=(0.35, 1), loc=2, prop={"size": 10})
 
         g.fig.tight_layout()
         g.fig.subplots_adjust(bottom=0.15, top=0.9)
@@ -1170,7 +1171,6 @@ def plot_repeated_outputs(df,
             idx = rand_selection.pop()
             print("Sample {}, idx:{}".format(len(outputs_list), idx))
             p = dict(zip(p_names, posteriors[idx]))
-            pprint.pprint(p)
             if offset:
                 p = {**p, **offset}
             output = get_output(
@@ -1186,10 +1186,12 @@ def plot_repeated_outputs(df,
         except (TimeoutError, TimeoutExpired) as e:
             print("Timed out for Sample {}, idx:{}".format(
                 len(outputs_list), idx))
+            pprint.pprint(p)
             rand_selection.insert(0, idx)
         except (CalledProcessError) as e:
             print("CalledProcessError for Sample {}, idx:{}".format(
                 len(outputs_list), idx))
+            pprint.pprint(p)
             rand_selection.insert(0, idx)
 
     d = {"Errors": {}, "Outputs": {}}
@@ -1201,7 +1203,8 @@ def plot_repeated_outputs(df,
 
     with sns.plotting_context(
             "talk", rc={"figure.figsize": (6, 5)}):
-        fig, ax = plt.subplots(len(targets), sharex=True, dpi=300)
+        fig, ax = plt.subplots(len(targets), sharex=True,
+                               dpi=250, figsize=(7, 5))
         if type(ax) != np.ndarray:
             ax = np.asarray([ax])
 
@@ -1233,7 +1236,7 @@ def plot_repeated_outputs(df,
                 target, distance, d['Errors'][target]))
             ax[ii].set_ylabel(r'{}'.format(target))
             ax[ii].set_xlabel('Time (sec)')
-            ax[ii].title.set_fontsize(14)
+            ax[ii].title.set_fontsize(11)
             for item in ([ax[ii].xaxis.label, ax[ii].yaxis.label] +
                          ax[ii].get_xticklabels() + ax[ii].get_yticklabels()):
                 item.set_fontsize(11)
@@ -1246,11 +1249,11 @@ def plot_repeated_outputs(df,
                              columnspacing=26)
         else:
             lgd = fig.legend(labels=['Data', 'Posterior Predictive'],
-                             handles=paths, prop={"size": 12},
-                             bbox_to_anchor=(0.2, 0, .75, .10), loc=3,
+                             handles=paths, prop={"size": 11},
+                             bbox_to_anchor=(0.2, 0.02, .6, .10), loc=3,
                              ncol=2, mode="expand", borderaxespad=0.,
-                             columnspacing=20)
-        plt.subplots_adjust(hspace=0.75, right=0.95, bottom=0.2, top=0.875)
+                             columnspacing=15)
+        plt.subplots_adjust(hspace=0.7, right=0.98, bottom=0.2, top=0.875)
         # if limit:
         #     fig.suptitle("Simulated output for {} repeats using\ntop {} parameter combinations\n".
         #                  format(n_repeats, limit))
